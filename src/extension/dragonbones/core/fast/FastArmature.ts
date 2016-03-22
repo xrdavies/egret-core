@@ -92,8 +92,8 @@ module dragonBones {
 		 */
 		public userData:any;
 		
-		
-		private _enableCache:boolean;
+		public enableCache:boolean;
+		//private _enableCache:boolean;
 		
 		/**
 		 * 保证CacheManager是独占的前提下可以开启，开启后有助于性能提高
@@ -122,7 +122,7 @@ module dragonBones {
         
 		public slotHasChildArmatureList:Array<FastSlot>;
 		
-		public _enableEventDispatch:boolean = true;
+		public enableEventDispatch:boolean = true;
 
 		public __dragonBonesData:DragonBonesData;
 		public _armatureData:ArmatureData;
@@ -538,27 +538,27 @@ module dragonBones {
 			return this._display;
 		}
 
-		public get enableCache():boolean
-		{
-			return this._enableCache;
-		}
-		public set enableCache(value:boolean)
-		{
-			this._enableCache = value;
-		}
-		
-		public get enableEventDispatch():boolean
-		{
-			return this._enableEventDispatch;
-		}
-		public set enableEventDispatch(value:boolean)
-		{
-			this._enableEventDispatch = value;
-		}
+		//public get enableCache():boolean
+		//{
+		//	return this._enableCache;
+		//}
+		//public set enableCache(value:boolean)
+		//{
+		//	this._enableCache = value;
+		//}
+		//
+		//public get enableEventDispatch():boolean
+		//{
+		//	return this._enableEventDispatch;
+		//}
+		//public set enableEventDispatch(value:boolean)
+		//{
+		//	this._enableEventDispatch = value;
+		//}
 		
 		public _addEvent(event:Event):void
 		{
-			if (this._enableEventDispatch)
+			if (this.enableEventDispatch)
 			{
 				this._eventList.push(event);
 			}			
