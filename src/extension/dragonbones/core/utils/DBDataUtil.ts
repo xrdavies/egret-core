@@ -119,10 +119,10 @@ module dragonBones {
                     }
 				}
 				
-				var frameList:Array<Frame> = timeline.frameList;
+				var frameList:Array<Frame> = timeline.getFrameList();
 				if(slotTimeline)
 				{
-					var slotFrameList:Array<Frame> = slotTimeline.frameList;
+					var slotFrameList:Array<Frame> = slotTimeline.getFrameList();
 				}
 				var originTransform:DBTransform = null;
 				var originPivot:Point = null;
@@ -283,7 +283,7 @@ module dragonBones {
 		}
 		
 		private static getTimelineTransform(timeline:TransformTimeline, position:number, retult:DBTransform, isGlobal:boolean):void{
-			var frameList:Array<Frame> = timeline.frameList;
+			var frameList:Array<Frame> = timeline.getFrameList();
 			var i:number = frameList.length;
 			
 			while(i --){

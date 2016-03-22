@@ -406,11 +406,11 @@ module dragonBones {
 		}
 		
 		private updateMainTimeline(isThisComplete:boolean):void{
-			var frameList:Array<Frame> = this.animationData.frameList;
+			var frameList:Array<Frame> = this.animationData.getFrameList();
 			if(frameList.length > 0){
 				var prevFrame:Frame;
 				var currentFrame:Frame;
-				for (var i:number = 0, l:number = this.animationData.frameList.length; i < l; ++i){
+				for (var i:number = 0, l:number = frameList.length; i < l; ++i){
 					if(this._currentFrameIndex < 0){
 						this._currentFrameIndex = 0;
 					}

@@ -91,5 +91,9 @@ module dragonBones {
 		public get frameList():Array<Frame>{
 			return this._frameList;
 		}
+
+		public getFrameList():Array<Frame>{
+			return this._frameList;
+		}
 	}
 }

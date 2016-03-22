@@ -393,7 +393,7 @@ module dragonBones {
 			}
 
 			if(animationData.frameList.length > 0){
-				lastFrameDuration = Math.min(lastFrameDuration, animationData.frameList[animationData.frameList.length - 1].duration);
+				lastFrameDuration = Math.min(lastFrameDuration, animationData.getFrameList()[animationData.getFrameList().length - 1].duration);
 			}
 			//取得timeline中最小的lastFrameDuration并保存
 			animationData.lastFrameDuration = lastFrameDuration;
@@ -498,7 +498,7 @@ module dragonBones {
 			var position:number = 0;
 			var frame:Frame;
 
-            var frameList:any = outputTimeline.frameList;
+            var frameList:any = outputTimeline.getFrameList();
             for(var i:number = 0, len:number = frameList.length; i < len; i++) 
             {
                 frame = frameList[i];

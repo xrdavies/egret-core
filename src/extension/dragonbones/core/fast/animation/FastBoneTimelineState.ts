@@ -254,11 +254,11 @@ module dragonBones {
 				this._lastTime = this._currentTime;
 				this._currentTime = currentTime;
 				
-				var frameList:Array<Frame> = this._timelineData.frameList;
+				var frameList:Array<Frame> = this._timelineData.getFrameList();
 				var prevFrame:TransformFrame;
 				var currentFrame:TransformFrame;
 				
-				for (var i:number = 0, l:number = this._timelineData.frameList.length; i < l; ++i){
+				for (var i:number = 0, l:number = frameList.length; i < l; ++i){
 					if(this._currentFrameIndex < 0){
 						this._currentFrameIndex = 0;
 					}
