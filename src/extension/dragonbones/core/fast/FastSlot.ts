@@ -117,8 +117,8 @@ module dragonBones {
 		//颜色
 			var cacheColor:ColorTransform = (<SlotFrameCache><any> (this._frameCache)).colorTransform;
 			var cacheColorChanged:boolean = cacheColor != null;
-			if(	this.colorChanged != cacheColorChanged ||
-				(this.colorChanged && cacheColorChanged && !ColorTransformUtil.isEqual(this._colorTransform, cacheColor))){
+			if(	this._isColorChanged != cacheColorChanged ||
+				(this._isColorChanged && cacheColorChanged && !ColorTransformUtil.isEqual(this._colorTransform, cacheColor))){
 				cacheColor = cacheColor || ColorTransformUtil.originalColor;
 				this._updateDisplayColor(	cacheColor.alphaOffset, 
 									cacheColor.redOffset, 
@@ -133,7 +133,7 @@ module dragonBones {
 			
 		//displayIndex
 			this._changeDisplayIndex((<SlotFrameCache><any> (this._frameCache)).displayIndex);
-			this.gotoAndPlay = (<SlotFrameCache><any> (this._frameCache)).gotoAndPlay;
+			this.setGotoAndPlay((<SlotFrameCache><any> (this._frameCache)).gotoAndPlay);
 		}
 		
 		/** @private */
@@ -394,7 +394,7 @@ module dragonBones {
          * 播放子骨架动画
 		 * @member {string} dragonBones.FastSlot#gotoAndPlay
          */
-        public set gotoAndPlay(value:string) 
+        public setGotoAndPlay(value:string)
 		{
 			if (this._gotoAndPlay != value)
 			{
@@ -535,7 +535,7 @@ module dragonBones {
 			}
             else
             {
-                this.gotoAndPlay = slotFrame.gotoAndPlay;
+                this.setGotoAndPlay(slotFrame.gotoAndPlay);
             }
 		}
 		

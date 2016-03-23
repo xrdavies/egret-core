@@ -83,13 +83,13 @@ module dragonBones {
 
         /** @private */
         public _addDisplayToContainer(container:any, index:number = -1):void{
-            var egretContainer:egret.DisplayObjectContainer = <egret.DisplayObjectContainer><any> container;
+            var egretContainer:dragonBones.DBDisplayObjectContainer = <dragonBones.DBDisplayObjectContainer><any> container;
             if(this._egretDisplay && egretContainer){
                 if (index < 0){
-                    egretContainer.addChild(this._egretDisplay);
+                    //egretContainer.addChild(this._egretDisplay);
                 }
                 else{
-                    egretContainer.addChildAt(this._egretDisplay, Math.min(index, egretContainer.numChildren));
+                    //egretContainer.addChildAt(this._egretDisplay, Math.min(index, egretContainer.numChildren));
                 }
             }
         }

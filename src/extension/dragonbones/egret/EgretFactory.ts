@@ -42,7 +42,7 @@ module dragonBones {
 
         /** @private */
         public _generateArmature():Armature {
-            var armature:Armature = new Armature(new egret.DisplayObjectContainer());
+            var armature:Armature = new Armature(new dragonBones.DBDisplayObjectContainer());
             return armature;
         }
 
@@ -76,7 +76,7 @@ module dragonBones {
         }
 
         public _generateFastArmature():FastArmature {
-            var armature:FastArmature = new FastArmature(new egret.DisplayObjectContainer());
+            var armature:FastArmature = new FastArmature(new dragonBones.DBDisplayObjectContainer());
             return armature;
         }
         public _generateFastSlot():FastSlot {

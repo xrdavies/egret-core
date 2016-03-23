@@ -83,13 +83,15 @@ module dragonBones {
 
         /** @private */
         public _addDisplayToContainer(container:any, index:number = -1):void{
-            var egretContainer:egret.DisplayObjectContainer = <egret.DisplayObjectContainer><any> container;
+            var egretContainer:dragonBones.DBDisplayObjectContainer = <dragonBones.DBDisplayObjectContainer><any> container;
             if(this._egretDisplay && egretContainer){
                 if (index < 0){
-                    egretContainer.addChild(this._egretDisplay);
+                    egretContainer.dbpush(this._egretDisplay);
+                    //egretContainer.addChild(this._egretDisplay);
                 }
                 else{
-                    egretContainer.addChildAt(this._egretDisplay, Math.min(index, egretContainer.numChildren));
+                    //egretContainer.dbpush(this._egretDisplay);
+                    //egretContainer.addChildAt(this._egretDisplay, Math.min(index, egretContainer.numChildren));
                 }
             }
         }
@@ -104,8 +106,8 @@ module dragonBones {
         /** @private */
         public _updateTransform():void{
             if (this._egretDisplay) {
-                this._egretDisplay.$setMatrix(<egret.Matrix><any>this._globalTransformMatrix, false);
-
+                var m = this._egretDisplay.$getMatrix();
+                m.copyFrom(<egret.Matrix><any>this._globalTransformMatrix);
             }
         }
 
