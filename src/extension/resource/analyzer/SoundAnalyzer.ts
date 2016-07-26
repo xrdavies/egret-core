@@ -57,7 +57,7 @@ module RES {
                 callBack.call(thisObject, resItem);
                 return;
             }
-            var sound = new egret.Sound();
+            var sound = this.createSound(resItem);
             sound.addEventListener(egret.Event.COMPLETE, this.onLoadFinish, this);
             sound.addEventListener(egret.IOErrorEvent.IO_ERROR, this.onLoadFinish, this);
             this.resItemDic[sound.$hashCode] = {item: resItem, func: callBack, thisObject: thisObject};
@@ -65,6 +65,10 @@ module RES {
             if (resItem.data) {
                 sound.type = resItem.data.soundType;
             }
+        }
+
+        protected createSound(item:ResourceItem):egret.Sound {
+            return new egret.Sound();
         }
 
         /**

@@ -214,5 +214,19 @@ module egret {
          * @platform Web,Native
          */
          EFFECT:string;
+
+         /**
+         * @language en_US
+         * create sound
+         * @version Egret 3.1.6
+         * @platform Web,Native
+         */
+        /**
+         * @language zh_CN
+         * 创建sound
+         * @version Egret 3.1.6
+         * @platform Web,Native
+         */
+         create?(type:number):Sound;
     };
 }

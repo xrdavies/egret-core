@@ -34,15 +34,15 @@ module egret.native {
      */
     export var $supportCanvas = egret_native.Canvas ? true : false;
 
-    var isRunning:boolean = false;
-    var playerList:Array<NativePlayer> = [];
+    var isRunning: boolean = false;
+    var playerList: Array<NativePlayer> = [];
 
-    function runEgret(options?:{renderMode?:string;audioType?:number;screenAdapter?:sys.IScreenAdapter}) {
+    function runEgret(options?: { renderMode?: string; audioType?: number; screenAdapter?: sys.IScreenAdapter }) {
         if (isRunning) {
             return;
         }
         isRunning = true;
-        if(!options){
+        if (!options) {
             options = {};
         }
         setRenderMode(options.renderMode);
@@ -58,16 +58,20 @@ module egret.native {
         } catch (e) {
 
         }
+        egret.Sound.create = function (type: number) {
+            var result = new Sound();
+            return result;
+        }
         var ticker = egret.sys.$ticker;
         var mainLoop = function () {
             ticker.update();
         };
         egret_native.executeMainLoop(mainLoop, ticker);
         if (!egret.sys.screenAdapter) {
-            if(options.screenAdapter){
+            if (options.screenAdapter) {
                 egret.sys.screenAdapter = options.screenAdapter;
             }
-            else{
+            else {
                 egret.sys.screenAdapter = new egret.sys.DefaultScreenAdapter();
             }
         }
@@ -88,8 +92,8 @@ module egret.native {
      * 设置渲染模式。"auto","webgl","canvas"
      * @param renderMode
      */
-    function setRenderMode(renderMode:string):void{
-        if($supportCanvas) {
+    function setRenderMode(renderMode: string): void {
+        if ($supportCanvas) {
             sys.RenderBuffer = NativeCanvasRenderBuffer;
         }
         else {
@@ -99,9 +103,9 @@ module egret.native {
         Capabilities.$renderMode = "canvas";
     }
 
-    function updateAllScreens():void {
-        var length:number = playerList.length;
-        for (var i:number = 0; i < length; i++) {
+    function updateAllScreens(): void {
+        var length: number = playerList.length;
+        for (var i: number = 0; i < length; i++) {
             playerList[i].updateScreenSize();
         }
     }

@@ -2384,6 +2384,10 @@ var egret;
             }
             catch (e) {
             }
+            egret.Sound.create = function (type) {
+                var result = new egret.Sound();
+                return result;
+            };
             var ticker = egret.sys.$ticker;
             var mainLoop = function () {
                 ticker.update();

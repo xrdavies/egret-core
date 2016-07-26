@@ -838,6 +838,7 @@ declare module RES {
          * @inheritDoc
          */
         loadFile(resItem: ResourceItem, callBack: Function, thisObject: any): void;
+        protected createSound(item: ResourceItem): egret.Sound;
         /**
          * 一项加载结束
          */
