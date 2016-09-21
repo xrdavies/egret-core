@@ -62,7 +62,9 @@ declare module egret_native {
      * @param callback 主循环回调函数
      * @param thisObject
      */
-    function executeMainLoop(callback:Function, thisObject:any):void;
+    function executeMainLoop(callback:Function, thisObject:any):void;// native2废弃
+
+    function setOnUpdate(callback:Function, thisObject:any):void;
 
     function pauseApp():void;
 
@@ -199,6 +201,8 @@ declare module egret_native {
         function readXML(filepath:string):void;
     }
 
+    function createRawImage(filePath:string, promise:any):any;
+
     module Texture {
 
         function create(filePath:string):any;
@@ -237,7 +241,15 @@ declare module egret_native {
 
     function EGT_getTextEditerContentText():string;
 
-    module EGTView {
+    function getDeviceWidth():number;
+
+    function getDeviceHeight():number;
+
+    function setVisibleRect(x:number, y:number, w:number, h:number):number;
+
+    function setDesignSize(w:number, h:number):number;
+
+    module EGTView {// native2废弃
 
         function getFrameWidth():number;
 

@@ -8338,6 +8338,7 @@ declare module egret_native {
      * @param thisObject
      */
     function executeMainLoop(callback: Function, thisObject: any): void;
+    function setOnUpdate(callback: Function, thisObject: any): void;
     function pauseApp(): void;
     function resumeApp(): void;
     function readXML(filepath: string): any;
@@ -8406,6 +8407,7 @@ declare module egret_native {
     module EGTXML {
         function readXML(filepath: string): void;
     }
+    function createRawImage(filePath: string, promise: any): any;
     module Texture {
         function create(filePath: string): any;
         function addTexture(filePath: string): any;
@@ -8424,6 +8426,10 @@ declare module egret_native {
     function EGT_keyboardDidHide(): void;
     function EGT_keyboardDidShow(): void;
     function EGT_getTextEditerContentText(): string;
+    function getDeviceWidth(): number;
+    function getDeviceHeight(): number;
+    function setVisibleRect(x: number, y: number, w: number, h: number): number;
+    function setDesignSize(w: number, h: number): number;
     module EGTView {
         function getFrameWidth(): number;
         function getFrameHeight(): number;

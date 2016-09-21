@@ -28,123 +28,123 @@
           },
           {
             "path": "text/native/NativeTextMeasurer.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/rendering/rendertexture/NativeRenderTextureRenderContext.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/rendering/rendertexture/OldNativeRenderTextureRenderContext.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/rendering/rendertexture/NativeRenderTexture.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/rendering/rendertexture/NativeRenderTextureRenderBuffer.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/rendering/canvas/NativeCanvasRenderContext.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/rendering/canvas/OldNativeCanvasRenderContext.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/rendering/canvas/NativeCanvas.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/rendering/canvas/NativeCanvasRenderBuffer.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/NativeTexture.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/NativePlayer.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/EgretNative.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/NativeFps.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/NativeGetOption.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "external/native/NativeExternalInterface.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "media/native/NativeSound.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "media/native/NativeSoundChannel.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "media/native/NaSound.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "media/native/NaSoundChannel.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "media/native/NativeVideo.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/NativeGetOption.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "external/native/NativeExternalInterface.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "localStorage/native/NativeLocalStorage.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/NativeHideHandler.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/NativeResourceLoader.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/NativeTouchHandler.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "net/native/NativeHttpRequest.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "net/native/NativeImageLoader.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "text/native/NativeStageText.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "native/NativeXML.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "web/WebBitmapData.ts",
@@ -260,7 +260,7 @@
           },
           {
             "path": "utils/native/NativeLogger.ts",
-            "platform": "native"
+            "platform": "nativex"
           },
           {
             "path": "utils/web/WebLogger.ts",
@@ -317,6 +317,154 @@
           {
             "path": "web/rendering/webgl/WebGLRenderer.ts",
             "platform": "web"
+          },
+          {
+            "path": "native2/EgretNative.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/NativeFps.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/NativeHideHandler.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/NativePlayer.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/NativeResourceLoader.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/NativeTexture.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/NativeTouchHandler.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/NativeXML.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/PromiseObject.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/external/NativeExternalInterface.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/localStorage/NativeLocalStorage.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/media/NaSound.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/media/NaSoundChannel.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/media/NativeSound.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/media/NativeSoundChannel.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/media/NativeVideo.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/net/NativeHttpRequest.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/net/NativeImageLoader.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/text/NativeStageText.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/text/NativeTextMeasurer.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/utils/NativeLogger.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/EgretNative.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/CanvasRenderBuffer.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/WebGLDrawCmdManager.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/WebGLRenderBuffer.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/WebGLRenderContext.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/WebGLRenderer.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/WebGLRenderTarget.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/WebGLShaderManager.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/WebGLUtils.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/WebGLVertexArrayObject.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/shaders/BlurShader.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/shaders/ColorTransformShader.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/shaders/EgretShader.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/shaders/GlowShader.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/shaders/PrimitiveShader.ts",
+            "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/shaders/TextureShader.ts",
+            "platform": "native"
           }
         ],
         "root": "src/egret",
