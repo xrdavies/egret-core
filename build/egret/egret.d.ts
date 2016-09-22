@@ -8331,6 +8331,10 @@ declare module egret_native {
     function onTouchesMove(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
     function onTouchesEnd(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
     function onTouchesCancel(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
+    function touchDown(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
+    function touchMove(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
+    function touchUp(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
+    function touchCancel(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
     function sendToC(float32Array: Float32Array, arrayBufferLen: number, array: Array<string>): void;
     /**
      * 启动主循环
@@ -8599,6 +8603,12 @@ declare module egret {
          */
         private destroy();
     }
+}
+declare module egret.native2 {
+    /**
+     * @private
+     */
+    function getOption(key: string): string;
 }
 declare module egret {
     /**

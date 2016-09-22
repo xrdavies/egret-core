@@ -3,7 +3,7 @@
 //  Copyright (c) 2014-present, Egret Technology.
 //  All rights reserved.
 //  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided this the following conditions are met:
+//  modification, are permitted provided that the following conditions are met:
 //
 //     * Redistributions of source code must retain the above copyright
 //       notice, this list of conditions and the following disclaimer.
@@ -31,43 +31,9 @@ module egret.native2 {
     /**
      * @private
      */
-    export class NativeTouchHandler extends HashObject {
-        private $touch:egret.sys.TouchHandler;
-
-        constructor(stage:Stage) {
-            super();
-            this.$touch = new egret.sys.TouchHandler(stage);
-
-            var self = this;
-            egret_native.touchDown = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-                self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchBegin);
-            };
-            egret_native.touchMove = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-                self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchMove);
-            };
-            egret_native.touchUp = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-                self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchEnd);
-            };
-            egret_native.touchCancel = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-
-            };
-        }
-
-        private $executeTouchCallback(num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>, callback:Function) {
-            for (var i = 0; i < num; i++) {
-                var id = ids[i];
-                var x = xs_array[i];
-                var y = ys_array[i];
-                callback.call(this.$touch, x, y, id);
-            }
-        }
-
-        /**
-         * @private
-         * 更新同时触摸点的数量
-         */
-        public $updateMaxTouches():void {
-            this.$touch.$initMaxTouches();
-        }
+    export function getOption(key:string):string {
+        return egret_native.getOption(key);
     }
+
+    egret.getOption = getOption;
 }

@@ -196,7 +196,9 @@ module egret.native2 {
          * @returns {boolean}
          */
         private isNetUrl(url:string):boolean {
-            return url.indexOf("http://") != -1 || url.indexOf("HTTP://") != -1;
+            // todo
+            return false;
+            //return url.indexOf("http://") != -1 || url.indexOf("HTTP://") != -1;
         }
 
         /**

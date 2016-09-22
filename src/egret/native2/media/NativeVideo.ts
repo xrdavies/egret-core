@@ -55,6 +55,7 @@ module egret.native2 {
          * @inheritDoc
          */
         constructor(url?:string, cache:boolean = true) {
+
             super();
             this.$renderNode = new sys.BitmapNode();
             this.cache = cache;
@@ -515,9 +516,9 @@ module egret.native2 {
             return true;
         }
     }
-    if (__global.Video) {
-        egret.Video = NativeVideo;
-    } else {
-        egret.$warn(1044);
-    }
+    //if (__global.Video) {
+    //    egret.Video = NativeVideo;
+    //} else {
+    //    egret.$warn(1044);
+    //}
 }

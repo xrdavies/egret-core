@@ -1,4 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (c) 2014-present, Egret Technology.
 //  All rights reserved.
@@ -30,6 +29,10 @@ var egret;
 (function (egret) {
     var native2;
     (function (native2) {
+        /**
+         * @private
+         */
+        native2.$supportCanvas = egret_native.Canvas ? true : false;
         var isRunning = false;
         var playerList = [];
         function runEgret(options) {
@@ -134,6 +137,14 @@ var egret;
         egret.runEgret = runEgret;
         egret.updateAllScreens = updateAllScreens;
     })(native2 = egret.native2 || (egret.native2 = {}));
+})(egret || (egret = {}));
+var egret;
+(function (egret) {
+    var native;
+    (function (native) {
+        native.$supportCanvas = true;
+        egret.native.$supportCanvas = egret.native2.$supportCanvas;
+    })(native = egret.native || (egret.native = {}));
 })(egret || (egret = {}));
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -735,16 +746,16 @@ var egret;
                 _super.call(this);
                 this.$touch = new egret.sys.TouchHandler(stage);
                 var self = this;
-                egret_native.onTouchesBegin = function (num, ids, xs_array, ys_array) {
+                egret_native.touchDown = function (num, ids, xs_array, ys_array) {
                     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchBegin);
                 };
-                egret_native.onTouchesMove = function (num, ids, xs_array, ys_array) {
+                egret_native.touchMove = function (num, ids, xs_array, ys_array) {
                     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchMove);
                 };
-                egret_native.onTouchesEnd = function (num, ids, xs_array, ys_array) {
+                egret_native.touchUp = function (num, ids, xs_array, ys_array) {
                     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchEnd);
                 };
-                egret_native.onTouchesCancel = function (num, ids, xs_array, ys_array) {
+                egret_native.touchCancel = function (num, ids, xs_array, ys_array) {
                 };
             }
             var d = __define,c=NativeTouchHandler,p=c.prototype;
@@ -2405,12 +2416,6 @@ var egret;
         }(egret.DisplayObject));
         native2.NativeVideo = NativeVideo;
         egret.registerClass(NativeVideo,'egret.native2.NativeVideo',["egret.Video"]);
-        if (__global.Video) {
-            egret.Video = NativeVideo;
-        }
-        else {
-            egret.$warn(1044);
-        }
     })(native2 = egret.native2 || (egret.native2 = {}));
 })(egret || (egret = {}));
 //////////////////////////////////////////////////////////////////////////////////////
@@ -2597,7 +2602,9 @@ var egret;
              * @returns {boolean}
              */
             p.isNetUrl = function (url) {
-                return url.indexOf("http://") != -1 || url.indexOf("HTTP://") != -1;
+                // todo
+                return false;
+                //return url.indexOf("http://") != -1 || url.indexOf("HTTP://") != -1;
             };
             /**
              * @private
@@ -3144,8 +3151,9 @@ var egret;
          */
         var CanvasRenderBuffer = (function () {
             function CanvasRenderBuffer(width, height, root) {
-                this.surface = createCanvas(width, height);
-                this.context = this.surface.getContext("2d");
+                //todo
+                //this.surface = createCanvas(width, height);
+                //this.context = this.surface.getContext("2d");
             }
             var d = __define,c=CanvasRenderBuffer,p=c.prototype;
             d(p, "width"

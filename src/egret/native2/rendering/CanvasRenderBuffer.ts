@@ -76,8 +76,9 @@ module egret.native2 {
     export class CanvasRenderBuffer implements sys.RenderBuffer {
 
         public constructor(width?:number, height?:number, root?:boolean) {
-            this.surface = createCanvas(width, height);
-            this.context = this.surface.getContext("2d");
+            //todo
+            //this.surface = createCanvas(width, height);
+            //this.context = this.surface.getContext("2d");
         }
 
         /**

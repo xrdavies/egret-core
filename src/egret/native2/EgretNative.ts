@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////////
+
 //
 //  Copyright (c) 2014-present, Egret Technology.
 //  All rights reserved.
@@ -28,6 +28,11 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 module egret.native2 {
+
+    /**
+     * @private
+     */
+    export var $supportCanvas = egret_native.Canvas ? true : false;
 
     var isRunning:boolean = false;
     var playerList:Array<NativePlayer> = [];
@@ -141,4 +146,9 @@ module egret.native2 {
 
     egret.runEgret = runEgret;
     egret.updateAllScreens = updateAllScreens;
+}
+
+module egret.native {
+    export  var $supportCanvas:boolean = true;
+    egret.native.$supportCanvas = egret.native2.$supportCanvas;
 }

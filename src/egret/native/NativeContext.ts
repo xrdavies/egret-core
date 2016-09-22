@@ -55,6 +55,15 @@ declare module egret_native {
 
     function onTouchesCancel(num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>);
 
+    //rt2
+    function touchDown(num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>);
+
+    function touchMove(num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>);
+
+    function touchUp(num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>);
+
+    function touchCancel(num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>);
+
     function sendToC(float32Array:Float32Array, arrayBufferLen:number, array:Array<string>):void;
 
     /**
