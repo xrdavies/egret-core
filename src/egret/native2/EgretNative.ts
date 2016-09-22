@@ -86,7 +86,7 @@ module egret.native2 {
      * @param renderMode
      */
     function setRenderMode(renderMode:string):void{
-        sys.CanvasRenderBuffer = CanvasRenderBuffer;
+        sys.CanvasRenderBuffer = WebGLRenderBuffer;
         // sys.RenderBuffer = web.WebGLRenderBuffer;
         // sys.systemRenderer = new web.WebGLRenderer();
         // sys.canvasRenderer = new CanvasRenderer();
@@ -95,9 +95,9 @@ module egret.native2 {
         // TODO rename
         sys.RenderBuffer = WebGLRenderBuffer;
         sys.systemRenderer = new WebGLRenderer();
-        sys.canvasRenderer = new CanvasRenderer();
+        sys.canvasRenderer = new WebGLRenderer();
         sys.customHitTestBuffer = new WebGLRenderBuffer(3, 3);
-        sys.canvasHitTestBuffer = new CanvasRenderBuffer(3, 3);
+        sys.canvasHitTestBuffer = new WebGLRenderBuffer(3, 3);
         Capabilities.$renderMode = "webgl";
     }
 

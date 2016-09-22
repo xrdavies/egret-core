@@ -748,6 +748,13 @@ module egret.native2 {
          * @private
          */
         private renderGraphics(node: sys.GraphicsNode, buffer: WebGLRenderBuffer, forHitTest?: boolean): void {
+
+            // change xs
+                // skip graphics render
+                // TODO
+                return;
+            // change end
+
             var width = node.width;
             var height = node.height;
             if (width <= 0 || height <= 0 || !width || !height || node.drawData.length == 0) {

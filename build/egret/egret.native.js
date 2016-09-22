@@ -81,7 +81,7 @@ var egret;
          * @param renderMode
          */
         function setRenderMode(renderMode) {
-            egret.sys.CanvasRenderBuffer = native2.CanvasRenderBuffer;
+            egret.sys.CanvasRenderBuffer = native2.WebGLRenderBuffer;
             // sys.RenderBuffer = web.WebGLRenderBuffer;
             // sys.systemRenderer = new web.WebGLRenderer();
             // sys.canvasRenderer = new CanvasRenderer();
@@ -89,9 +89,9 @@ var egret;
             // TODO rename
             egret.sys.RenderBuffer = native2.WebGLRenderBuffer;
             egret.sys.systemRenderer = new native2.WebGLRenderer();
-            egret.sys.canvasRenderer = new egret.CanvasRenderer();
+            egret.sys.canvasRenderer = new native2.WebGLRenderer();
             egret.sys.customHitTestBuffer = new native2.WebGLRenderBuffer(3, 3);
-            egret.sys.canvasHitTestBuffer = new native2.CanvasRenderBuffer(3, 3);
+            egret.sys.canvasHitTestBuffer = new native2.WebGLRenderBuffer(3, 3);
             egret.Capabilities.$renderMode = "webgl";
         }
         function updateAllScreens() {
@@ -5655,6 +5655,11 @@ var egret;
              * @private
              */
             p.renderGraphics = function (node, buffer, forHitTest) {
+                // change xs
+                // skip graphics render
+                // TODO
+                return;
+                // change end
                 var width = node.width;
                 var height = node.height;
                 if (width <= 0 || height <= 0 || !width || !height || node.drawData.length == 0) {
