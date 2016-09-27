@@ -6571,10 +6571,10 @@ var egret;
                     "}";
                 this.uniforms = {
                     projectionVector: { type: '2f', value: { x: 0, y: 0 }, dirty: true },
-                    matrix: { type: 'mat4', value: [1, 0, 0, 0,
+                    matrix: { type: 'mat4', value: new Float32Array([1, 0, 0, 0,
                             0, 1, 0, 0,
                             0, 0, 1, 0,
-                            0, 0, 0, 1], dirty: true },
+                            0, 0, 0, 1]), dirty: true },
                     colorAdd: { type: '4f', value: { x: 0, y: 0, z: 0, w: 0 }, dirty: true }
                 };
             }
