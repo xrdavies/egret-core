@@ -7,7 +7,7 @@ var game_file_list = [
 
 var window = this;
 
-egret_native.setSearchPaths([""]);
+// egret_native.setSearchPaths([""]);
 
 egret_native.requireFiles = function () {
     for (var key in game_file_list) {
@@ -32,8 +32,8 @@ egret_native.egretStart = function () {
         //----auto option end----
     };
 
-    egret.native.NativePlayer.option = option;
+    egret.native2.NativePlayer.option = option;
     egret.runEgret();
-    egret_native.Label.createLabel(egret.TextField.default_fontFamily, 20, "", 0);
-    egret_native.EGTView.preSetOffScreenBufferEnable(true);
+    // egret_native.Label.createLabel(egret.TextField.default_fontFamily, 20, "", 0);
+    // egret_native.EGTView.preSetOffScreenBufferEnable(true);
 };
