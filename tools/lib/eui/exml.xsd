@@ -1268,6 +1268,7 @@
     <xs:attribute name="right" type="xs:decimal"/>
     <xs:attribute name="top" type="xs:decimal"/>
     <xs:attribute name="verticalCenter" type="xs:decimal"/>
+    <xs:attribute name="style" type="xs:decimal"/>
   </xs:attributeGroup>
   <xs:group name="Label_attributeElement">
     <xs:choice>
