@@ -180,6 +180,7 @@ module egret.native2 {
 
             function download() {
                 var promise = PromiseObject.create();
+                // TODO arraybuffer
                 promise.onSuccessFunc = readFileAsync;
                 promise.onErrorFunc = function () {
                     Event.dispatchEvent(self, IOErrorEvent.IO_ERROR);
@@ -196,9 +197,7 @@ module egret.native2 {
          * @returns {boolean}
          */
         private isNetUrl(url:string):boolean {
-            // todo
-            return false;
-            //return url.indexOf("http://") != -1 || url.indexOf("HTTP://") != -1;
+            return url.indexOf("http://") != -1 || url.indexOf("HTTP://") != -1;
         }
 
         /**

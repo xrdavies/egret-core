@@ -69,8 +69,8 @@ module egret.native2 {
          */
         public load(url:string):void {
             // change xs
-            // this.check(url);
-            this.loadTexture(url);
+             this.check(url);
+            //this.loadTexture(url);
             // change end
 
         }
@@ -92,6 +92,7 @@ module egret.native2 {
             var self = this;
             var promise = egret.PromiseObject.create();
             promise.onSuccessFunc = function () {
+                //TODO arraybuffer
                 self.loadTexture(url);
             };
             promise.onErrorFunc = function () {

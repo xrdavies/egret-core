@@ -2587,6 +2587,7 @@ var egret;
                 }
                 function download() {
                     var promise = native2.PromiseObject.create();
+                    // TODO arraybuffer
                     promise.onSuccessFunc = readFileAsync;
                     promise.onErrorFunc = function () {
                         egret.Event.dispatchEvent(self, egret.IOErrorEvent.IO_ERROR);
@@ -2602,9 +2603,7 @@ var egret;
              * @returns {boolean}
              */
             p.isNetUrl = function (url) {
-                // todo
-                return false;
-                //return url.indexOf("http://") != -1 || url.indexOf("HTTP://") != -1;
+                return url.indexOf("http://") != -1 || url.indexOf("HTTP://") != -1;
             };
             /**
              * @private
@@ -2725,8 +2724,8 @@ var egret;
              */
             p.load = function (url) {
                 // change xs
-                // this.check(url);
-                this.loadTexture(url);
+                this.check(url);
+                //this.loadTexture(url);
                 // change end
             };
             p.check = function (url) {
@@ -2745,6 +2744,7 @@ var egret;
                 var self = this;
                 var promise = egret.PromiseObject.create();
                 promise.onSuccessFunc = function () {
+                    //TODO arraybuffer
                     self.loadTexture(url);
                 };
                 promise.onErrorFunc = function () {
