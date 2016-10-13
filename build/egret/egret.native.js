@@ -2612,11 +2612,7 @@ var egret;
             p.abort = function () {
             };
             p.onResponseHeader = function (headers) {
-                this.responseHeader = "";
-                var obj = JSON.parse(headers);
-                for (var key in obj) {
-                    this.responseHeader += key + ": " + obj[key] + "\r\n";
-                }
+                this.responseHeader = headers;
             };
             /**
              * @private

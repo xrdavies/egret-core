@@ -210,11 +210,7 @@ module egret.native2 {
         private responseHeader:string = "";
 
         private onResponseHeader(headers:string):void {
-            this.responseHeader = "";
-            var obj = JSON.parse(headers);
-            for(var key in obj) {
-                this.responseHeader += key + ": " + obj[key] + "\r\n";
-            }
+            this.responseHeader = headers;
         }
 
         /**
