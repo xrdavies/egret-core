@@ -30,21 +30,48 @@
 namespace egret {
 
     /**
+     * @language zh_CN
+     * BitmapFillMode 类定义Bitmap的图像填充方式。
+     * BitmapFillMode 类定义了调整大小模式的一个枚举，这些模式确定 Bitmap 如何填充由布局系统指定的尺寸。
+     */
+    /**
      * The BitmapFillMode class defines the image fill mode of Bitmap. <br/>
+     * @see http://edn.egret.com/cn/docs/page/134
+     * @version Egret 2.4
+     * @platform Web,Native
+     * @includeExample egret/display/BitmapFillMode.ts
      */
     export class BitmapFillMode {
         /**
+         * @language zh_CN
+         * 重复位图以填充区域。
+         */
+        /**
          * Scale bitmap fill to fill area.
+         * @version Egret 2.4
+         * @platform Web
          */
         public static readonly SCALE:string = "scale";
 
         /**
+         * @language zh_CN
+         * 位图填充拉伸以填充区域。
+         */
+        /**
          * Repeat the bitmap to fill area.
+         * @version Egret 2.4
+         * @platform Web,Native
          */
         public static readonly REPEAT:string = "repeat";
 
         /**
+         * @language zh_CN
+         * 在区域的边缘处截断不显示位图。
+         */
+        /**
          * The bitmap ends at the edge of the region.
+         * @version Egret 2.4
+         * @platform Web,Native
          */
         public static readonly CLIP:string = "clip";
     }

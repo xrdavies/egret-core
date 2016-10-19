@@ -147,7 +147,23 @@ namespace egret {
         $scale9Grid:Rectangle = null;
         /**
          * @language zh_CN
-         * 一个矩形区域，它定义素材对象的九个缩放区域。
+         * 当前有效的缩放网格。如果设置为 null，则在应用任何缩放转换时，将正常缩放整个 Bitmap 对象。<br/>
+         * 当定义 scale9Grid 属性时，该显示对象被分割到以 scale9Grid 矩形为基础的具有九个区域的网格中，该矩形定义网格的中心区域。
+         * 网格的其他八个区域如下所示：<p/>
+         *    矩形外的左上角<br/>
+         *    矩形上方的区域<br/>
+         *    矩形外的右上角<br/>
+         *    矩形左侧的区域<br/>
+         *    矩形右侧的区域<br/>
+         *    矩形外的左下角<br/>
+         *    矩形下方的区域<br/>
+         *    矩形外的右下角<p/>
+         * 可以认为中心区域（由矩形定义）之外的八个区域类似于在缩放时已应用特殊规则的图片帧。<br/>
+         * 在设置 scale9Grid 属性并缩放 Bitmap 显示对象后，将应用以下规则：<p/>
+         *    正常缩放中心区域中的内容。<br/>
+         *    不缩放转角中的内容。<br/>
+         *    仅水平缩放顶部和底部区域中的内容。仅垂直缩放左侧和右侧区域中的内容。<br/>
+         *    拉伸所有位图填充以适应其形状。<p/>
          * 注意:此属性仅在<code>fillMode</code>为<code>BitmapFillMode.SCALE</code>时有效。
          */
         /**
@@ -199,13 +215,21 @@ namespace egret {
          * @internal
          */
         $fillMode:string = BitmapFillMode.SCALE;
-
+        /**
+         * @language zh_CN
+         * 确定位图填充尺寸的方式。
+         * <p>设置为 <code>BitmapFillMode.REPEAT</code>时，位图将重复以填充区域。</p>
+         * <p>设置为 <code>BitmapFillMode.SCALE</code>时，位图将拉伸以填充区域。</p>
+         * <p>设置为 <code>BitmapFillMode.CLIP</code>时，位图将在边缘区域被裁切。</p>
+         */
         /**
          * Determines how the bitmap fills in the dimensions.<br/>
          * When set to egret.BitmapFillMode.REPEAT, the bitmap repeats to fill the region.<br/>
          * When set to egret.BitmapFillMode.SCALE, the bitmap stretches to fill the region.<br/>
          * When set to egret.BitmapFillMode.CLIP, The bitmap ends at the edge of the region.<br/>
-         * @default egret.BitmapFillMode.SCALE
+         * @default <code>BitmapFillMode.SCALE</code>
+         * @version Egret 2.4
+         * @platform Web,Native
          */
         public get fillMode():string {
             return this.$fillMode;
@@ -228,10 +252,17 @@ namespace egret {
         private _pixelHitTest:boolean = false;
 
         /**
+         * @language zh_CN
+         * 是否开启精确像素碰撞。设置为true显示对象本身的透明区域将能够被穿透。<br/>
+         * 注意：若图片资源是以跨域方式从外部服务器加载的，将无法访问图片的像素数据，而导致此属性失效。
+         */
+        /**
          * Specifies whether this object use precise hit testing by checking the alpha value of each pixel.If pixelHitTest
          * is set to true, the transparent area of the bitmap will not receive touch, or other user input.<br/>
          * Note: The pixelHitTest property is invalid if the image is loaded from cross origin.
          * @default false
+         * @version Egret 2.4
+         * @platform Web,Native
          */
         public get pixelHitTest():boolean {
             return this._pixelHitTest;
