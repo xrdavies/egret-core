@@ -27,46 +27,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-namespace egret.sys {
-    /**
-     * @private
-     */
-    export const enum BitmapKeys {
-        bitmapData,
-        image,
-        bitmapX,
-        bitmapY,
-        bitmapWidth,
-        bitmapHeight,
-        offsetX,
-        offsetY,
-        textureWidth,
-        textureHeight,
-        smoothing,
-        explicitBitmapWidth,
-        explicitBitmapHeight,
-        sourceWidth,
-        sourceHeight
-    }
-}
-
 namespace egret {
 
-    /**
-     * @language en_US
-     * The Bitmap class represents display objects that represent bitmap images.
-     * The Bitmap() constructor allows you to create a Bitmap object that contains a reference to a BitmapData object.
-     * After you create a Bitmap object, use the addChild() or addChildAt() method of the parent DisplayObjectContainer
-     * instance to place the bitmap on the display list.A Bitmap object can share its texture reference among several
-     * Bitmap objects, independent of translation or rotation properties. Because you can create multiple Bitmap objects
-     * that reference the same texture object, multiple display objects can use the same complex texture object
-     * without incurring the memory overhead of a texture object for each display object instance.
-     *
-     * @see egret.Texture
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @includeExample egret/display/Bitmap.ts
-     */
     /**
      * @language zh_CN
      * Bitmap 类表示用于显示位图图片的显示对象。
@@ -75,532 +37,256 @@ namespace egret {
      * 一个 Bitmap 对象可在若干 Bitmap 对象之中共享其 texture 引用，与缩放或旋转属性无关。
      * 由于能够创建引用相同 texture 对象的多个 Bitmap 对象，因此，多个显示对象可以使用相同的 texture 对象，
      * 而不会因为每个显示对象实例使用一个 texture 对象而产生额外内存开销。
-     *
+     */
+    /**
+     * The Bitmap class represents display objects that represent bitmap images. <br/>
+     * The Bitmap() constructor allows you to create a Bitmap object that contains a reference to a BitmapData object.
+     * After you create a Bitmap object, use the addChild() or addChildAt() method of the parent DisplayObjectContainer
+     * instance to place the bitmap on the display list.<br/>
+     * A Bitmap object can share its BitmapData reference among several Bitmap objects, independent of translation or
+     * rotation properties. Because you can create multiple Bitmap objects that reference the same BitmapData object,
+     * multiple display objects can use the same complex BitmapData object without incurring the memory overhead of a
+     * BitmapData object for each display object instance.
+     * @see egret.BitmapData
      * @see egret.Texture
      * @version Egret 2.4
      * @platform Web,Native
      * @includeExample egret/display/Bitmap.ts
      */
     export class Bitmap extends DisplayObject {
-
-        /**
-         * @language en_US
-         * Initializes a Bitmap object to refer to the specified BitmapData|Texture object.
-         * @param value The BitmapData|Texture object being referenced.
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
         /**
          * @language zh_CN
          * 创建一个引用指定 BitmapData|Texture 实例的 Bitmap 对象
          * @param value 被引用的 BitmapData|Texture 实例
+         */
+        /**
+         * Initializes a Bitmap object to refer to the specified BitmapData object.
+         * @param value The BitmapData|Texture object being referenced.
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public constructor(value?: BitmapData | Texture) {
+        public constructor(value?:BitmapData) {
             super();
-            this.$renderNode = new sys.BitmapNode();
-            this.$Bitmap = {
-                0: null,     // bitmapData,
-                1: null,     // image,
-                2: 0,        // bitmapX,
-                3: 0,        // bitmapY,
-                4: 0,        // bitmapWidth,
-                5: 0,        // bitmapHeight,
-                6: 0,        // offsetX,
-                7: 0,        // offsetY,
-                8: 0,        // textureWidth,
-                9: 0,        // textureHeight
-                10: Bitmap.defaultSmoothing,    // smoothing
-                11: NaN,     //explicitBitmapWidth,
-                12: NaN      //explicitBitmapHeight,
-            };
-
-            this.$setBitmapData(value);
+            this.$nodeType = sys.NodeType.BITMAP;
+            this.bitmapData = value;
         }
 
         /**
-         * @private
+         * @internal
          */
-        $Bitmap: Object;
+        $bitmapBits = 0;
 
         /**
-         * @private
-         * 显示对象添加到舞台
+         * @internal
          */
-        $onAddToStage(stage: Stage, nestLevel: number): void {
-            super.$onAddToStage(stage, nestLevel);
+        $bitmapData:BitmapData;
 
-            let bitmapData = this.$Bitmap[sys.BitmapKeys.bitmapData];
-            if (bitmapData) {
-                BitmapData.$addDisplayObject(this, bitmapData);
-            }
-        }
-
-        /**
-         * @private
-         * 显示对象从舞台移除
-         */
-        $onRemoveFromStage(): void {
-            super.$onRemoveFromStage();
-
-            let bitmapData = this.$Bitmap[sys.BitmapKeys.bitmapData];
-            if (bitmapData) {
-                BitmapData.$removeDisplayObject(this, bitmapData);
-            }
-        }
-
-        /**
-         * @language en_US
-         * The BitmapData object being referenced.
-         * If you pass the constructor of type Texture or last set for texture, this value returns null.
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
         /**
          * @language zh_CN
          * 被引用的 BitmapData 对象。
          * 如果传入构造函数的类型为 Texture 或者最后设置的为 texture，则此值返回 null。
+         */
+        /**
+         * The BitmapData object being referenced.
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public get bitmapData(): BitmapData {
-            let value = this.$Bitmap[sys.BitmapKeys.bitmapData];
-            if (value instanceof Texture) {
-                return null;
-            }
-            else {
-                return value;
-            }
+        public get bitmapData():BitmapData {
+            return this.$bitmapData;
         }
 
-        public set bitmapData(value: BitmapData) {
-            this.$setBitmapData(value);
+        public set bitmapData(value:BitmapData) {
+            this.setBitmapData(value);
         }
 
-        /**
-         * @language en_US
-         * The Texture object being referenced.
-         * If you pass the constructor of type BitmapData or last set for bitmapData, this value returns null.
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        /**
-         * @language zh_CN
-         * 被引用的 Texture 对象。
-         * 如果传入构造函数的类型为 BitmapData 或者最后设置的为 bitmapData，则此值返回 null。
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        public get texture(): Texture {
-            let value = this.$Bitmap[sys.BitmapKeys.bitmapData];
-            if (value instanceof Texture) {
-                return value;
+        protected setBitmapData(value:BitmapData):void {
+            if (value == this.$bitmapData) {
+                return;
             }
-            else {
-                return null;
-            }
-        }
-
-        public set texture(value: Texture) {
-            this.$setBitmapData(value);
-        }
-
-        /**
-         * @private
-         */
-        $setBitmapData(value: BitmapData | Texture): boolean {
-            let values = this.$Bitmap;
-            let oldBitmapData = values[sys.BitmapKeys.bitmapData];
-            if (value == oldBitmapData) {
-                return false;
-            }
-            values[sys.BitmapKeys.bitmapData] = value;
-            if (value) {
-                this.$refreshImageData();
-            }
-            else {
-                if (oldBitmapData) {
-                    BitmapData.$removeDisplayObject(this, oldBitmapData);
-                }
-                this.setImageData(null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-                this.$invalidateContentBounds();
-                return true;
-            }
-
-            if (this.$stage) {
-                if (oldBitmapData) {
-                    let oldHashCode: number;
-                    if ((<Texture>oldBitmapData)._bitmapData && (<Texture>oldBitmapData)._bitmapData.hashCode) {
-                        oldHashCode = (<Texture>oldBitmapData)._bitmapData.hashCode;
-                    }
-                    else {
-                        oldHashCode = oldBitmapData.hashCode;
-                    }
-                    let newHashCode: number;
-                    if ((<Texture>value)._bitmapData && (<Texture>value)._bitmapData.hashCode) {
-                        newHashCode = (<Texture>value)._bitmapData.hashCode;
-                    }
-                    else {
-                        newHashCode = value.hashCode;
-                    }
-                    if (oldHashCode == newHashCode) {
-                        this.$invalidateContentBounds();
-                        return true;
-                    }
-                    BitmapData.$removeDisplayObject(this, oldBitmapData);
-                }
-                BitmapData.$addDisplayObject(this, value);
-            }
-
-            this.$invalidateContentBounds();
-            return true;
-        }
-
-        /**
-         * @private
-         */
-        public $refreshImageData(): void {
-            let values = this.$Bitmap;
-            let bitmapData = values[sys.BitmapKeys.bitmapData];
-            if (bitmapData) {
-                if (bitmapData instanceof Texture) {
-                    let texture = <Texture>bitmapData;
-                    this.setImageData(texture._bitmapData,
-                        texture._bitmapX, texture._bitmapY,
-                        texture._bitmapWidth, texture._bitmapHeight,
-                        texture._offsetX, texture._offsetY,
-                        texture.$getTextureWidth(), texture.$getTextureHeight(),
-                        texture._sourceWidth, texture._sourceHeight);
-                }
-                else {
-                    let width = (<BitmapData>bitmapData).width;
-                    let height = (<BitmapData>bitmapData).height;
-                    this.setImageData(<BitmapData>bitmapData, 0, 0, width, height, 0, 0, width, height, width, height);
-                }
-            }
-        }
-
-        /**
-         * @private
-         */
-        private setImageData(image: BitmapData, bitmapX: number, bitmapY: number, bitmapWidth: number, bitmapHeight: number,
-            offsetX: number, offsetY: number, textureWidth: number, textureHeight: number, sourceWidth: number, sourceHeight: number): void {
-            let values = this.$Bitmap;
-            values[sys.BitmapKeys.image] = image;
-            values[sys.BitmapKeys.bitmapX] = bitmapX;
-            values[sys.BitmapKeys.bitmapY] = bitmapY;
-            values[sys.BitmapKeys.bitmapWidth] = bitmapWidth;
-            values[sys.BitmapKeys.bitmapHeight] = bitmapHeight;
-            values[sys.BitmapKeys.offsetX] = offsetX;
-            values[sys.BitmapKeys.offsetY] = offsetY;
-            values[sys.BitmapKeys.textureWidth] = textureWidth;
-            values[sys.BitmapKeys.textureHeight] = textureHeight;
-            values[sys.BitmapKeys.sourceWidth] = sourceWidth;
-            values[sys.BitmapKeys.sourceHeight] = sourceHeight;
-        }
-
-        /**
-         * @private
-         */
-        $scale9Grid: egret.Rectangle = null;
-
-        /**
-         * @language en_US
-         * Represent a Rectangle Area that the 9 scale area of Image.
-         * Notice: This property is valid only when <code>fillMode</code>
-         * is <code>BitmapFillMode.SCALE</code>.
-         *
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        /**
-         * @language zh_CN
-         * 矩形区域，它定义素材对象的九个缩放区域。
-         * 注意:此属性仅在<code>fillMode</code>为<code>BitmapFillMode.SCALE</code>时有效。
-         *
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        public get scale9Grid(): egret.Rectangle {
-            return this.$scale9Grid;
-        }
-
-        public set scale9Grid(value: egret.Rectangle) {
-            this.$scale9Grid = value;
+            this.$bitmapData = value;
+            this.$bitmapBits |= sys.BitmapBits.DirtyBitmapData;
             this.$invalidateContentBounds();
         }
 
         /**
-         * @private
+         * @internal
          */
-        $fillMode: string = "scale";
-        /**
-         * @language en_US
-         * Determines how the bitmap fills in the dimensions.
-         * <p>When set to <code>BitmapFillMode.REPEAT</code>, the bitmap
-         * repeats to fill the region.</p>
-         * <p>When set to <code>BitmapFillMode.SCALE</code>, the bitmap
-         * stretches to fill the region.</p>
-         *
-         * @default <code>BitmapFillMode.SCALE</code>
-         *
-         * @version Egret 2.4
-         * @version eui 1.0
-         * @platform Web
-         */
-        /**
-         * @language zh_CN
-         * 确定位图填充尺寸的方式。
-         * <p>设置为 <code>BitmapFillMode.REPEAT</code>时，位图将重复以填充区域。</p>
-         * <p>设置为 <code>BitmapFillMode.SCALE</code>时，位图将拉伸以填充区域。</p>
-         *
-         * @default <code>BitmapFillMode.SCALE</code>
-         *
-         * @version Egret 2.4
-         * @version eui 1.0
-         * @platform Web
-         */
-        public get fillMode(): string {
-            return this.$fillMode;
-        }
-
-        public set fillMode(value: string) {
-            this.$setFillMode(value);
-        }
-
-        $setFillMode(value: string): boolean {
-            if (value == this.$fillMode) {
-                return false;
-            }
-            this.$fillMode = value;
-
-            return true;
-        }
-
-        /**
-         * @language en_US
-         * The default value of whether or not is smoothed when scaled.
-         * When object such as Bitmap is created,smoothing property will be set to this value.
-         * @default true。
-         * @version Egret 3.0
-         * @platform Web
-         */
-        /**
-         * @language zh_CN
-         * 控制在缩放时是否进行平滑处理的默认值。
-         * 在 Bitmap 等对象创建时,smoothing 属性会被设置为该值。
-         * @default true。
-         * @version Egret 3.0
-         * @platform Web
-         */
-        public static defaultSmoothing: boolean = true;
+        $smoothing:boolean = true;
 
         /**
          * @language en_US
          * Whether or not the bitmap is smoothed when scaled.
-         * @version Egret 2.4
-         * @platform Web
          */
         /**
-         * @language zh_CN
-         * 控制在缩放时是否对位图进行平滑处理。
+         * Whether or not the bitmap is smoothed when scaled.
+         * @default true
          * @version Egret 2.4
          * @platform Web
          */
-        public get smoothing(): boolean {
-            let values = this.$Bitmap;
-            return values[sys.BitmapKeys.smoothing];
+        public get smoothing():boolean {
+            return this.$smoothing;
         }
 
-        public set smoothing(value: boolean) {
+        public set smoothing(value:boolean) {
+            this.setSmoothing(value);
+        }
+
+        protected setSmoothing(value:boolean):void {
             value = !!value;
-            let values = this.$Bitmap;
-            if (value == values[sys.BitmapKeys.smoothing]) {
+            if (value == this.$smoothing) {
                 return;
             }
-            values[sys.BitmapKeys.smoothing] = value;
+            this.$smoothing = value;
+            this.$bitmapBits |= sys.BitmapBits.DirtySmoothing;
             this.$invalidate();
         }
 
         /**
-         * @private
-         *
-         * @param value
+         * @internal
          */
-        $setWidth(value: number): boolean {
-            //value = +value || 0;
-            let values = this.$Bitmap;
-            if (value < 0 || value == values[sys.BitmapKeys.explicitBitmapWidth]) {
-                return false;
-            }
-            values[sys.BitmapKeys.explicitBitmapWidth] = value;
-
-            this.$invalidateContentBounds();
-
-            return true;
-        }
-
-        /**
-         * @private
-         *
-         * @param value
-         */
-        $setHeight(value: number): boolean {
-            //value = +value || 0;
-            let values = this.$Bitmap;
-            if (value < 0 || value == values[sys.BitmapKeys.explicitBitmapHeight]) {
-                return false;
-            }
-            values[sys.BitmapKeys.explicitBitmapHeight] = value;
-
-            this.$invalidateContentBounds();
-
-            return true;
-        }
-
-        /**
-         * @private
-         * 获取显示宽度
-         */
-        $getWidth(): number {
-            let values = this.$Bitmap;
-            return isNaN(values[sys.BitmapKeys.explicitBitmapWidth]) ? this.$getContentBounds().width : values[sys.BitmapKeys.explicitBitmapWidth];
-        }
-
-        /**
-         * @private
-         * 获取显示宽度
-         */
-        $getHeight(): number {
-            let values = this.$Bitmap;
-            return isNaN(values[sys.BitmapKeys.explicitBitmapHeight]) ? this.$getContentBounds().height : values[sys.BitmapKeys.explicitBitmapHeight];
-        }
-
-        /**
-         * @private
-         */
-        $measureContentBounds(bounds: Rectangle): void {
-            let values = this.$Bitmap;
-            if (values[sys.BitmapKeys.image]) {
-                let values = this.$Bitmap;
-                let w: number = !isNaN(values[sys.BitmapKeys.explicitBitmapWidth]) ? values[sys.BitmapKeys.explicitBitmapWidth] : values[sys.BitmapKeys.textureWidth];
-                let h: number = !isNaN(values[sys.BitmapKeys.explicitBitmapHeight]) ? values[sys.BitmapKeys.explicitBitmapHeight] : values[sys.BitmapKeys.textureHeight];
-                bounds.setTo(0, 0, w, h);
-            }
-            else {
-                let w = !isNaN(values[sys.BitmapKeys.explicitBitmapWidth]) ? values[sys.BitmapKeys.explicitBitmapWidth] : 0;
-                let h = !isNaN(values[sys.BitmapKeys.explicitBitmapHeight]) ? values[sys.BitmapKeys.explicitBitmapHeight] : 0;
-
-                bounds.setTo(0, 0, w, h);
-            }
-        }
-
-        /**
-         * @private
-         */
-        $render(): void {
-            let values = this.$Bitmap;
-            if (values[sys.BitmapKeys.image]) {
-                let destW: number = !isNaN(values[sys.BitmapKeys.explicitBitmapWidth]) ? values[sys.BitmapKeys.explicitBitmapWidth] : values[sys.BitmapKeys.textureWidth];
-                let destH: number = !isNaN(values[sys.BitmapKeys.explicitBitmapHeight]) ? values[sys.BitmapKeys.explicitBitmapHeight] : values[sys.BitmapKeys.textureHeight];
-
-                sys.BitmapNode.$updateTextureData(<sys.BitmapNode>this.$renderNode, values[sys.BitmapKeys.image],
-                    values[sys.BitmapKeys.bitmapX], values[sys.BitmapKeys.bitmapY], values[sys.BitmapKeys.bitmapWidth], values[sys.BitmapKeys.bitmapHeight],
-                    values[sys.BitmapKeys.offsetX], values[sys.BitmapKeys.offsetY], values[sys.BitmapKeys.textureWidth], values[sys.BitmapKeys.textureHeight],
-                    destW, destH, values[sys.BitmapKeys.sourceWidth], values[sys.BitmapKeys.sourceHeight], this.scale9Grid || values[sys.BitmapKeys.bitmapData]["scale9Grid"], this.fillMode, values[sys.BitmapKeys.smoothing]);
-            }
-        }
-
-        private _pixelHitTest: boolean = false;
-        /**
-         * @language en_US
-         * Specifies whether this object use precise hit testing by checking the alpha value of each pixel.If pixelHitTest
-         * is set to true,the transparent area of the bitmap will be touched through.<br/>
-         * Note:If the image is loaded from cross origin,that we can't access to the pixel data,so it might cause
-         * the pixelHitTest property invalid.
-         * @default false
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
+        $scale9Grid:Rectangle = null;
         /**
          * @language zh_CN
-         * 是否开启精确像素碰撞。设置为true显示对象本身的透明区域将能够被穿透。<br/>
-         * 注意：若图片资源是以跨域方式从外部服务器加载的，将无法访问图片的像素数据，而导致此属性失效。
-         * @default false
+         * 一个矩形区域，它定义素材对象的九个缩放区域。
+         * 注意:此属性仅在<code>fillMode</code>为<code>BitmapFillMode.SCALE</code>时有效。
+         */
+        /**
+         * The current scaling grid that is in effect. If set to null, the entire bitmap is scaled normally when any scale
+         * transformation is applied. <br/>
+         * When you define the scale9Grid property, the bitmap is divided into a grid with nine regions based on the
+         * scale9Grid rectangle, which defines the center region of the grid. The eight other regions of the grid are
+         * the following areas:<p/>
+         *
+         * The upper-left corner outside of the rectangle <br/>
+         * The area above the rectangle <br/>
+         * The upper-right corner outside of the rectangle <br/>
+         * The area to the left of the rectangle <br/>
+         * The area to the right of the rectangle <br/>
+         * The lower-left corner outside of the rectangle <br/>
+         * The area below the rectangle <br/>
+         * The lower-right corner outside of the rectangle <p/>
+         *
+         * You can think of the eight regions outside of the center (defined by the rectangle) as being like a picture frame
+         * that has special rules applied to it when scaled. <br/>
+         * When the scale9Grid property is set and a bitmap is scaled, the following rules apply: <p/>
+         *
+         * Content in the center region is scaled normally. <br/>
+         * Content in the corners is not scaled. <br/>
+         * Content in the top and bottom regions is scaled horizontally only. Content in the left and right regions is
+         * scaled vertically only. <br/>
+         * All bitmaps are stretched to fit their shapes. <p/>
+         *
+         * Note: This property is valid only when fillMode is BitmapFillMode.SCALE
+         * @default null
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public get pixelHitTest(): boolean {
+        public get scale9Grid():Rectangle {
+            return this.$scale9Grid;
+        }
+
+        public set scale9Grid(value:Rectangle) {
+            this.setScale9Grid(value);
+        }
+
+        protected setScale9Grid(value:Rectangle):void {
+            this.$scale9Grid = value;
+            this.$bitmapBits |= sys.BitmapBits.DirtyScale9Grid;
+            this.$invalidate();
+        }
+
+        /**
+         * @internal
+         */
+        $fillMode:string = BitmapFillMode.SCALE;
+
+        /**
+         * Determines how the bitmap fills in the dimensions.<br/>
+         * When set to egret.BitmapFillMode.REPEAT, the bitmap repeats to fill the region.<br/>
+         * When set to egret.BitmapFillMode.SCALE, the bitmap stretches to fill the region.<br/>
+         * When set to egret.BitmapFillMode.CLIP, The bitmap ends at the edge of the region.<br/>
+         * @default egret.BitmapFillMode.SCALE
+         */
+        public get fillMode():string {
+            return this.$fillMode;
+        }
+
+        public set fillMode(value:string) {
+            this.setFillMode(value);
+        }
+
+        protected setFillMode(value:string):void {
+            if (value == this.$fillMode) {
+                return;
+            }
+            this.$fillMode = value;
+            this.$bitmapBits |= sys.BitmapBits.DirtyFillMode;
+            this.$invalidateContentBounds();
+        }
+
+
+        private _pixelHitTest:boolean = false;
+
+        /**
+         * Specifies whether this object use precise hit testing by checking the alpha value of each pixel.If pixelHitTest
+         * is set to true, the transparent area of the bitmap will not receive touch, or other user input.<br/>
+         * Note: The pixelHitTest property is invalid if the image is loaded from cross origin.
+         * @default false
+         */
+        public get pixelHitTest():boolean {
             return this._pixelHitTest;
         }
 
-        public set pixelHitTest(value: boolean) {
+        public set pixelHitTest(value:boolean) {
             this._pixelHitTest = !!value;
         }
 
-        $hitTest(stageX: number, stageY: number): DisplayObject {
-            let target = super.$hitTest(stageX, stageY);
-            if (target && this._pixelHitTest) {
-                target = this.hitTestPixel(stageX, stageY);
+        private explicitWidth:number = NaN;
+
+        protected getWidth():number {
+            return isNaN(this.explicitWidth) ? this.measuredWidth : this.explicitWidth;
+        }
+
+        protected setWidth(value:number):void {
+            value = +value || 0;
+            if (value < 0 || value === this.explicitWidth) {
+                return;
             }
-            return target;
+            this.explicitWidth = value;
+            this.$invalidateContentBounds();
+        }
+
+        private explicitHeight:number = NaN;
+
+        protected getHeight():number {
+            return isNaN(this.explicitHeight) ? this.measuredHeight : this.explicitHeight;
+        }
+
+        protected setHeight(value:number):void {
+            value = +value || 0;
+            if (value < 0 || value === this.explicitHeight) {
+                return;
+            }
+            this.explicitHeight = value;
+            this.$invalidateContentBounds();
         }
 
         /**
-         * @private
+         * @internal
          */
-        private hitTestPixel(stageX: number, stageY: number): DisplayObject {
-            let m = this.$getInvertedConcatenatedMatrix();
-            let localX = m.a * stageX + m.c * stageY + m.tx;
-            let localY = m.b * stageX + m.d * stageY + m.ty;
-            let data: number[];
-            let displayList = this.$displayList;
-            if (displayList) {
-                let buffer = displayList.renderBuffer;
-                try {
-                    data = buffer.getPixels(localX - displayList.offsetX, localY - displayList.offsetY);
-                }
-                catch (e) {
-                    console.log(this.$Bitmap[sys.BitmapKeys.bitmapData]);
-                    throw new Error(sys.tr(1039));
-                }
+        $measureContentBounds(bounds:Rectangle):void {
+            let bitmapData = this.$bitmapData;
+            if (bitmapData) {
+                let width = isNaN(this.explicitWidth) ? bitmapData.width : this.explicitWidth;
+                let height = isNaN(this.explicitHeight) ? bitmapData.height : this.explicitHeight;
+                bounds.setTo(0, 0, width, height);
             }
             else {
-                let buffer = sys.customHitTestBuffer;
-                buffer.resize(3, 3);
-                let node = this.$getRenderNode();
-                let matrix = Matrix.create();
-                matrix.identity();
-                matrix.translate(1 - localX, 1 - localY);
-                sys.systemRenderer.drawNodeToBuffer(node, buffer, matrix, true);
-                Matrix.release(matrix);
-
-                try {
-                    data = buffer.getPixels(1, 1);
-                }
-                catch (e) {
-                    console.log(this.$Bitmap[sys.BitmapKeys.bitmapData]);
-                    throw new Error(sys.tr(1039));
-                }
+                let width = isNaN(this.explicitWidth) ? 0 : this.explicitWidth;
+                let height = isNaN(this.explicitHeight) ? 0 : this.explicitHeight;
+                bounds.setTo(0, 0, width, height);
             }
-            if (data[3] === 0) {
-                return null;
-            }
-            return this;
-        }
-
-        static $drawImage(node: sys.BitmapNode, image: any,
-            bitmapX: number, bitmapY: number, bitmapWidth: number, bitmapHeight: number, offsetX: number, offsetY: number,
-            textureWidth: number, textureHeight: number, destW: number, destH: number, sourceWidth: number, sourceHeight: number,
-            scale9Grid: egret.Rectangle, fillMode: string, smoothing: boolean): void {
-            console.warn('deprecated method : Bitmap.$drawImage,use egret.sys.BitmapNode.$drawImage instead of it');
-            sys.BitmapNode.$updateTextureData(node, image, 
-                bitmapX, bitmapY, bitmapWidth, bitmapHeight, offsetX, offsetY, 
-                textureWidth, textureHeight, destW, destH, sourceWidth, sourceHeight, 
-                scale9Grid, fillMode, smoothing);
         }
 
     }
-
 }

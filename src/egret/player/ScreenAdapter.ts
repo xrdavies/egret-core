@@ -27,82 +27,41 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @internal
+ */
 namespace egret.sys {
 
     /**
-     * @private
-     * 屏幕适配器接口，当播放器视口尺寸改变时，屏幕适配器将被用于计算当前对应的舞台显示尺寸。
+     * @internal
      */
-    export interface IScreenAdapter{
+    export interface ScreenAdapter {
 
-        /**
-         * @private
-         * 计算舞台显示尺寸
-         * @param scaleMode 当前的缩放模式
-         * @param screenWidth 播放器视口宽度
-         * @param screenHeight 播放器视口高度
-         * @param contentWidth 初始化内容宽度
-         * @param contentHeight 初始化内容高度
-         */
-        calculateStageSize(scaleMode:string,screenWidth:number,screenHeight:number,
+        calculateStageSize(scaleMode:string, screenWidth:number, screenHeight:number,
                            contentWidth:number, contentHeight:number):StageDisplaySize;
     }
 
     /**
-     * @private
-     * 舞台显示尺寸数据
+     * @internal
      */
-    export interface StageDisplaySize{
+    export interface StageDisplaySize {
 
-        /**
-         * @private
-         * 舞台宽度
-         */
         stageWidth:number;
-        /**
-         * @private
-         * 舞台高度
-         */
+
         stageHeight:number;
-        /**
-         * @private
-         * 显示宽度，若跟舞台宽度不同，将会产生缩放。
-         */
+
         displayWidth:number;
-        /**
-         * @private
-         * 显示高度，若跟舞台高度不同，将会产生缩放。
-         */
+
         displayHeight:number;
     }
 
     /**
-     * @private
-     * 屏幕适配器实例，开发者可以通过给这个变量赋值实现了IScreenAdapter接口的实例，从而注入自定义的屏幕适配器。
+     * @internal
      */
-    export let screenAdapter:IScreenAdapter;
-
-    /**
-     * @private
-     * 屏幕适配器默认实现，开发者可以实现自定义规则的屏幕适配器。并在初始化加载时将适配器的实例赋值给egret.sys.screenAdapter上，从而替换掉默认适配器。
-     */
-    export class DefaultScreenAdapter extends HashObject implements IScreenAdapter {
+    export class DefaultScreenAdapter implements ScreenAdapter {
 
         /**
          * @private
-         */
-        public constructor() {
-            super();
-        }
-
-        /**
-         * @private
-         * 计算舞台显示尺寸
-         * @param scaleMode 当前的缩放模式
-         * @param screenWidth 播放器视口宽度
-         * @param screenHeight 播放器视口高度
-         * @param contentWidth 初始化内容宽度
-         * @param contentHeight 初始化内容高度
          */
         public calculateStageSize(scaleMode:string, screenWidth:number, screenHeight:number,
                                   contentWidth:number, contentHeight:number):StageDisplaySize {
@@ -113,15 +72,9 @@ namespace egret.sys {
             let scaleX = (screenWidth / stageWidth) || 0;
             let scaleY = (screenHeight / stageHeight) || 0;
             switch (scaleMode) {
-                case StageScaleMode.EXACT_FIT:
+                case egret.StageScaleMode.EXACT_FIT:
                     break;
-                case StageScaleMode.FIXED_HEIGHT:
-                    stageWidth = Math.round(screenWidth / scaleY);
-                    break;
-                case StageScaleMode.FIXED_WIDTH:
-                    stageHeight = Math.round(screenHeight / scaleX);
-                    break;
-                case StageScaleMode.NO_BORDER:
+                case egret.StageScaleMode.NO_BORDER:
                     if (scaleX > scaleY) {
                         displayHeight = Math.round(stageHeight * scaleX);
                     }
@@ -129,41 +82,18 @@ namespace egret.sys {
                         displayWidth = Math.round(stageWidth * scaleY);
                     }
                     break;
-                case StageScaleMode.SHOW_ALL:
+                case egret.StageScaleMode.SHOW_ALL:
                     if (scaleX > scaleY) {
                         displayWidth = Math.round(stageWidth * scaleY);
                     }
                     else {
                         displayHeight = Math.round(stageHeight * scaleX);
-                    }
-                    break;
-                case StageScaleMode.FIXED_NARROW:
-                    if (scaleX > scaleY) {
-                        stageWidth = Math.round(screenWidth / scaleY);
-                    }
-                    else {
-                        stageHeight = Math.round(screenHeight / scaleX);
-                    }
-                    break;
-                case StageScaleMode.FIXED_WIDE:
-                    if (scaleX > scaleY) {
-                        stageHeight = Math.round(screenHeight / scaleX);
-                    }
-                    else {
-                        stageWidth = Math.round(screenWidth / scaleY);
                     }
                     break;
                 default :
                     stageWidth = screenWidth;
                     stageHeight = screenHeight;
                     break;
-            }
-            //宽高不是2的整数倍会导致图片绘制出现问题
-            if(displayWidth % 2 != 0) {
-                displayWidth += 1;
-            }
-            if(displayHeight % 2 != 0) {
-                displayHeight += 1;
             }
             return {
                 stageWidth: stageWidth,
@@ -173,4 +103,9 @@ namespace egret.sys {
             };
         }
     }
+
+    /**
+     * @internal
+     */
+    export let screenAdapter:ScreenAdapter = new DefaultScreenAdapter();
 }

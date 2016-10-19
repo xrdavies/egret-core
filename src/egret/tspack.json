@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "skipDefaultLibCheck": true,
+    "stripInternal": true,
+    "outDir": "../../built/egret/",
+    "accessorOptimization": false,
+    "emitReflection": true,
+    "reorderFiles": true,
+    "defines": {
+      "DEBUG": true,
+      "RELEASE": false
+    }
+  },
+  "modules": [
+    {
+      "name": "egret",
+      "removeComments": false,
+      "noEmitJs": true,
+      "declaration": true,
+      "exclude": [
+        "node_modules",
+        "**/web/*",
+        "**/native/*"
+      ]
+    },
+    {
+      "name": "egret.native",
+      "exclude": [
+        "node_modules",
+        "**/web/*"
+      ]
+    },
+    {
+      "name": "egret.web",
+      "exclude": [
+        "node_modules",
+        "**/native/*"
+      ]
+    }
+  ]
+}

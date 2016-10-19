@@ -28,128 +28,38 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 namespace egret {
+
     /**
-     * @language en_US
-     * The Sprite class is a basic display list building block: a display list node that can contain children.
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @includeExample egret/display/Sprite.ts
-     */
-    /**
-     * @language zh_CN
-     * Sprite 类是基本显示列表构造块：一个可包含子项的显示列表节点。
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @includeExample egret/display/Sprite.ts
+     * The Sprite class is a basic display list building block: a display list node that can display graphics and can
+     * also contain children.
      */
     export class Sprite extends DisplayObjectContainer {
-
         /**
-         * @language en_US
-         * Creates a new Sprite instance.
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        /**
-         * @language zh_CN
-         * 实例化一个容器
-         * @version Egret 2.4
-         * @platform Web,Native
+         * Creates a new Sprite object.
          */
         public constructor() {
             super();
-            this.$graphics = new Graphics();
-            this.$graphics.$setTarget(this);
         }
 
+        private _graphics:Graphics;
         /**
-         * @private
-         */
-        $graphics:Graphics;
-
-        /**
-         * @language en_US
          * Specifies the Graphics object belonging to this Shape object, where vector drawing commands can occur.
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        /**
-         * @language zh_CN
-         * 获取 Shape 中的 Graphics 对象。可通过此对象执行矢量绘图命令。
-         * @version Egret 2.4
-         * @platform Web,Native
          */
         public get graphics():Graphics {
-            return this.$graphics;
-        }
-
-        $hitTest(stageX:number, stageY:number):DisplayObject {
-            if (!this.$visible) {
-                return null;
+            if (!this._graphics) {
+                this._graphics = new Graphics();
+                this._graphics.$targetDisplay = this;
+                this.$nodeType = sys.NodeType.GRAPHICS;
             }
-            let m = this.$getInvertedConcatenatedMatrix();
-            let localX = m.a * stageX + m.c * stageY + m.tx;
-            let localY = m.b * stageX + m.d * stageY + m.ty;
-
-            let rect = this.$scrollRect ? this.$scrollRect : this.$maskRect;
-            if (rect && !rect.contains(localX, localY)) {
-                return null;
-            }
-
-            if (this.$mask && !this.$mask.$hitTest(stageX, stageY)) {
-                return null;
-            }
-            let children = this.$children;
-            let found = false;
-            let target:DisplayObject = null;
-            for (let i = children.length - 1; i >= 0; i--) {
-                let child = children[i];
-                if (child.$maskedObject) {
-                    continue;
-                }
-                target = child.$hitTest(stageX, stageY);
-                if (target) {
-                    found = true;
-                    if(target.$touchEnabled){
-                        break;
-                    }
-                    else{
-                        target = null;
-                    }
-                }
-            }
-            if (target) {
-                if (this.$touchChildren) {
-                    return target;
-                }
-                return this;
-            }
-            if (found) {
-                return this;
-            }
-
-            target =  DisplayObject.prototype.$hitTest.call(this, stageX, stageY);
-            if (target) {
-                target = this.$graphics.$hitTest(stageX, stageY);
-            }
-
-            return target;
+            return this._graphics;
         }
 
         /**
-         * @private
+         * @internal
          */
         $measureContentBounds(bounds:Rectangle):void {
-            this.$graphics.$measureContentBounds(bounds);
-        }
-
-        /**
-         * @private
-         */
-        public $onRemoveFromStage():void {
-            super.$onRemoveFromStage();
-            if(this.$graphics) {
-                this.$graphics.$onRemoveFromStage();
+            if (this._graphics) {
+                this._graphics.$measureContentBounds(bounds);
             }
         }
     }

@@ -27,35 +27,45 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.sys {
-    /**
-     * @internal
-     */
-    export let hashCount:number = 1;
-}
-
 namespace egret {
 
-
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * The SoftKeyboardType class defines the types of soft keyboards for mobile applications. You select the keyboard
+     * type with the softKeyboardType property on the text input control.
      */
-    export class HashObject {
+    export class SoftKeyboardType {
 
         /**
-         * Initializes a HashObject
+         * Default keyboard for the current input method.
          */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
+        public static readonly DEFAULT:string = "default";
 
         /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
+         * A keypad designed for entering a person's name or phone number. This keyboard type does not support
+         * auto-capitalization.
          */
-        public readonly hashCode:number;
+        public static readonly CONTACT:string = "contact";
 
+        /**
+         * A keyboard optimized for specifying email addresses. This type features the "&", "." and space characters
+         * prominently.
+         */
+        public static readonly EMAIL:string = "email";
+
+        /**
+         * A numeric keypad designed for PIN entry. This type features the numbers 0 through 9 prominently. This keyboard
+         * type does not support auto-capitalization.
+         */
+        public static readonly NUMBER:string = "number";
+
+        /**
+         * A keyboard optimized for entering punctuation.
+         */
+        public static readonly PUNCTUATION:string = "punctuation";
+
+        /**
+         * A keyboard optimized for entering URLs. This type features ".", "/", and ".com" prominently.
+         */
+        public static readonly URL:string = "url";
     }
 }

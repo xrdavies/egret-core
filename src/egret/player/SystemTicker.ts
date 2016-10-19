@@ -26,91 +26,140 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @internal
+ */
 namespace egret.sys {
 
     /**
-     * @private
+     * @internal
      */
-    export let $START_TIME:number = 0;
+    export let systemTicker:SystemTicker;
 
     /**
-     * @private
-     * 是否要广播Event.RENDER事件的标志。
+     * @internal
      */
-    export let $invalidateRenderFlag:boolean = false;
-    /**
-     * @private
-     * 需要立即刷新屏幕的标志
-     */
-    export let $requestRenderingFlag:boolean = false;
+    export interface SystemTicker {
 
-    /**
-     * @private
-     * Egret心跳计时器
-     */
-    export class SystemTicker {
         /**
-         * @private
+         * The global frame rate.
          */
+        frameRate:number;
+
+        /**
+         * Set the global frame rate for all stages.
+         */
+        setFrameRate(value:number):void;
+
+        /**
+         * Request runtime to broadcast render events before update the screen.
+         */
+        requestRenderEvent();
+
+        /**
+         * Request runtime to update the screen at this frame.
+         */
+        requestScreenUpdate();
+
+        /**
+         * Add a player and start running it.
+         */
+        addStage(stage:egret.Stage):void;
+
+        /**
+         * Stop a player from running.
+         */
+        removeStage(stage:egret.Stage):void;
+
+        /**
+         * Register and start a timer,which will notify the callback method at a rate of 60 FPS ,and pass the current time
+         * stamp as parameters.<br/>
+         * Note: After the registration,it will notify the callback method continuously,you can call the stopTick () method to stop it.
+         * @param callBack The call back method. the timeStamp parameter of this method represents a high resolution milliseconds
+         * since the runtime was initialized. If the return value of this method is true, it will force runtime to render
+         * after processing of this method completes.
+         * @param thisObject The call back method's "this"
+         */
+        startTick(callBack:(timeStamp:number) => boolean, thisObject:any):void;
+
+        /**
+         * Stops the timer started by the startTick() method.
+         * @param callBack The call back method you passed in startTick method before.
+         * @param thisObject The call back method's "this".
+         */
+        stopTick(callBack:(timeStamp:number) => boolean, thisObject:any):void;
+
+        /**
+         * This method will be called at a rate of 60 FPS.
+         * @param timeStamp A high resolution milliseconds measured from the beginning of the runtime was initialized.
+         */
+        update(timeStamp:number):void;
+    }
+
+
+    /**
+     * @private
+     */
+    class Ticker implements SystemTicker {
+
         public constructor() {
-            if (DEBUG && $ticker) {
-                $error(1008, "egret.sys.SystemTicker");
-            }
-            $START_TIME = Date.now();
-            this.frameDeltaTime = 1000 / this.$frameRate;
-            this.lastCount = this.frameInterval = Math.round(60000 / this.$frameRate);
+            this.frameDeltaTime = 1000 / this.frameRate;
+            this.lastCount = this.frameInterval = Math.round(60000 / this.frameRate);
         }
 
-        /**
-         * @private
-         */
-        private playerList:Player[] = [];
+        private requestRenderEventFlag:boolean = false;
 
-        /**
-         * @private
-         * 注册一个播放器实例并运行
-         */
-        $addPlayer(player:Player):void {
-            if (this.playerList.indexOf(player) != -1) {
+        public requestRenderEvent() {
+            this.requestRenderEventFlag = true;
+        }
+
+        private requestScreenUpdateFlag:boolean = false;
+
+        public requestScreenUpdate() {
+            this.requestScreenUpdateFlag = true;
+        }
+
+        public frameRate:number = 60;
+        private frameInterval:number;
+        private lastCount:number;
+        private frameDeltaTime:number;
+        private lastTimeStamp:number = 0;
+
+        public setFrameRate(value:number):void {
+            this.frameRate = value;
+            if (value > 60) {
+                value = 60;
+            }
+
+            this.frameDeltaTime = 1000 / value;
+            //use '60*1000' to prevent float precision problem.
+            this.lastCount = this.frameInterval = Math.round(60000 / value);
+        }
+
+        private stageList:egret.Stage[] = [];
+
+        public addStage(stage:egret.Stage):void {
+            if (this.stageList.indexOf(stage) != -1) {
                 return;
             }
-
-            if (DEBUG) {
-                egret_stages.push(player.stage);
-            }
-            this.playerList = this.playerList.concat();
-            this.playerList.push(player);
+            this.stageList = this.stageList.concat();
+            this.stageList.push(stage);
         }
 
-        /**
-         * @private
-         * 停止一个播放器实例的运行。
-         */
-        $removePlayer(player:Player):void {
-            let index = this.playerList.indexOf(player);
+        public removeStage(stage:egret.Stage):void {
+            let index = this.stageList.indexOf(stage);
             if (index !== -1) {
-                if (DEBUG) {
-                    let i = egret_stages.indexOf(player.stage);
-                    egret_stages.splice(i, 1);
-                }
-                this.playerList = this.playerList.concat();
-                this.playerList.splice(index, 1);
+                this.stageList = this.stageList.concat();
+                this.stageList.splice(index, 1);
             }
         }
 
-        /**
-         * @private
-         */
         private callBackList:Function[] = [];
-        /**
-         * @private
-         */
+
         private thisObjectList:any[] = [];
 
-        /**
-         * @private
-         */
-        $startTick(callBack:(timeStamp:number)=>boolean, thisObject:any):void {
+        public startTick(callBack:(timeStamp:number)=>boolean, thisObject:any):void {
             let index = this.getTickIndex(callBack, thisObject);
             if (index != -1) {
                 return;
@@ -120,10 +169,7 @@ namespace egret.sys {
             this.thisObjectList.push(thisObject);
         }
 
-        /**
-         * @private
-         */
-        $stopTick(callBack:(timeStamp:number)=>boolean, thisObject:any):void {
+        public stopTick(callBack:(timeStamp:number)=>boolean, thisObject:any):void {
             let index = this.getTickIndex(callBack, thisObject);
             if (index == -1) {
                 return;
@@ -133,97 +179,39 @@ namespace egret.sys {
             this.thisObjectList.splice(index, 1);
         }
 
-        /**
-         * @private
-         */
         private getTickIndex(callBack:Function, thisObject:any):number {
             let callBackList = this.callBackList;
             let thisObjectList = this.thisObjectList;
             for (let i = callBackList.length - 1; i >= 0; i--) {
                 if (callBackList[i] == callBack &&
-                    thisObjectList[i] == thisObject) {//这里不能用===，因为有可能传入undefined和null.
+                    thisObjectList[i] == thisObject) {//do not use '==='，because they may be 'undefined' and 'null'.
                     return i;
                 }
             }
             return -1;
         }
 
-        /**
-         * @private
-         *
-         */
         private concatTick():void {
             this.callBackList = this.callBackList.concat();
             this.thisObjectList = this.thisObjectList.concat();
         }
 
-        /**
-         * @private
-         * 全局帧率
-         */
-        $frameRate:number = 30;
 
-        /**
-         * @private
-         */
-        private frameInterval:number;
-        private frameDeltaTime:number;
-        private lastTimeStamp:number = 0;
+        private enterFrameCost:number = 0;
 
-        /**
-         * @private
-         * 设置全局帧率
-         */
-        $setFrameRate(value:number):boolean {
-            value = +value || 0;
-            if (value <= 0) {
-                return false;
-            }
-            if (this.$frameRate == value) {
-                return false;
-            }
-            this.$frameRate = value;
-            if (value > 60) {
-                value = 60;
-            }
-            //todo
-            if (Capabilities.runtimeType == RuntimeType.NATIVE) {
-                egret_native.setFrameRate(value);
-                value = 60;
-            }
-            this.frameDeltaTime = 1000 / value;
-            //这里用60*1000来避免浮点数计算不准确的问题。
-            this.lastCount = this.frameInterval = Math.round(60000 / value);
-            return true;
-        }
 
-        /**
-         * @private
-         */
-        private lastCount:number;
-        /**
-         * @private
-         * ticker 花销的时间
-         */
-        private costEnterFrame:number = 0;
-
-        /**
-         * @private
-         * 执行一次刷新
-         */
-        public update():void {
+        public update(timeStamp:number):void {
             let t1 = egret.getTimer();
             let callBackList = this.callBackList;
             let thisObjectList = this.thisObjectList;
             let length = callBackList.length;
-            let requestRenderingFlag = $requestRenderingFlag;
-            let timeStamp = egret.getTimer();
-
+            let requestRenderingFlag = this.requestScreenUpdateFlag;
             for (let i = 0; i < length; i++) {
                 if (callBackList[i].call(thisObjectList[i], timeStamp)) {
                     requestRenderingFlag = true;
                 }
             }
+
             let t2 = egret.getTimer();
             let deltaTime = timeStamp - this.lastTimeStamp;
             this.lastTimeStamp = timeStamp;
@@ -234,81 +222,75 @@ namespace egret.sys {
                 this.lastCount -= 1000;
                 if (this.lastCount > 0) {
                     if (requestRenderingFlag) {
-                        this.render(false, this.costEnterFrame + t2 - t1);
+                        this.render(false, this.enterFrameCost + t2 - t1);
                     }
                     return;
                 }
                 this.lastCount += this.frameInterval;
             }
-            this.render(true, this.costEnterFrame + t2 - t1);
+
+
+            this.render(true, this.enterFrameCost + t2 - t1);
             let t3 = egret.getTimer();
             this.broadcastEnterFrame();
             let t4 = egret.getTimer();
-            this.costEnterFrame = t4 - t3;
+            this.enterFrameCost = t4 - t3;
         }
 
-        /**
-         * @private
-         * 执行一次屏幕渲染
-         */
-        private render(triggerByFrame:boolean, costTicker:number):void {
-            let playerList = this.playerList;
-            let length = playerList.length;
+        private render(triggeredByFrame:boolean, jsCost:number):void {
+            let stageList = this.stageList;
+            let length = stageList.length;
             if (length == 0) {
                 return;
             }
-            if ($invalidateRenderFlag) {
+            let t = egret.getTimer();
+            if (this.requestRenderEventFlag) {
                 this.broadcastRender();
-                $invalidateRenderFlag = false;
+                this.requestRenderEventFlag = false;
             }
+            let t2 = egret.getTimer();
+            let buffer = sys.sharedBuffer;
             for (let i = 0; i < length; i++) {
-                playerList[i].$render(triggerByFrame, costTicker);
+                let stage = stageList[i];
+                sys.Serializer.writeUpdates(stage, buffer);
+                if (buffer.length > 0) {
+                    sys.GFX.updateAndGet(buffer.arrayBuffer, buffer.length, buffer.stringTable);
+                    buffer.clear();
+                }
             }
-            $requestRenderingFlag = false;
+            let t3 = egret.getTimer();
+            sys.GFX.render(triggeredByFrame, jsCost + t2 - t, t3 - t2);
+            this.requestScreenUpdateFlag = false;
         }
 
-        /**
-         * @private
-         * 广播EnterFrame事件。
-         */
+
         private broadcastEnterFrame():void {
-            let list:any[] = DisplayObject.$enterFrameCallBackList;
+            let list = egret.DisplayObject.$enterFrameCallBackList;
             let length = list.length;
-            if (length == 0) {
+            if (length === 0) {
                 return;
             }
             list = list.concat();
             for (let i = 0; i < length; i++) {
-                list[i].dispatchEventWith(Event.ENTER_FRAME);
+                list[i].dispatchEventWith(egret.Event.ENTER_FRAME);
             }
         }
 
-        /**
-         * @private
-         * 广播Render事件。
-         */
+
         private broadcastRender():void {
-            let list = DisplayObject.$renderCallBackList;
+            let list = egret.DisplayObject.$renderCallBackList;
             let length = list.length;
-            if (length == 0) {
+            if (length === 0) {
                 return;
             }
             list = list.concat();
             for (let i = 0; i < length; i++) {
-                list[i].dispatchEventWith(Event.RENDER);
+                list[i].dispatchEventWith(egret.Event.RENDER);
             }
         }
     }
 
-    /**
-     * @private
-     * 心跳计时器单例
-     */
-    export let $ticker:SystemTicker = new sys.SystemTicker();
+    sys.systemTicker = new Ticker();
 
 }
 
-declare let egret_stages:egret.Stage[];
-if (DEBUG) {
-    egret_stages = [];
-}

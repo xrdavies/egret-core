@@ -33,18 +33,13 @@ namespace egret {
     /**
      * @private
      */
-    const enum Keys{
-        eventTarget,
-        eventsMap,
-        captureEventsMap,
-        notifyLevel
-    }
-
-
-    let ONCE_EVENT_LIST:egret.sys.EventBin[] = [];
+    let ONCE_EVENT_LIST:sys.EventBin[] = [];
+    /**
+     * @private
+     */
+    let eventPool:Event[] = [];
 
     /**
-     * @language en_US
      * The EventDispatcher class is the base class for all classes that dispatchEvent events. The EventDispatcher class implements
      * the IEventDispatcher interface and is the base class for the DisplayObject class. The EventDispatcher class allows
      * any object on the display list to be an event target and as such, to use the methods of the IEventDispatcher interface.
@@ -60,108 +55,124 @@ namespace egret {
      * another class), you can instead implement the IEventDispatcher interface, create an EventDispatcher member, and write simple
      * hooks to route calls into the aggregated EventDispatcher.
      * @see egret.IEventDispatcher
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @includeExample egret/events/EventDispatcher.ts
-     */
-    /**
-     * @language zh_CN
-     * EventDispatcher 是 Egret 的事件派发器类，负责进行事件的发送和侦听。
-     * 事件目标是事件如何通过显示列表层次结构这一问题的焦点。当发生鼠标单击、触摸或按键等事件时，
-     * 框架会将事件对象调度到从显示列表根开始的事件流中。然后该事件对象在显示列表中前进，直到到达事件目标，
-     * 然后从这一点开始其在显示列表中的回程。在概念上，到事件目标的此往返行程被划分为三个阶段：
-     * 捕获阶段包括从根到事件目标节点之前的最后一个节点的行程，目标阶段仅包括事件目标节点，冒泡阶段包括回程上遇到的任何后续节点到显示列表的根。
-     * 通常，使用户定义的类能够调度事件的最简单方法是扩展 EventDispatcher。如果无法扩展（即，如果该类已经扩展了另一个类），则可以实现
-     * IEventDispatcher 接口，创建 EventDispatcher 成员，并编写一些简单的映射，将调用连接到聚合的 EventDispatcher 中。
-     * @see egret.IEventDispatcher
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @includeExample egret/events/EventDispatcher.ts
      */
     export class EventDispatcher extends HashObject implements IEventDispatcher {
 
         /**
-         * @language en_US
          * create an instance of the EventDispatcher class.
          * @param target The target object for events dispatched to the EventDispatcher object. This parameter is used when
          * the EventDispatcher instance is aggregated by a class that implements IEventDispatcher; it is necessary so that the
          * containing object can be the target for events. Do not use this parameter in simple cases in which a class extends EventDispatcher.
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        /**
-         * @language zh_CN
-         * 创建一个 EventDispatcher 类的实例
-         * @param target 此 EventDispatcher 所抛出事件对象的 target 指向。此参数主要用于一个实现了 IEventDispatcher 接口的自定义类，
-         * 以便抛出的事件对象的 target 属性可以指向自定义类自身。请勿在直接继承 EventDispatcher 的情况下使用此参数。
-         * @version Egret 2.4
-         * @platform Web,Native
          */
         public constructor(target:IEventDispatcher = null) {
             super();
-            this.$EventDispatcher = {
-                0: target ? target : this,
-                1: {},
-                2: {},
-                3: 0
-            };
+            this.$eventTarget = target || this;
+            this.$eventsMap = sys.createMap<sys.EventBin[]>();
+            this.$captureEventsMap = sys.createMap<sys.EventBin[]>();
         }
 
         /**
-         * @private
+         * @internal
          */
-        $EventDispatcher:Object;
+        $eventTarget:IEventDispatcher;
 
         /**
-         * @private
-         *
-         * @param useCapture
+         * @internal
          */
-        $getEventMap(useCapture?:boolean) {
-            let values = this.$EventDispatcher;
-            let eventMap:any = useCapture ? values[Keys.captureEventsMap] : values[Keys.eventsMap];
-            return eventMap;
-        }
+        $eventsMap:sys.Map<sys.EventBin[]>;
 
         /**
-         * @inheritDoc
-         * @version Egret 2.4
-         * @platform Web,Native
+         * @internal
+         */
+        $captureEventsMap:sys.Map<sys.EventBin[]>;
+
+        /**
+         * @internal
+         */
+        $notifyLevel:number = 0;
+
+        /**
+         * Registers an event listener object with an EventDispatcher object so that the listener receives notification of an
+         * event. You can register event listeners on all nodes in the display list for a specific type of event, phase,
+         * and priority. After you successfully register an event listener, you cannot change its priority through additional
+         * calls to addEventListener(). To change a listener's priority, you must first call removeEventListener(). Then you can register the
+         * listener again with the new priority level.After the listener is registered, subsequent calls to addEventListener() with a
+         * different value for either type or useCapture result in the creation of a separate listener registration. <br/>
+         * When you no longer need an event listener, remove it by calling EventDispatcher.removeEventListener(); otherwise, memory
+         * problems might result. Objects with registered event listeners are not automatically removed from memory because
+         * the garbage collector does not remove objects that still have references.Copying an EventDispatcher instance does
+         * not copy the event listeners attached to it. (If your newly created node needs an event listener, you must attach
+         * the listener after creating the node.) However, if you move an EventDispatcher instance, the event listeners attached
+         * to it move along with it.If the event listener is being registered on a node while an event is also being processed
+         * on this node, the event listener is not triggered during the current phase but may be triggered during a later phase
+         * in the event flow, such as the bubbling phase.If an event listener is removed from a node while an event is being
+         * processed on the node, it is still triggered by the current actions. After it is removed, the event listener is
+         * never invoked again (unless it is registered again for future processing).
+         * @param type The type of event.
+         * @param listener The listener function that processes the event. This function must accept an event object as
+         * its only parameter and must return nothing, as this example shows: function(evt:Event):void  The function can
+         * have any name.
+         * @param thisObject the listener function's "this"
+         * @param useCapture Determines whether the listener works in the capture phase or the bubbling phases. If useCapture
+         * is set to true, the listener processes the event only during the capture phase and not in the bubbling phase.
+         * If useCapture is false, the listener processes the event only during the bubbling phase. To listen for the event
+         * in all three phases, call addEventListener() twice, once with useCapture set to true, then again with useCapture set to false.
+         * @param  priority The priority level of the event listener. Priorities are designated by a integer. The higher
+         * the number, the higher the priority. All listeners with priority n are processed before listeners of priority n-1.
+         * If two or more listeners share the same priority, they are processed in the order in which they were added.
+         * The default priority is 0.
+         * @see #once()
+         * @see #removeEventListener()
          */
         public addEventListener(type:string, listener:Function, thisObject:any, useCapture?:boolean, priority?:number):void {
             this.$addListener(type, listener, thisObject, useCapture, priority);
         }
 
         /**
-         * @inheritDoc
-         * @version Egret 2.4
-         * @platform Web,Native
+         * Registers an event listener object with an EventDispatcher object so that the listener receives notification of an
+         * event. Different from the addEventListener() method, the listener receives notification only once, and then it will be
+         * removed automatically.
+         * @param type The type of event.
+         * @param listener The listener function that processes the event. This function must accept an event object as
+         * its only parameter and must return nothing, as this example shows: function(evt:Event):void  The function can
+         * have any name.
+         * @param thisObject the listener function's "this"
+         * @param useCapture Determines whether the listener works in the capture phase or the bubbling phases. If useCapture
+         * is set to true, the listener processes the event only during the capture phase and not in the bubbling phase.
+         * If useCapture is false, the listener processes the event only during the bubbling phase. To listen for the event
+         * in all three phases, call addEventListener() twice, once with useCapture set to true, then again with useCapture set to false.
+         * @param  priority The priority level of the event listener. Priorities are designated by a integer. The higher
+         * the number, the higher the priority. All listeners with priority n are processed before listeners of priority n-1.
+         * If two or more listeners share the same priority, they are processed in the order in which they were added.
+         * The default priority is 0.
+         * @see #addEventListener()
+         * @see #removeEventListener()
          */
         public once(type:string, listener:Function, thisObject:any, useCapture?:boolean, priority?:number):void {
             this.$addListener(type, listener, thisObject, useCapture, priority, true);
         }
 
         /**
-         * @private
+         * @internal
          */
         $addListener(type:string, listener:Function, thisObject:any, useCapture?:boolean, priority?:number, dispatchOnce?:boolean):void {
-            if (DEBUG && !listener) {
-                $error(1003, "listener");
-            }
-            let values = this.$EventDispatcher;
-            let eventMap:any = useCapture ? values[Keys.captureEventsMap] : values[Keys.eventsMap];
-            let list:egret.sys.EventBin[] = eventMap[type];
+            let eventMap = useCapture ? this.$captureEventsMap : this.$eventsMap;
+            let list:sys.EventBin[] = eventMap[type];
             if (!list) {
                 list = eventMap[type] = [];
             }
-            else if (values[Keys.notifyLevel] !== 0) {
+            else if (this.$notifyLevel !== 0) {
+                // If the notifyLevel is not 0, that indicates we are traversing the event list, so we need to concat it first.
                 eventMap[type] = list = list.concat();
             }
 
             this.$insertEventBin(list, type, listener, thisObject, useCapture, priority, dispatchOnce);
         }
 
-        $insertEventBin(list:any[], type:string, listener:Function, thisObject:any, useCapture?:boolean, priority?:number, dispatchOnce?:boolean):boolean {
+        /**
+         * @internal
+         */
+        $insertEventBin(list:Array<any>, type:string, listener:Function, thisObject:any, useCapture?:boolean, priority?:number, dispatchOnce?:boolean):boolean {
             priority = +priority | 0;
             let insertIndex = -1;
             let length = list.length;
@@ -188,19 +199,24 @@ namespace egret {
         }
 
         /**
-         * @inheritDoc
-         * @version Egret 2.4
-         * @platform Web,Native
+         * Removes a listener from the EventDispatcher object. If there is no matching listener registered with the
+         * EventDispatcher object, a call to this method has no effect.
+         * @param type The type of event.
+         * @param listener The listener object to remove.
+         * @param thisObject the listener function's "this"
+         * @param useCapture Specifies whether the listener was registered for the capture phase or the bubbling phases.
+         * If the listener was registered for both the capture phase and the bubbling phases, two calls to removeEventListener()
+         * are required to remove both: one call with useCapture set to true, and another call with useCapture set to false.
          */
         public removeEventListener(type:string, listener:Function, thisObject:any, useCapture?:boolean):void {
 
-            let values = this.$EventDispatcher;
-            let eventMap:Object = useCapture ? values[Keys.captureEventsMap] : values[Keys.eventsMap];
-            let list:egret.sys.EventBin[] = eventMap[type];
+            let eventMap:Object = useCapture ? this.$captureEventsMap : this.$eventsMap;
+            let list:sys.EventBin[] = eventMap[type];
             if (!list) {
                 return;
             }
-            if (values[Keys.notifyLevel] !== 0) {
+            if (this.$notifyLevel !== 0) {
+                // If the notifyLevel is not 0, that indicates we are traversing the event list, so we need to concat it first.
                 eventMap[type] = list = list.concat();
             }
 
@@ -211,7 +227,10 @@ namespace egret {
             }
         }
 
-        $removeEventBin(list:any[], listener:Function, thisObject:any):boolean {
+        /**
+         * @internal
+         */
+        $removeEventBin(list:Array<any>, listener:Function, thisObject:any):boolean {
             let length = list.length;
             for (let i = 0; i < length; i++) {
                 let bin = list[i];
@@ -225,19 +244,26 @@ namespace egret {
         }
 
         /**
-         * @inheritDoc
-         * @version Egret 2.4
-         * @platform Web,Native
+         * Checks whether the EventDispatcher object has any listeners registered for a specific type of event. This allows
+         * you to determine where an EventDispatcher object has altered handling of an event type in the event flow hierarchy.
+         * To determine whether a specific event type will actually trigger an event listener, use IEventDispatcher.willTrigger().
+         * The difference between hasEventListener() and willTrigger() is that hasEventListener() examines only the object to
+         * which it belongs, whereas willTrigger() examines the entire event flow for the event specified by the type parameter.
+         * @param type The type of event.
+         * @returns A value of true if a listener of the specified type is registered; false otherwise.
+         * @see #willTrigger()
          */
         public hasEventListener(type:string):boolean {
-            let values = this.$EventDispatcher;
-            return !!(values[Keys.eventsMap][type] || values[Keys.captureEventsMap][type]);
+            return !!(this.$eventsMap[type] || this.$captureEventsMap[type]);
         }
 
         /**
-         * @inheritDoc
-         * @version Egret 2.4
-         * @platform Web,Native
+         * Checks whether an event listener is registered with this EventDispatcher object or any of its ancestors for the
+         * specified event type. This method returns true if an event listener is triggered during any phase of the event
+         * flow when an event of the specified type is dispatched to this EventDispatcher object or any of its descendants.
+         * @param type The type of event.
+         * @returns A value of true if a listener of the specified type will be triggered; false otherwise.
+         * @see #hasEventListener()
          */
         public willTrigger(type:string):boolean {
             return this.hasEventListener(type);
@@ -245,23 +271,22 @@ namespace egret {
 
 
         /**
-         * @inheritDoc
-         * @version Egret 2.4
-         * @platform Web,Native
+         * Dispatches an event into the event flow. The event target is the EventDispatcher object upon which dispatchEvent() is called.
+         * @param event The event object dispatched into the event flow.
+         * @returns A value of true unless preventDefault() is called on the event, in which case it returns false.
          */
         public dispatchEvent(event:Event):boolean {
-            event.$currentTarget = this.$EventDispatcher[Keys.eventTarget];
+            event.$currentTarget = this.$eventTarget;
             event.$setTarget(event.$currentTarget);
             return this.$notifyListener(event, false);
         }
 
         /**
-         * @private
+         * @internal
          */
         $notifyListener(event:Event, capturePhase:boolean):boolean {
-            let values = this.$EventDispatcher;
-            let eventMap:Object = capturePhase ? values[Keys.captureEventsMap] : values[Keys.eventsMap];
-            let list:egret.sys.EventBin[] = eventMap[event.$type];
+            let eventMap:Object = capturePhase ? this.$captureEventsMap : this.$eventsMap;
+            let list:sys.EventBin[] = eventMap[event.$type];
             if (!list) {
                 return true;
             }
@@ -270,8 +295,7 @@ namespace egret {
                 return true;
             }
             let onceList = ONCE_EVENT_LIST;
-            //做个标记，防止外部修改原始数组导致遍历错误。这里不直接调用list.concat()因为dispatch()方法调用通常比on()等方法频繁。
-            values[Keys.notifyLevel]++;
+            this.$notifyLevel++;
             for (let i = 0; i < length; i++) {
                 let eventBin = list[i];
                 eventBin.listener.call(eventBin.thisObject, event);
@@ -282,7 +306,7 @@ namespace egret {
                     break;
                 }
             }
-            values[Keys.notifyLevel]--;
+            this.$notifyLevel--;
             while (onceList.length) {
                 let eventBin = onceList.pop();
                 eventBin.target.removeEventListener(eventBin.type, eventBin.listener, eventBin.thisObject, eventBin.useCapture);
@@ -291,32 +315,29 @@ namespace egret {
         }
 
         /**
-         * @language en_US
          * Distribute a specified event parameters.
          * @param type The type of the event. Event listeners can access this information through the inherited type property.
          * @param bubbles Determines whether the Event object bubbles. Event listeners can access this information through
          * the inherited bubbles property.
-         * @param data {any} data
-         * @param cancelable Determines whether the Event object can be canceled. The default values is false.
-         * @version Egret 2.4
-         * @platform Web,Native
+         * @param data the optional data associated with this event
          */
-        /**
-         * @language zh_CN
-         * 派发一个指定参数的事件。
-         * @param type {string} 事件类型
-         * @param bubbles {boolean} 确定 Event 对象是否参与事件流的冒泡阶段。默认值为 false。
-         * @param data {any} 事件data
-         * @param cancelable {boolean} 确定是否可以取消 Event 对象。默认值为 false。
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        public dispatchEventWith(type:string, bubbles?:boolean, data?:any, cancelable?: boolean):boolean {
+        public dispatchEventWith(type:string, bubbles?:boolean, data?:any):boolean {
             if (bubbles || this.hasEventListener(type)) {
-                let event:Event = Event.create(Event, type, bubbles, cancelable);
+                let event:Event;
+                if (eventPool.length) {
+                    event = eventPool.pop();
+                    event.$type = type;
+                    event.$bubbles = !!bubbles;
+                    event.$isDefaultPrevented = false;
+                    event.$isPropagationStopped = false;
+                    event.$isPropagationImmediateStopped = false;
+                    event.$eventPhase = EventPhase.AT_TARGET;
+                }
+                event = new Event(type, bubbles);
                 event.data = data;
                 let result = this.dispatchEvent(event);
-                Event.release(event);
+                event.$clean();
+                eventPool.push(event);
                 return result;
             }
             return true;
@@ -325,37 +346,28 @@ namespace egret {
 
 }
 
+/**
+ * @internal
+ */
 namespace egret.sys {
     /**
-     * @private
-     * 事件信息对象
+     * @internal
+     * Data with event information.
      */
     export interface EventBin {
 
         type:string;
-        /**
-         * @private
-         */
-        listener: Function;
-        /**
-         * @private
-         */
+
+        listener:Function;
+
         thisObject:any;
-        /**
-         * @private
-         */
+
         priority:number;
-        /**
-         * @private
-         */
-        target:IEventDispatcher;
-        /**
-         * @private
-         */
+
+        target:egret.IEventDispatcher;
+
         useCapture:boolean;
-        /**
-         * @private
-         */
+
         dispatchOnce:boolean;
     }
 }

@@ -27,332 +27,256 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-namespace egret {
+namespace egret.sys {
     /**
-     * @language en_US
+     * @internal
+     */
+    export let stage_instantiated_guard = true;
+}
+
+namespace egret {
+
+    /**
      * The Stage class represents the main drawing area.The Stage object is not globally accessible. You need to access
      * it through the stage property of a DisplayObject instance.<br/>
      * The Stage class has several ancestor classes — Sprite, DisplayObject, and EventDispatcher — from which it inherits
      * properties and methods. Many of these properties and methods are inapplicable to Stage objects.
      * @event egret.Event.RESIZE Dispatched when the stageWidth or stageHeight property of the Stage object is changed.
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @includeExample egret/display/Stage.ts
-     */
-    /**
-     * @language zh_CN
-     * Stage 类代表主绘图区。
-     * 可以利用 DisplayObject 实例的 stage 属性进行访问。<br/>
-     * Stage 类具有多个祖代类: Sprite、DisplayObject 和 EventDispatcher，属性和方法便是从这些类继承而来的。
-     * 从这些继承的许多属性和方法不适用于 Stage 对象。
-     * @event egret.Event.RESIZE 当stageWidth或stageHeight属性发生改变时调度
-     * @event egret.Event.DEACTIVATE 当stage失去焦点后调度
-     * @event egret.Event.ACTIVATE 当stage获得焦点后调度
-     *
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @includeExample egret/display/Stage.ts
      */
     export class Stage extends DisplayObjectContainer {
 
-        /**
-         * @private
-         * Stage不许允许自行实例化
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
         public constructor() {
             super();
+            if (sys.stage_instantiated_guard) {
+                throw new Error("The Stage class cannot be instantiated.");
+            }
+
             this.$stage = this;
             this.$nestLevel = 1;
+            this.$nodeType = sys.NodeType.Stage;
+            this.$handle = sys.GFX.makeStage(this);
         }
 
         /**
-         * @language en_US
+         * @internal
+         */
+        $stageBits = sys.StageBits.DirtyFrameRate;
+        /**
+         * @internal
+         */
+        $color:number = 0xFFFFFFFF;
+
+        /**
+         * The stage background color.
+         */
+        public get color():number {
+            return this.$color;
+        }
+
+        public set color(value:number) {
+            value = +value >>> 0; // format to uint32.
+            value = value | 0xFF000000; // set alpha to 255
+            if (value == this.$color) {
+                return;
+            }
+            this.$color = value;
+            this.$stageBits |= sys.StageBits.DirtyColor;
+            this.$invalidate();
+        }
+
+        /**
          * Gets and sets the frame rate of the stage. The frame rate is defined as frames per second. Valid range for the
          * frame rate is from 0.01 to 1000 frames per second.<br/>
          * Note: setting the frameRate property of one Stage object changes the frame rate for all Stage objects
          * @default 30
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        /**
-         * @language zh_CN
-         * 获取并设置舞台的帧速率。帧速率是指每秒显示的帧数。帧速率的有效范围为每秒 0.01 到 60 个帧。<br/>
-         * 注意: 修改任何一个Stage的frameRate属性都会同步修改其他Stage的帧率。
-         * @default 30
-         * @version Egret 2.4
-         * @platform Web,Native
          */
         public get frameRate():number {
-            return sys.$ticker.$frameRate;
+            return sys.systemTicker.frameRate;
         }
 
         public set frameRate(value:number) {
-            sys.$ticker.$setFrameRate(value);
+            value = +value || 0;
+            if (value <= 0) {
+                return;
+            }
+            if (sys.systemTicker.frameRate == value) {
+                return;
+            }
+            sys.systemTicker.setFrameRate(value);
+            this.$stageBits |= sys.StageBits.DirtyFrameRate;
+            this.$invalidate();
         }
 
         /**
-         * @private
-         */
-        $stageWidth:number = 0;
-
-        /**
-         * @language en_US
-         * Indicates the width of the stage, in pixels.
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        /**
-         * @language zh_CN
-         * 舞台的当前宽度（以像素为单位）。
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        public get stageWidth():number {
-            return this.$stageWidth;
-        }
-
-        /**
-         * @private
-         */
-        $stageHeight:number = 0;
-
-        /**
-         * @language en_US
-         * Indicates the height of the stage, in pixels.
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        /**
-         * @language zh_CN
-         * 舞台的当前高度（以像素为单位）。
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        public get stageHeight():number {
-            return this.$stageHeight;
-        }
-
-        /**
-         * @language en_US
-         * After you call the invalidate() method, when the display list is next rendered, the Egret runtime sends a render
+         * After you call the invalidate() method, when the display list is next rendered, the runtime sends a render
          * event to each display object that has registered to listen for the render event. You must call the invalidate()
-         * method each time you want the Egret runtime to send render events.
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        /**
-         * @language zh_CN
-         * 调用 invalidate() 方法后，在显示列表下次呈现时，Egret 会向每个已注册侦听 Event.RENDER 事件的显示对象发送一个 Event.RENDER 事件。
-         * 每次您希望 Egret 发送 Event.RENDER 事件时，都必须调用 invalidate() 方法。
-         * @version Egret 2.4
-         * @platform Web,Native
+         * method each time you want the runtime to send render events.
          */
         public invalidate():void {
-            sys.$invalidateRenderFlag = true;
+            sys.systemTicker.requestRenderEvent();
         }
 
+        private _stageWidth:number = 0;
+
         /**
-         * @deprecated
+         * Indicates the width of the stage, in pixels.
          */
-        public registerImplementation(interfaceName:string, instance:any):void {
-            egret.registerImplementation(interfaceName, instance);
+        public get stageWidth():number {
+            return this._stageWidth;
         }
 
+        private _stageHeight:number = 0;
+
         /**
-         * @deprecated
+         * Indicates the height of the stage, in pixels.
          */
-        public getImplementation(interfaceName:string):any {
-            return egret.getImplementation(interfaceName);
+        public get stageHeight():number {
+            return this._stageHeight;
         }
 
-        /**
-         * @private
-         * 设备屏幕引用
-         */
-        $screen:egret.sys.Screen;
+        private _scaleMode:string = "";
 
-        $scaleMode:string = egret.StageScaleMode.SHOW_ALL;
         /**
-         * @language en_US
-         * A StageScaleMode class that specifies which scale mode to use. The following are valid values:<br/>
-         * <ul>
-         * <li>StageScaleMode.EXACT_FIT -- The entire application be visible in the specified area without trying to preserve the original aspect ratio. Distortion can occur, the application may be stretched or compressed.</li>
-         * <li>StageScaleMode.SHOW_ALL -- The entire application is visible in the specified area without distortion while maintaining the application of the original aspect ratio. Applications may display border.</li>
-         * <li>StageScaleMode.NO_SCALE -- The size of the entire application is fixed, so that even if the size of the player window changes, it remains unchanged. If the player window is smaller than the content, it may do some trimming.</li>
-         * <li>StageScaleMode.NO_BORDER -- Keep the original aspect ratio scaling application content, after scaling a narrow direction of application content to fill the viewport players on both sides in the other direction may exceed the viewport and the player is cut.</li>
-         * <li>StageScaleMode.FIXED_WIDTH -- Keep the original aspect ratio scaling application content, after scaling application content in the horizontal and vertical directions to fill the viewport player, but only to keep the contents of the original application constant width, height may change.</li>
-         * <li>StageScaleMode.FIXED_HEIGHT -- Keep the original aspect ratio scaling application content, after scaling application content in the horizontal and vertical directions to fill the viewport player, but only to keep the contents of the original application constant height, width may change.</li>
-         * </ul>
-         * @default egret.StageScaleMode.SHOW_ALL
-         */
-        /**
-         * @language zh_CN
-         * 一个 StageScaleMode 类中指定要使用哪种缩放模式的值。以下是有效值：<br/>
-         * <ul>
-         * <li>StageScaleMode.EXACT_FIT -- 整个应用程序在指定区域中可见，但不尝试保持原始高宽比。可能会发生扭曲，应用程序可能会拉伸或压缩显示。</li>
-         * <li>StageScaleMode.SHOW_ALL -- 整个应用程序在指定区域中可见，且不发生扭曲，同时保持应用程序的原始高宽比。应用程序的可能会显示边框。</li>
-         * <li>StageScaleMode.NO_SCALE -- 整个应用程序的大小固定，因此，即使播放器窗口的大小更改，它也会保持不变。如果播放器窗口比内容小，则可能进行一些裁切。</li>
-         * <li>StageScaleMode.NO_BORDER -- 保持原始宽高比缩放应用程序内容，缩放后应用程序内容的较窄方向填满播放器视口，另一个方向的两侧可能会超出播放器视口而被裁切。</li>
-         * <li>StageScaleMode.FIXED_WIDTH -- 保持原始宽高比缩放应用程序内容，缩放后应用程序内容在水平和垂直方向都填满播放器视口，但只保持应用程序内容的原始宽度不变，高度可能会改变。</li>
-         * <li>StageScaleMode.FIXED_HEIGHT -- 保持原始宽高比缩放应用程序内容，缩放后应用程序内容在水平和垂直方向都填满播放器视口，但只保持应用程序内容的原始高度不变，宽度可能会改变。</li>
-         * </ul>
-         * @default egret.StageScaleMode.SHOW_ALL
+         * A StageScaleMode class that specifies which scale mode to use.
+         * @default egret.StageScaleMode.NO_SCALE
          */
         public get scaleMode():string {
-            return this.$scaleMode;
+            return this._scaleMode;
         }
 
         public set scaleMode(value:string) {
-            if (this.$scaleMode == value) {
+            if (this._scaleMode == value) {
                 return;
             }
-            this.$scaleMode = value;
-            this.$screen.updateScreenSize();
+            this._scaleMode = value;
+            this.updateStageDisplayRule();
         }
 
-        $orientation:string = egret.OrientationMode.AUTO;
-        public set orientation(value:string) {
-            if (this.$orientation == value) {
+        private _contentWidth:number = 400;
+
+        private _contentHeight:number = 300;
+
+        /**
+         * Specifies the size of the stage content, in pixels.
+         * @param contentWidth The unscaled width of the stage content, in pixels. The default value is 400.
+         * @param contentHeight The unscaled height of the stage content, in pixels. The default value is 300.
+         */
+        public setContentSize(contentWidth:number, contentHeight:number):void {
+            contentWidth = +contentWidth || 0;
+            contentHeight = +contentHeight || 0;
+            if (this._contentWidth === contentWidth && this._contentHeight === contentHeight) {
                 return;
             }
-            this.$orientation = value;
-            this.$screen.updateScreenSize();
+            this._contentWidth = contentWidth;
+            this._contentHeight = contentHeight;
+            this.updateStageDisplayRule();
         }
 
-        /**
-         * @language en_US
-         * Horizontal and vertical screen display screen, can only be set under the current Native in the configuration file. A egret.OrientationMode class that specifies which display mode to use. The following are valid values:<br/>
-         * <ul>
-         * <li>egret.OrientationMode.AUTO -- Always follow the direction of application display screen, always guaranteed by the look down.</li>
-         * <li>egret.OrientationMode.PORTRAIT -- Applications remain portrait mode, namely horizontal screen look, the screen from left to right.</li>
-         * <li>egret.OrientationMode.LANDSCAPE -- Applications remain horizontal screen mode, namely vertical screen, the screen from right to left.</li>
-         * <li>egret.OrientationMode.LANDSCAPE_FLIPPED -- Applications remain horizontal screen mode, namely vertical screen, the screen from left to right.</li>
-         * </ul>
-         * @platform Web
-         * @version 2.4
-         */
-        /**
-         * @language zh_CN
-         * 屏幕横竖屏显示方式，目前 Native 下只能在配置文件里设置。一个 egret.OrientationMode 类中指定要使用哪种显示方式。以下是有效值：<br/>
-         * <ul>
-         * <li>egret.OrientationMode.AUTO -- 应用始终跟随屏幕的方向显示，始终保证由上往下看。</li>
-         * <li>egret.OrientationMode.PORTRAIT -- 应用始终保持竖屏模式，即横屏看时，屏幕由左往右看。</li>
-         * <li>egret.OrientationMode.LANDSCAPE -- 应用始终保持横屏模式，即竖屏看时，屏幕显示由右往左。</li>
-         * <li>egret.OrientationMode.LANDSCAPE_FLIPPED -- 应用始终保持横屏模式，即竖屏看时，屏幕显示由左往右。</li>
-         * </ul>
-         * @platform Web
-         * @version 2.4
-         */
-        public get orientation():string {
-            return this.$orientation;
-        }
+        private _scaleFactor:number = 1;
 
         /**
-         * @language en_US
-         * Draw texture zoom ratio
-         * @default 1
+         * Indicates the effective pixel scaling factor of the stage. This value is 1 on standard screens and 2 on HiDPI
+         * (Retina display) screens.
          */
-        /**
-         * @language zh_CN
-         * 绘制纹理的缩放比率，默认值为1
-         * @default 1
-         */
-        public get textureScaleFactor():number {
-            return egret.$TextureScaleFactor;
+        public get contentsScaleFactor():number {
+            return this._scaleFactor;
         }
 
-        public set textureScaleFactor(value:number) {
-            egret.$TextureScaleFactor = value;
-        }
+        private _screenWidth:number = 0;
 
-        $maxTouches:number = 99;
-        /**
-         * @language en_US
-         * Set the number of screens can simultaneously touch. Above this amount will not be triggered in response.
-         * @default 99
-         */
-        /**
-         * @language zh_CN
-         * 设置屏幕同时可以触摸的数量。高于这个数量将不会被触发响应。
-         * @default 99
-         */
-        public get maxTouches():number {
-            return this.$maxTouches;
-        }
+        private _screenHeight:number = 0;
 
-        public set maxTouches(value:number) {
-            if (this.$maxTouches == value) {
+        /**
+         * @internal
+         */
+        $updateScreenSize(screenWidth:number, screenHeight:number, scaleFactor:number):void {
+            screenWidth = +screenWidth || 0;
+            screenHeight = +screenHeight || 0;
+            scaleFactor = +scaleFactor || 0;
+            if (screenWidth === this._screenWidth && screenHeight === this._screenHeight && this._scaleFactor == scaleFactor) {
                 return;
             }
-            this.$maxTouches = value;
-            this.$screen.updateMaxTouches();
+            this._screenWidth = screenWidth;
+            this._screenHeight = screenHeight;
+            this._scaleFactor = scaleFactor;
+            this.updateStageDisplayRule();
+            sys.systemTicker.requestScreenUpdate();
         }
-        private $dirtyRegionPolicy:string = DirtyRegionPolicy.ON;
+
         /**
-         * @language en_US
-         * Set dirty region policy
-         * One of the constants defined by egret.DirtyRegionPolicy
-         * @version Egret 2.5.5
-         * @platform Web,Native
+         * @internal
          */
+        $displayRule:sys.StageDisplayRule = new sys.StageDisplayRule();
+
         /**
-         * @language zh_CN
-         * 设置脏矩形策略
-         * egret.DirtyRegionPolicy 定义的常量之一
-         * @version Egret 2.5.5
-         * @platform Web,Native
+         * @private
          */
-        public set dirtyRegionPolicy(policy:string) {
-            if(this.$dirtyRegionPolicy != policy){
-                this.$dirtyRegionPolicy = policy;
-                this.$displayList.setDirtyRegionPolicy(policy);
+        private updateStageDisplayRule():void {
+            let screenWidth = this._screenWidth;
+            let screenHeight = this._screenHeight;
+            let displaySize = sys.screenAdapter.calculateStageSize(this._scaleMode, screenWidth, screenHeight,
+                this._contentWidth, this._contentHeight);
+
+            let transform = this.$displayRule;
+            transform.stageWidth = displaySize.stageWidth;
+            transform.stageHeight = displaySize.stageHeight;
+            transform.displayX = (screenWidth - displaySize.displayWidth) * 0.5;
+            transform.displayY = (screenHeight - displaySize.displayHeight) * 0.5;
+            transform.displayScaleX = screenWidth / displaySize.displayWidth;
+            transform.displayScaleY = screenHeight / displaySize.displayHeight;
+            transform.contentScaleFactor = 1;
+            let scaleFactor = this._scaleFactor;
+            if (scaleFactor != 1) {
+                transform.displayX *= scaleFactor;
+                transform.displayY *= scaleFactor;
+                transform.displayScaleX *= scaleFactor;
+                transform.displayScaleY *= scaleFactor;
+            }
+            this.$stageBits |= sys.StageBits.DirtyDisplayRule;
+            this.$invalidate();
+            if (this._stageWidth != displaySize.stageWidth || this._stageHeight != displaySize.stageHeight) {
+                this._stageWidth = displaySize.stageWidth;
+                this._stageHeight = displaySize.stageHeight;
+                this.dispatchEventWith(Event.RESIZE);
             }
         }
-        public get dirtyRegionPolicy():string{
-            return this.$dirtyRegionPolicy;
-        }
 
-        /**
-         * @language en_US
-         * Set resolution size
-         * @param width width
-         * @param height height
-         * @version Egret 2.5.5
-         * @platform Web,Native
-         */
-        /**
-         * @language zh_CN
-         * 设置分辨率尺寸
-         * @param width 宽度
-         * @param height 高度
-         * @version Egret 2.5.5
-         * @platform Web,Native
-         */
-        public setContentSize(width:number, height:number):void {
-            this.$screen.setContentSize(width, height);
-        }
+
     }
 
-    if (DEBUG) {
+    /**
+     * @private
+     */
+    function markCannotUse(instance:any, property:string, defaultValue:any):void {
+        Object.defineProperty(instance.prototype, property, {
+            get: function () {
+                return defaultValue;
+            },
+            set: function (value) {
+                throw new Error("The Stage class does not implement this property or method.");
+            },
+            enumerable: true,
+            configurable: true
+        });
+    }
 
-        egret.$markCannotUse(Stage, "alpha", 1);
-        egret.$markCannotUse(Stage, "visible", true);
-        egret.$markCannotUse(Stage, "x", 0);
-        egret.$markCannotUse(Stage, "y", 0);
-        egret.$markCannotUse(Stage, "scaleX", 1);
-        egret.$markCannotUse(Stage, "scaleY", 1);
-        egret.$markCannotUse(Stage, "rotation", 0);
-        egret.$markCannotUse(Stage, "cacheAsBitmap", false);
-        egret.$markCannotUse(Stage, "scrollRect", null);
-        egret.$markCannotUse(Stage, "filters", null);
-        egret.$markCannotUse(Stage, "blendMode", null);
-        egret.$markCannotUse(Stage, "touchEnabled", true);
-        egret.$markCannotUse(Stage, "matrix", null);
-    }
-    if (DEBUG) {
-        egret.$markReadOnly(Stage, "stageWidth");
-        egret.$markReadOnly(Stage, "stageHeight");
-    }
+    markCannotUse(Stage, "alpha", 1);
+    markCannotUse(Stage, "visible", true);
+    markCannotUse(Stage, "x", 0);
+    markCannotUse(Stage, "y", 0);
+    markCannotUse(Stage, "scaleX", 1);
+    markCannotUse(Stage, "scaleY", 1);
+    markCannotUse(Stage, "rotation", 0);
+    markCannotUse(Stage, "skewX", 0);
+    markCannotUse(Stage, "skewY", 0);
+    markCannotUse(Stage, "anchorOffsetX", 0);
+    markCannotUse(Stage, "anchorOffsetY", 0);
+    markCannotUse(Stage, "cacheAsBitmap", false);
+    markCannotUse(Stage, "scrollRect", null);
+    markCannotUse(Stage, "filters", null);
+    markCannotUse(Stage, "blendMode", null);
+    markCannotUse(Stage, "touchEnabled", true);
+    markCannotUse(Stage, "touchChildren", true);
+    markCannotUse(Stage, "matrix", null);
+
 }

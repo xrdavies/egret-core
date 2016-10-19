@@ -27,226 +27,101 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-namespace egret {
+declare namespace egret {
 
     /**
-     * @language en_US
-     * A BitmapData object contains an array of pixel data. This data can represent either a fully opaque bitmap or a
-     * transparent bitmap that contains alpha channel data. Either type of BitmapData object is stored as a buffer of 32-bit
-     * integers. Each 32-bit integer determines the properties of a single pixel in the bitmap.<br/>
+     * The BitmapData class lets you work with the data (pixels) of a Bitmap object . You can use the methods of the BitmapData
+     * class to create arbitrarily sized transparent or opaque bitmap images and manipulate them in various ways at runtime.
+     * You can also access the BitmapData for a bitmap image that you load with the ImageLoader class.<br/>
+     * The methods of the BitmapData class support effects that are not available through the filters available to non-bitmap
+     * display objects.<br/>
+     * A BitmapData object contains an array of pixel data. This data can represent either a fully opaque bitmap or a transparent
+     * bitmap that contains alpha channel data. Either type of BitmapData object is stored as a buffer of 32-bit integers.
+     * Each 32-bit integer determines the properties of a single pixel in the bitmap.<br/>
      * Each 32-bit integer is a combination of four 8-bit channel values (from 0 to 255) that describe the alpha transparency
      * and the red, green, and blue (ARGB) values of the pixel. (For ARGB values, the most significant byte represents the
-     * alpha channel value, followed by red, green, and blue.)
-     * @see egret.Bitmap
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @private
+     * alpha channel value, followed by red, green, and blue.)<br/>
+     * You can attach BitmapData objects to a Bitmap object by using the bitmapData property of the Bitmap object.<br/>
+     * Calls to any method or property of a BitmapData object throw an ArgumentError error if the BitmapData object is
+     * invalid (for example, if it has height == 0 and width == 0) or it has been disposed of via dispose().
      */
-    /**
-     * @language zh_CN
-     * BitmapData 对象是一个包含像素数据的数组。此数据可以表示完全不透明的位图，或表示包含 Alpha 通道数据的透明位图。
-     * 以上任一类型的 BitmapData 对象都作为 32 位整数的缓冲区进行存储。每个 32 位整数确定位图中单个像素的属性。<br/>
-     * 每个 32 位整数都是四个 8 位通道值（从 0 到 255）的组合，这些值描述像素的 Alpha 透明度以及红色、绿色、蓝色 (ARGB) 值。
-     * （对于 ARGB 值，最高有效字节代表 Alpha 通道值，其后的有效字节分别代表红色、绿色和蓝色通道值。）
-     * @see egret.Bitmap
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @private
-     */
-    export class BitmapData extends HashObject {
+    class BitmapData {
         /**
-         * @language en_US
+         * Creates a BitmapData object with a specified width and height. If you specify a value for the fillColor parameter,
+         * every pixel in the bitmap is set to that color.<br/>
+         * By default, the bitmap is created as transparent, unless you pass the value false for the transparent parameter.
+         * After you create an opaque bitmap, you cannot change it to a transparent bitmap. Every pixel in an opaque bitmap
+         * uses only 24 bits of color channel information. If you define the bitmap as transparent, every pixel uses 32 bits
+         * of color channel information, including an alpha transparency channel.
+         * @param width The width of the bitmap image in pixels.
+         * @param height The height of the bitmap image in pixels.
+         * @param transparent Specifies whether the bitmap image supports per-pixel transparency. The default value is true (transparent).
+         * To create a fully transparent bitmap, set the value of the transparent parameter to true and the value of the fillColor
+         * parameter to 0x00000000 (or to 0). Setting the transparent property to false can result in minor improvements in
+         * rendering performance. The default value is true.
+         * @param fillColor A 32-bit ARGB color value that you use to fill the bitmap image area.
+         * The default value is 0xFFFFFFFF (solid white).
+         */
+        constructor(width:number, height:number, transparent?:boolean, fillColor?:number);
+
+        /**
+         * @internal
+         * The handle of the backend bitmap data.
+         */
+        $handle:any;
+
+        /**
+         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
+         */
+        readonly hashCode:number;
+
+        /**
          * The width of the bitmap image in pixels.
-         * @readOnly
-         * @version Egret 2.4
-         * @platform Web,Native
          */
+        readonly width:number;
+
         /**
-         * @language zh_CN
-         * 位图图像的宽度，以像素为单位。
-         * @readOnly
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        width: number;
-        /**
-         * @language en_US
          * The height of the bitmap image in pixels.
-         * @readOnly
-         * @version Egret 2.4
-         * @platform Web,Native
          */
-        /**
-         * @language zh_CN
-         * 位图图像的高度，以像素为单位。
-         * @readOnly
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        height: number;
+        readonly height:number;
 
         /**
-         * @language en_US
-         * Original bitmap image.
-         * @version Egret 2.4
-         * @platform Web,Native
+         * Defines whether the bitmap image supports per-pixel transparency. You can set this value only when you construct
+         * a BitmapData object by passing in true for the transparent parameter of the constructor. Then, after you create
+         * a BitmapData object, you can check whether it supports per-pixel transparency by determining if the value of
+         * the transparent property is true.
          */
-        /**
-         * @language zh_CN
-         * 原始位图图像。
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        source: any;
+        readonly transparent:boolean;
 
         /**
-         * @language en_US
-         * WebGL texture.
-         * @version Egret 2.4
-         * @platform Web,Native
+         * Frees memory that is used to store the BitmapData object. <br/>
+         * When the dispose() method is called on an image, the width and height of the image are set to 0. All subsequent
+         * calls to methods or properties of this BitmapData instance fail, and an exception is thrown. BitmapData.dispose()
+         * releases the memory occupied by the actual bitmap data, immediately (a bitmap can consume up to 64 MB of memory).
+         * After using BitmapData.dispose(), the BitmapData object is no longer usable and the runtime throws an exception
+         * if you call functions on the BitmapData object. However, BitmapData.dispose() does not garbage collect the BitmapData
+         * object (approximately 128 bytes); the memory occupied by the actual BitmapData object is released at the time the
+         * BitmapData object is collected by the garbage collector.
          */
-        /**
-         * @language zh_CN
-         * WebGL纹理。
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        webGLTexture: any;
+        dispose():void;
 
         /**
-         * @language en_US
-         * Texture format.
-         * @version Egret 2.4
-         * @platform Web,Native
+         * Draws the source display object onto the bitmap image. You can specify matrix, alpha, blendMode, and a destination
+         * clipRect parameter to control how the rendering performs. Optionally, you can specify whether the bitmap should
+         * be smoothed when scaled (this works only if the source object is a BitmapData object).
+         * @param source The display object or BitmapData object to draw to the BitmapData object.
+         * @param matrix A Matrix object used to scale, rotate, or translate the coordinates of the node. If you do not
+         * want to apply a matrix transformation to the image, set this parameter to an identity matrix, or pass a null
+         * value.
+         * @param alpha A float value that you use to adjust the alpha values of the node.
+         * @param blendMode A string value, from the BlendMode class, specifying the blend mode to be applied to the node.
+         * @param clipRect A Rectangle object that defines the area of the source object to draw. If you do not supply
+         * this value, no clipping occurs and the entire source object is drawn.
+         * @param smoothing  A Boolean value that determines whether a BitmapData object is smoothed when scaled or rotated,
+         * due to a scaling or rotation in the matrix parameter. The smoothing parameter only applies if the source parameter
+         * is a BitmapData object. With smoothing set to false, the rotated or scaled BitmapData image can appear pixelated
+         * or jagged.
          */
-        /**
-         * @language zh_CN
-         * 纹理格式。
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        format:string = "image";
-
-        /**
-         * @private
-         * webgl纹理生成后，是否删掉原始图像数据
-         */
-        $deleteSource:boolean = true;
-
-        constructor(source) {
-            super();
-            this.source = source;
-            this.width = source.width;
-            this.height = source.height;
-        }
-
-        public $dispose(): void {
-            if (Capabilities.runtimeType == RuntimeType.WEB && Capabilities.renderMode == "webgl" && this.webGLTexture) {
-                egret.WebGLUtils.deleteWebGLTexture(this.webGLTexture);
-                this.webGLTexture = null;
-            }
-            //native
-            if(this.source && this.source.dispose) {
-                this.source.dispose();
-            }
-            this.source = null;
-            BitmapData.$dispose(this);
-        }
-
-
-
-        private static _displayList = egret.createMap<DisplayObject[]>();
-        static $addDisplayObject(displayObject:DisplayObject, bitmapData:BitmapData|Texture):void {
-            let hashCode:number;
-            if((<Texture>bitmapData)._bitmapData && (<Texture>bitmapData)._bitmapData.hashCode) {
-                hashCode = (<Texture>bitmapData)._bitmapData.hashCode;
-            }
-            else {
-                hashCode = bitmapData.hashCode;
-            }
-            if(!hashCode) {
-                return;
-            }
-            if (!BitmapData._displayList[hashCode]) {
-                BitmapData._displayList[hashCode] = [displayObject];
-                return;
-            }
-
-            let tempList:Array<DisplayObject> = BitmapData._displayList[hashCode];
-            if (tempList.indexOf(displayObject) < 0) {
-                tempList.push(displayObject);
-            }
-        }
-
-        static $removeDisplayObject(displayObject:DisplayObject, bitmapData:BitmapData|Texture):void {
-            let hashCode:number;
-            if((<Texture>bitmapData)._bitmapData && (<Texture>bitmapData)._bitmapData.hashCode) {
-                hashCode = (<Texture>bitmapData)._bitmapData.hashCode;
-            }
-            else {
-                hashCode = bitmapData.hashCode;
-            }
-            if(!hashCode) {
-                return;
-            }
-            if (!BitmapData._displayList[hashCode]) {
-                return;
-            }
-
-            let tempList:Array<DisplayObject> = BitmapData._displayList[hashCode];
-            let index:number = tempList.indexOf(displayObject);
-            if (index >= 0) {
-                tempList.splice(index);
-            }
-        }
-
-        static $invalidate(bitmapData:BitmapData|Texture):void {
-            let hashCode:number;
-            if((<Texture>bitmapData)._bitmapData && (<Texture>bitmapData)._bitmapData.hashCode) {
-                hashCode = (<Texture>bitmapData)._bitmapData.hashCode;
-            }
-            else {
-                hashCode = bitmapData.hashCode;
-            }
-            if(!hashCode) {
-                return;
-            }
-
-            if (!BitmapData._displayList[hashCode]) {
-                return;
-            }
-            let tempList:Array<DisplayObject> = BitmapData._displayList[hashCode];
-            for (let i:number = 0; i < tempList.length; i++) {
-                if (tempList[i] instanceof egret.Bitmap) {
-                    (<egret.Bitmap>tempList[i]).$refreshImageData();
-                }
-                tempList[i].$invalidateContentBounds();
-            }
-        }
-
-        static $dispose(bitmapData:BitmapData|Texture):void {
-            let hashCode:number;
-            if((<Texture>bitmapData)._bitmapData && (<Texture>bitmapData)._bitmapData.hashCode) {
-                hashCode = (<Texture>bitmapData)._bitmapData.hashCode;
-            }
-            else {
-                hashCode = bitmapData.hashCode;
-            }
-            if(!hashCode) {
-                return;
-            }
-
-            if (!BitmapData._displayList[hashCode]) {
-                return;
-            }
-            let tempList:Array<DisplayObject> = BitmapData._displayList[hashCode];
-            for (let i:number = 0; i < tempList.length; i++) {
-                if (tempList[i] instanceof egret.Bitmap) {
-                    (<egret.Bitmap>tempList[i]).$Bitmap[sys.BitmapKeys.image] = null;
-                }
-                tempList[i].$invalidateContentBounds();
-            }
-            delete BitmapData._displayList[hashCode];
-        }
+        draw(source:DisplayObject|BitmapData, matrix?:Matrix, alpha?:number, blendMode?:string, clipRect?:Rectangle, smoothing?:boolean);
     }
 }

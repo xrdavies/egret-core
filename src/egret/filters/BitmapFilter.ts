@@ -27,35 +27,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.sys {
-    /**
-     * @internal
-     */
-    export let hashCount:number = 1;
-}
-
 namespace egret {
 
-
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * The BitmapFilter class is the base class for all image filter effects.<br/>
+     * The BevelFilter, BlurFilter, ColorMatrixFilter, ConvolutionFilter, DisplacementMapFilter, DropShadowFilter,
+     * GlowFilter, GradientBevelFilter, and GradientGlowFilter classes all extend the BitmapFilter class. You can apply
+     * these filter effects to any display object.<br/>
      */
-    export class HashObject {
+    export abstract class BitmapFilter {
 
         /**
-         * Initializes a HashObject
+         * Returns a BitmapFilter object that is an exact copy of the original BitmapFilter object.
          */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
-
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
-
+        abstract clone():BitmapFilter;
     }
 }

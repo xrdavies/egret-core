@@ -30,32 +30,18 @@
 /**
  * @internal
  */
-namespace egret.sys {
-    /**
-     * @internal
-     */
-    export let hashCount:number = 1;
-}
+namespace egret.native {
 
-namespace egret {
-
-
-    /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
-     */
-    export class HashObject {
-
-        /**
-         * Initializes a HashObject
-         */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
+    function draw(source:egret.DisplayObject|egret.BitmapData, matrix?:egret.Matrix,
+                  alpha?:number, blendMode?:string, clipRect?:egret.Rectangle, smoothing?:boolean) {
+        if (!(source instanceof egret.DisplayObject) && !(source instanceof egret.BitmapData)) {
+            throw new Error("Parameter 0 is of the incorrect type. Should be type egret.DisplayObject|egret.BitmapData.");
         }
-
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
-
+        let buffer = sys.sharedBuffer;
+        sys.Serializer.writeDrawToBitmap(this, buffer, source, matrix, alpha, blendMode, clipRect, smoothing);
+        sys.GFX.updateAndGet(buffer.arrayBuffer, buffer.length, buffer.stringTable);
+        buffer.clear();
     }
+
+    egret.BitmapData.prototype.draw = draw;
 }

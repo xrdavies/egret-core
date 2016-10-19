@@ -27,35 +27,47 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.sys {
+interface Global extends WindowTimers,WindowConsole {
+    clearImmediate(handle:number):void;
+    setImmediate(expression:any, ...args:any[]):number;
     /**
-     * @internal
+     * The global property of a global object points to the global object itself.
      */
-    export let hashCount:number = 1;
+        global:Global;
 }
 
-namespace egret {
+/**
+ * The global property of a global object points to the global object itself.
+ */
+let global:Global = this;
 
+/**
+ * @language zh_CN
+ * 是否为 debug 模式。
+ */
+/**
+ * Is debug mode.
+ * @version Egret 2.5
+ * @platform Web,Native
+ */
+declare let DEBUG:boolean;
 
-    /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
-     */
-    export class HashObject {
+/**
+ * @language zh_CN
+ * 是否为 release 模式。
+ */
+/**
+ * Is release mode.
+ * @version Egret 2.5
+ * @platform Web,Native
+ */
+declare let RELEASE:boolean;
 
-        /**
-         * Initializes a HashObject
-         */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
-
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
-
-    }
+if (!RELEASE) {
+    DEBUG = true;
+    RELEASE = false;
+}
+else {
+    DEBUG = false;
+    RELEASE = true;
 }

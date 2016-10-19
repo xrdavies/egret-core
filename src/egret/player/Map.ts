@@ -31,31 +31,25 @@
  * @internal
  */
 namespace egret.sys {
+
     /**
      * @internal
      */
-    export let hashCount:number = 1;
-}
-
-namespace egret {
-
+    export interface Map<T> {
+        [index:string]:T;
+        [index:number]:T;
+    }
 
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * @internal
      */
-    export class HashObject {
-
-        /**
-         * Initializes a HashObject
-         */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
-
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
-
+    export function createMap<T>():Map<T> {
+        const map:Map<T> = Object.create(null);
+        // Using 'delete' on an object causes V8 to put the object in dictionary mode.
+        // This disables creation of hidden classes, which are expensive when an object is
+        // constantly changing shape.
+        map["__"] = undefined;
+        delete map["__"];
+        return map;
     }
 }

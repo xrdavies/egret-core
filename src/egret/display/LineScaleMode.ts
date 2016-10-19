@@ -27,35 +27,34 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.sys {
-    /**
-     * @internal
-     */
-    export let hashCount:number = 1;
-}
-
 namespace egret {
 
-
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * The LineScaleMode class provides values for the scaleMode parameter in the Graphics.lineStyle() method.
      */
-    export class HashObject {
+    export class LineScaleMode {
 
         /**
-         * Initializes a HashObject
+         * With this setting used as the scaleMode parameter of the lineStyle() method, the thickness of the line always
+         * scales when the object is scaled (the default).
          */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
+        public static readonly NORMAL:string = "normal";
 
         /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
+         * With this setting used as the scaleMode parameter of the lineStyle() method, the thickness of the line never scales.
          */
-        public readonly hashCode:number;
+        public static readonly NONE:string = "none";
 
+        /**
+         *  With this setting used as the scaleMode parameter of the lineStyle() method, the thickness of the line scales
+         *  only horizontally.
+         */
+        public static readonly HORIZONTAL:string = "horizontal";
+
+        /**
+         * With this setting used as the scaleMode parameter of the lineStyle() method, the thickness of the line scales
+         * only vertically.
+         */
+        public static readonly VERTICAL:string = "vertical";
     }
 }

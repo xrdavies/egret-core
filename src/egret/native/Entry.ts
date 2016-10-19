@@ -30,32 +30,47 @@
 /**
  * @internal
  */
-namespace egret.sys {
+namespace egret.native {
+
     /**
      * @internal
+     * Egret entry point.
+     * @param args An object containing the initialization properties for Egret.
      */
-    export let hashCount:number = 1;
-}
+    export function runEgret(args:string[]):void {
+        sys.stage_instantiated_guard = false;
+        let stage = new egret.Stage();
+        sys.stage_instantiated_guard = true;
+        attachEntryClass(stage, "egret.Main");
+        sys.systemTicker.addStage(stage);
+    }
 
-namespace egret {
-
+    function attachEntryClass(stage:egret.Stage, entryClassName:string):void {
+        let rootClass;
+        if (entryClassName) {
+            rootClass = egret.getDefinitionByName(entryClassName);
+        }
+        if (rootClass) {
+            let rootContainer:any = new rootClass();
+            if (rootContainer instanceof egret.DisplayObject) {
+                stage.addChild(rootContainer);
+            }
+            else {
+                throw new TypeError("Egret entry class '" + entryClassName + "' must inherit from egret.DisplayObject.");
+            }
+        }
+        else {
+            throw new Error("Could not find Egret entry class: " + entryClassName + ".");
+        }
+    }
 
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * @internal
+     * This method will be called at a rate of 60 FPS.
+     * @param timeStamp A high resolution milliseconds measured from the beginning of the runtime was initialized.
      */
-    export class HashObject {
-
-        /**
-         * Initializes a HashObject
-         */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
-
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
-
+    export function updateFrame(timeStamp:number):void {
+        sys.systemTicker.update(timeStamp);
     }
+
 }

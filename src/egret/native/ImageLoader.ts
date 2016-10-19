@@ -30,32 +30,74 @@
 /**
  * @internal
  */
-namespace egret.sys {
+declare namespace egret.native {
+
     /**
      * @internal
+     * load image from url.
+     * @param url The URL of the image to be loaded.
+     * @param callback The callback function that receive the loaded image data.
+     * @param thisObject the listener function's "this"
      */
-    export let hashCount:number = 1;
+    function loadImageFromURL(url:string, callback:(data:egret.BitmapData)=>void, thisObject:any);
+
 }
 
-namespace egret {
-
+/**
+ * @internal
+ */
+namespace egret.native {
 
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * @private
      */
-    export class HashObject {
+    let ioErrorEvent = new egret.IOErrorEvent(egret.IOErrorEvent.IO_ERROR);
+
+    /**
+     * @internal
+     * @copy egret.ImageLoader
+     */
+    class ImageLoader extends egret.EventDispatcher implements egret.ImageLoader {
+        /**
+         * @copy egret.ImageLoader#data
+         */
+        public data:egret.BitmapData = null;
+        /**
+         * @private
+         */
+        private currentURL:string;
 
         /**
-         * Initializes a HashObject
+         * @copy egret.ImageLoader#load
          */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
+        public load(url:string):void {
+            this.currentURL = url;
+            loadImageFromURL(url, this.onLoadFinish, this);
         }
 
         /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
+         * @private
          */
-        public readonly hashCode:number;
+        private onLoadFinish(data:egret.BitmapData) {
+            this.data = data;
+            if (data) {
+                this.dispatchEventWith(egret.Event.COMPLETE);
+            }
+            else {
+                let errorText = "Stream Error. URL: " + this.currentURL;
+                ioErrorEvent.text = errorText;
+                if (this.hasEventListener(egret.IOErrorEvent.IO_ERROR)) {
+                    this.dispatchEvent(ioErrorEvent);
+                }
+                else {
+                    throw new URIError(errorText);
+                }
 
+            }
+
+        }
     }
+
+    egret.ImageLoader = ImageLoader;
+
 }
