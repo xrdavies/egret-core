@@ -29,9 +29,17 @@
 
 namespace egret {
     /**
+     * @language zh_CN
+     * 提供混合模式可视效果的常量值的类,通常用于 DisplayObject 的 blendMode 属性上。
+     */
+    /**
      * A class that provides constant values for visual blend mode effects. These constants are used in the blendMode
      * property of the DisplayObject class.
      * @see egret.DisplayObject#blendMode
+     * @see http://edn.egret.com/cn/docs/page/108 显示容器的概念与实现
+     * @version Egret 2.4
+     * @platform Web,Native
+     * @includeExample egret/display/BlendMode.ts
      */
     export class BlendMode {
         /**
