@@ -71,7 +71,7 @@ namespace egret.sys {
 
         public static writeUpdates(object:egret.DisplayObject, buffer:Buffer):void {
             if (!object.$handle) {
-                object.$handle = sys.GFX.makeNode(object, object.$nodeType);
+                object.$handle = sys.MakeNode(object, object.$nodeType);
             }
             if (object.$dirtyDescendents) {
                 object.$dirtyDescendents = false;
@@ -203,7 +203,7 @@ namespace egret.sys {
                 let mask = dp.$mask;
                 if (mask) {
                     if (!mask.$handle) {
-                        mask.$handle = sys.GFX.makeNode(mask, mask.$nodeType);
+                        mask.$handle = sys.MakeNode(mask, mask.$nodeType);
                     }
                     buffer.writeHandle(mask.$handle);
                 }

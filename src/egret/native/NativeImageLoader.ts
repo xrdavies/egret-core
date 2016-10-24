@@ -30,47 +30,74 @@
 /**
  * @internal
  */
+declare namespace egret.native {
+
+    /**
+     * @internal
+     * load image from url.
+     * @param url The URL of the image to be loaded.
+     * @param callback The callback function that receive the loaded image data.
+     * @param thisObject the listener function's "this"
+     */
+    function loadImageFromURL(url:string, callback:(data:egret.BitmapData)=>void, thisObject:any);
+
+}
+
+/**
+ * @internal
+ */
 namespace egret.native {
 
     /**
-     * @internal
-     * Egret entry point.
-     * @param args An object containing the initialization properties for Egret.
+     * @private
      */
-    export function runEgret(args:string[]):void {
-        sys.stage_instantiated_guard = false;
-        let stage = new egret.Stage();
-        sys.stage_instantiated_guard = true;
-        attachEntryClass(stage, "egret.Main");
-        sys.systemTicker.addStage(stage);
-    }
-
-    function attachEntryClass(stage:egret.Stage, entryClassName:string):void {
-        let rootClass;
-        if (entryClassName) {
-            rootClass = egret.getDefinitionByName(entryClassName);
-        }
-        if (rootClass) {
-            let rootContainer:any = new rootClass();
-            if (rootContainer instanceof egret.DisplayObject) {
-                stage.addChild(rootContainer);
-            }
-            else {
-                throw new TypeError("Egret entry class '" + entryClassName + "' must inherit from egret.DisplayObject.");
-            }
-        }
-        else {
-            throw new Error("Could not find Egret entry class: " + entryClassName + ".");
-        }
-    }
+    let ioErrorEvent = new egret.IOErrorEvent(egret.IOErrorEvent.IO_ERROR);
 
     /**
      * @internal
-     * This method will be called at a rate of 60 FPS.
-     * @param timeStamp A high resolution milliseconds measured from the beginning of the runtime was initialized.
+     * @copy egret.ImageLoader
      */
-    export function updateFrame(timeStamp:number):void {
-        sys.systemTicker.update(timeStamp);
+    class NativeImageLoader extends egret.EventDispatcher implements egret.ImageLoader {
+        /**
+         * @copy egret.ImageLoader#data
+         */
+        public data:egret.BitmapData = null;
+        /**
+         * @private
+         */
+        private currentURL:string;
+
+        /**
+         * @copy egret.ImageLoader#load
+         */
+        public load(url:string):void {
+            this.currentURL = url;
+            loadImageFromURL(url, this.onLoadFinish, this);
+        }
+
+        /**
+         * @private
+         */
+        private onLoadFinish(data:egret.BitmapData) {
+            this.data = data;
+            if (data) {
+                this.dispatchEventWith(egret.Event.COMPLETE);
+            }
+            else {
+                let errorText = "Stream Error. URL: " + this.currentURL;
+                ioErrorEvent.text = errorText;
+                if (this.hasEventListener(egret.IOErrorEvent.IO_ERROR)) {
+                    this.dispatchEvent(ioErrorEvent);
+                }
+                else {
+                    throw new URIError(errorText);
+                }
+
+            }
+
+        }
     }
+
+    egret.ImageLoader = NativeImageLoader;
 
 }

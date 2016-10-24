@@ -35,35 +35,6 @@ namespace egret.sys {
     /**
      * @internal
      */
-    export declare class GFX {
-        /**
-         * Performs a rendering session. Draws all changed display objects to the screen.
-         * @param triggeredByFrame Indicates whether this call is triggered at the end of a frame.
-         * @param jsCost The cost time of executing javascript, in million seconds.
-         * @param syncCost The cost time of synchronizing display list, in million seconds.
-         */
-        static render(triggeredByFrame:boolean, jsCost:number, syncCost:number):void;
-
-        /**
-         * Sends the commands to the backend to be executed.
-         */
-        static updateAndGet(input:ArrayBuffer, inputLength:number, stringTable:string[], output?:ArrayBuffer):void;
-
-        /**
-         * Creates a backend node, and returns the id of the node.
-         */
-        static makeNode(dp:egret.DisplayObject, nodeType:number):number;
-
-        /**
-         * Creates a backend stage width the specified stage instance, and returns the id of the stage node.
-         */
-        static makeStage(stage:egret.Stage):number;
-    }
-
-
-    /**
-     * @internal
-     */
     export const enum NodeType {
         Node       = 0,
         Stage      = 1,
@@ -106,44 +77,44 @@ namespace egret.sys {
      * @internal
      */
     export const enum StageBits {
-        DirtyColor       = 0x1,
-        DirtyDisplayRule = 0x2,
-        DirtyFrameRate   = 0x4
+        DirtyColor       = 1 << 0,
+        DirtyDisplayRule = 1 << 1,
+        DirtyFrameRate   = 1 << 2
     }
 
     /**
      * @internal
      */
     export const enum BitmapBits {
-        DirtyBitmapData = 0x1,
-        DirtyScale9Grid = 0x2,
-        DirtySmoothing  = 0x4,
-        DirtyFillMode   = 0x8
+        DirtyBitmapData = 1 << 0,
+        DirtyScale9Grid = 1 << 1,
+        DirtySmoothing  = 1 << 2,
+        DirtyFillMode   = 1 << 3
     }
 
     export const enum TextFieldBits {
-        DirtyType              = 0x1,
-        DirtyFontFamily        = 0x2,
-        DirtySize              = 0x3,
-        DirtyBold              = 0x8,
-        DirtyItalic            = 0x10,
-        DirtyTextAlign         = 0x20,
-        DirtyVerticalAlign     = 0x40,
-        DirtyLineSpacing       = 0x80,
-        DirtyTextColor         = 0x100,
-        DirtyWordWrap          = 0x200,
-        DirtyStroke            = 0x400,
-        DirtyStrokeColor       = 0x800,
-        DirtyBorder            = 0x1000,
-        DirtyBorderColor       = 0x2000,
-        DirtyBackground        = 0x4000,
-        DirtyBackgroundColor   = 0x8000,
-        DirtyText              = 0x10000,
-        DirtyDisplayAsPassword = 0x20000,
-        DirtyMaxChars          = 0x40000,
-        DirtyMultiline         = 0x80000,
-        DirtyPattern           = 0x100000,
-        DirtySoftKeyboardType  = 0x200000
+        DirtyType              = 1 << 0,
+        DirtyFontFamily        = 1 << 1,
+        DirtySize              = 1 << 2,
+        DirtyBold              = 1 << 3,
+        DirtyItalic            = 1 << 4,
+        DirtyTextAlign         = 1 << 5,
+        DirtyVerticalAlign     = 1 << 6,
+        DirtyLineSpacing       = 1 << 7,
+        DirtyTextColor         = 1 << 8,
+        DirtyWordWrap          = 1 << 9,
+        DirtyStroke            = 1 << 10,
+        DirtyStrokeColor       = 1 << 11,
+        DirtyBorder            = 1 << 12,
+        DirtyBorderColor       = 1 << 13,
+        DirtyBackground        = 1 << 14,
+        DirtyBackgroundColor   = 1 << 15,
+        DirtyText              = 1 << 16,
+        DirtyDisplayAsPassword = 1 << 17,
+        DirtyMaxChars          = 1 << 18,
+        DirtyMultiline         = 1 << 19,
+        DirtyPattern           = 1 << 20,
+        DirtySoftKeyboardType  = 1 << 21
     }
 
     /**

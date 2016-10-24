@@ -31,11 +31,132 @@
  * @internal
  */
 namespace egret.sys {
+    /**
+     * @internal
+     */
+    export interface Buffer {
+
+        readonly length:number;
+        readonly bytesAvailable:number;
+        position:number;
+        readonly arrayBuffer:ArrayBuffer;
+        readonly stringTable:string[];
+        maxSizeOnClear:number;
+
+        /**
+         * reset the buffer.
+         */
+        clear():void;
+
+        /**
+         * Reads a Boolean value from the byte stream. A signed 32-bit integer is read, and true is returned if the integer is
+         * nonzero, false otherwise.
+         */
+        readBoolean():boolean;
+
+        /**
+         * Reads a signed 32-bit integer from the byte stream.
+         */
+        readInt():number;
+
+        /**
+         * Reads an unsigned 32-bit integer from the byte stream. The returned value is in the range 0 to 4294967295.
+         */
+        readUnsignedInt():number;
+
+        /**
+         * Reads an IEEE 754 single-precision (32-bit) floating-point number from the byte stream.
+         */
+        readFloat():number;
+
+        /**
+         * Reads a UTF-8 string from the byte stream.
+         */
+        readString():string;
+
+        /**
+         * Writes a Boolean value. A signed 32-bit integer is written according to the value parameter, either 1 if true
+         * or 0 if false.
+         */
+        writeBoolean(value:boolean):void;
+
+        /**
+         * Writes a 32-bit signed integer to the byte stream.
+         */
+        writeInt(value:number):void;
+
+        /**
+         * Writes two 32-bit signed integers to the byte stream.
+         */
+        write2Ints(a:number, b:number):void;
+
+        /**
+         * Writes four 32-bit signed integers to the byte stream.
+         */
+        write4Ints(a:number, b:number, c:number, d:number):void;
+
+        /**
+         * Writes a 32-bit unsigned integer to the byte stream.
+         */
+        writeUnsignedInt(value:number):void;
+
+        /**
+         * Writes an IEEE 754 single-precision (32-bit) floating-point number to the byte stream.
+         */
+        writeFloat(value:number):void;
+
+        /**
+         * Writes two IEEE 754 single-precision (32-bit) floating-point numbers to the byte stream.
+         */
+        write2Floats(a:number, b:number):void;
+
+        /**
+         * Writes four IEEE 754 single-precision (32-bit) floating-point numbers to the byte stream.
+         */
+        write4Floats(a:number, b:number, c:number, d:number):void;
+
+        /**
+         * Writes six IEEE 754 single-precision (32-bit) floating-point numbers to the byte stream.
+         */
+        write6Floats(a:number, b:number, c:number, d:number, e:number, f:number):void;
+
+        /**
+         * Writes a UTF-8 string to the byte stream.
+         */
+        writeString(value:string):void;
+
+        /**
+         * Writes a backend handle to the byte stream.
+         */
+        writeHandle(handle:any):void;
+    }
+
+    /**
+     * internal
+     */
+    export let Buffer: {
+        /**
+         * Creates a Buffer instance.
+         */
+        new(initialSize?:number):Buffer;
+    };
 
     /**
      * @internal
      */
-    export class Buffer {
+    export let sharedBuffer:Buffer;
+}
+
+
+/**
+ * @internal
+ */
+namespace egret.sys {
+
+    /**
+     * @internal
+     */
+    export class BufferBase {
 
         public constructor(initialSize:number = 128) {
             if (initialSize == 0) {
@@ -45,7 +166,7 @@ namespace egret.sys {
             this.resetViews();
         }
 
-        private _length:number = 0;
+        _length:number = 0;
 
         public get length():number {
             return this._length;
@@ -57,10 +178,10 @@ namespace egret.sys {
             return this._length - this.position;
         }
 
-        private _arrayBuffer:ArrayBuffer;
-        private int32Array:Int32Array;
-        private uint32Array:Uint32Array;
-        private float32Array:Float32Array;
+        _arrayBuffer:ArrayBuffer;
+        int32Array:Int32Array;
+        uint32Array:Uint32Array;
+        float32Array:Float32Array;
 
         public get arrayBuffer():ArrayBuffer {
             return this._arrayBuffer;
@@ -72,12 +193,9 @@ namespace egret.sys {
             return this._stringTable;
         }
 
-        private byteLength:number = 0;
+        byteLength:number = 0;
 
-        /**
-         * @private
-         */
-        private ensureCapacity(length:number) {
+        ensureCapacity(length:number) {
             length *= 4;
             let newLength = this._arrayBuffer.byteLength;
             while (newLength < length) {
@@ -307,27 +425,6 @@ namespace egret.sys {
             this._stringTable.push(value);
         }
 
-        public writeHandle(handle:any):void {
-            let position = this.position;
-            let length = (<Uint32Array>handle).length;
-            if (this.byteLength < position + length) {
-                this.ensureCapacity(position + length);
-            }
-            this.uint32Array[position++] = (<Uint32Array>handle)[0];
-            if (length > 1) {
-                this.uint32Array[position++] = (<Uint32Array>handle)[1];
-            }
-
-            this.position = position;
-            if (position > this._length) {
-                this._length = position;
-            }
-        }
-
     }
 
-    /**
-     * @internal
-     */
-    export let sharedBuffer:Buffer = new Buffer(4096);  // 4 Kb
 }

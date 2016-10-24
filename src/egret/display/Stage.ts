@@ -54,7 +54,7 @@ namespace egret {
             this.$stage = this;
             this.$nestLevel = 1;
             this.$nodeType = sys.NodeType.Stage;
-            this.$handle = sys.GFX.makeStage(this);
+            this.$handle = sys.MakeStage(this);
         }
 
         /**

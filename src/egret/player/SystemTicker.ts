@@ -254,12 +254,12 @@ namespace egret.sys {
                 let stage = stageList[i];
                 sys.Serializer.writeUpdates(stage, buffer);
                 if (buffer.length > 0) {
-                    sys.GFX.updateAndGet(buffer.arrayBuffer, buffer.length, buffer.stringTable);
+                    sys.UpdateAndGet(buffer);
                     buffer.clear();
                 }
             }
             let t3 = egret.getTimer();
-            sys.GFX.render(triggeredByFrame, jsCost + t2 - t, t3 - t2);
+            sys.Render(triggeredByFrame, jsCost + t2 - t, t3 - t2);
             this.requestScreenUpdateFlag = false;
         }
 

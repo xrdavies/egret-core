@@ -32,16 +32,30 @@
  */
 namespace egret.native {
 
-    function draw(source:egret.DisplayObject|egret.BitmapData, matrix?:egret.Matrix,
-                  alpha?:number, blendMode?:string, clipRect?:egret.Rectangle, smoothing?:boolean) {
-        if (!(source instanceof egret.DisplayObject) && !(source instanceof egret.BitmapData)) {
-            throw new Error("Parameter 0 is of the incorrect type. Should be type egret.DisplayObject|egret.BitmapData.");
+    /**
+     * @internal
+     * Egret entry point.
+     * @param entryClassName The entry class name.
+     * @param args An object containing the initialization properties for Egret.
+     */
+    export function runEgret(entryClassName:string, args:string[]):void {
+        sys.stage_instantiated_guard = false;
+        let stage = new egret.Stage();
+        sys.stage_instantiated_guard = true;
+        let instance = sys.getEntryInstance(entryClassName);
+        if(instance){
+            stage.addChild(instance);
         }
-        let buffer = sys.sharedBuffer;
-        sys.Serializer.writeDrawToBitmap(this, buffer, source, matrix, alpha, blendMode, clipRect, smoothing);
-        sys.GFX.updateAndGet(buffer.arrayBuffer, buffer.length, buffer.stringTable);
-        buffer.clear();
+        sys.systemTicker.addStage(stage);
     }
 
-    egret.BitmapData.prototype.draw = draw;
+    /**
+     * @internal
+     * This method will be called at a rate of 60 FPS.
+     * @param timeStamp A high resolution milliseconds measured from the beginning of the runtime was initialized.
+     */
+    export function updateFrame(timeStamp:number):void {
+        sys.systemTicker.update(timeStamp);
+    }
+
 }

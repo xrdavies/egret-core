@@ -30,74 +30,26 @@
 /**
  * @internal
  */
-declare namespace egret.native {
-
+namespace egret.sys {
     /**
      * @internal
-     * load image from url.
-     * @param url The URL of the image to be loaded.
-     * @param callback The callback function that receive the loaded image data.
-     * @param thisObject the listener function's "this"
      */
-    function loadImageFromURL(url:string, callback:(data:egret.BitmapData)=>void, thisObject:any);
-
-}
-
-/**
- * @internal
- */
-namespace egret.native {
-
-    /**
-     * @private
-     */
-    let ioErrorEvent = new egret.IOErrorEvent(egret.IOErrorEvent.IO_ERROR);
-
-    /**
-     * @internal
-     * @copy egret.ImageLoader
-     */
-    class ImageLoader extends egret.EventDispatcher implements egret.ImageLoader {
-        /**
-         * @copy egret.ImageLoader#data
-         */
-        public data:egret.BitmapData = null;
-        /**
-         * @private
-         */
-        private currentURL:string;
-
-        /**
-         * @copy egret.ImageLoader#load
-         */
-        public load(url:string):void {
-            this.currentURL = url;
-            loadImageFromURL(url, this.onLoadFinish, this);
+    export function getEntryInstance(entryClassName:string):DisplayObject {
+        let rootClass;
+        if (entryClassName) {
+            rootClass = egret.getDefinitionByName(entryClassName);
         }
-
-        /**
-         * @private
-         */
-        private onLoadFinish(data:egret.BitmapData) {
-            this.data = data;
-            if (data) {
-                this.dispatchEventWith(egret.Event.COMPLETE);
+        if (rootClass) {
+            let rootContainer:any = new rootClass();
+            if (rootContainer instanceof egret.DisplayObject) {
+                return rootContainer;
             }
             else {
-                let errorText = "Stream Error. URL: " + this.currentURL;
-                ioErrorEvent.text = errorText;
-                if (this.hasEventListener(egret.IOErrorEvent.IO_ERROR)) {
-                    this.dispatchEvent(ioErrorEvent);
-                }
-                else {
-                    throw new URIError(errorText);
-                }
-
+                throw new TypeError("Egret entry class '" + entryClassName + "' must inherit from egret.DisplayObject.");
             }
-
+        }
+        else {
+            throw new Error("Could not find Egret entry class: " + entryClassName + ".");
         }
     }
-
-    egret.ImageLoader = ImageLoader;
-
 }

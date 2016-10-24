@@ -80,7 +80,7 @@ namespace egret.sys {
 
     /**
      * @internal
-     * Obtain the approximate sin value of the corresponding angle value.
+     * Calculates the approximate sin value of the corresponding angle value.
      * @param value The rotation angle in radians.
      */
     export function sin(value:number):number {
@@ -97,7 +97,7 @@ namespace egret.sys {
 
     /**
      * @internal
-     * Obtain the approximate cos value of the corresponding angle value.
+     * Calculates the approximate cos value of the corresponding angle value.
      * @param value The rotation angle in radians.
      */
     export function cos(value:number):number {
