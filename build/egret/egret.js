@@ -2962,7 +2962,7 @@ var egret;
          * @param notiryChildren 是否标记子项也需要重绘。传入false或不传入，将只标记自身需要重绘。注意:当子项cache时不会继续向下标记
          */
         p.$invalidate = function (notifyChildren) {
-            if (!this.$renderNode || this.$hasFlags(256 /* DirtyRender */)) {
+            if (!this.$renderNode || this.$hasFlags(256 /* DirtyRender */ | 128 /* InvalidRenderNodes */)) {
                 return;
             }
             this.$setFlags(256 /* DirtyRender */ | 128 /* InvalidRenderNodes */);
@@ -6909,8 +6909,6 @@ var egret;
             egret.Matrix.release(matrix);
             //设置纹理参数
             this.$initData(0, 0, width, height, 0, 0, width, height, width, height);
-            //防止RenderTexture渲染破坏脏标记
-            displayObject.$propagateFlagsDown(128 /* InvalidRenderNodes */);
             return true;
         };
         /**
@@ -13369,8 +13367,8 @@ var egret;
                     }
                     var buffer = this.renderBuffer;
                     buffer.beginClip(this.dirtyList, this.offsetX, this.offsetY);
-                    var dirtyList_1 = this.$dirtyRegionPolicy == egret.DirtyRegionPolicy.OFF ? null : this.dirtyList;
-                    var drawCalls_1 = sys.systemRenderer.render(this.root, buffer, this.offsetMatrix, dirtyList_1);
+                    dirtyList = this.$dirtyRegionPolicy == egret.DirtyRegionPolicy.OFF ? null : this.dirtyList;
+                    drawCalls = sys.systemRenderer.render(this.root, buffer, this.offsetMatrix, dirtyList);
                     buffer.endClip();
                     if (!this.isStage) {
                         var surface = buffer.surface;
@@ -16535,7 +16533,7 @@ var egret;
          */
         p.drawWithFilter = function (displayObject, context, dirtyList, matrix, clipRegion, root) {
             if (egret.Capabilities.runtimeType == egret.RuntimeType.NATIVE) {
-                var drawCalls_2 = 0;
+                var drawCalls_1 = 0;
                 var filters_1 = displayObject.$getFilters();
                 var hasBlendMode_1 = (displayObject.$blendMode !== 0);
                 var compositeOp_1;
@@ -16551,19 +16549,19 @@ var egret;
                     }
                     context.setGlobalShader(filters_1[0].$toJson());
                     if (displayObject.$mask && (displayObject.$mask.$parentDisplayList || root)) {
-                        drawCalls_2 += this.drawWithClip(displayObject, context, dirtyList, matrix, clipRegion, root);
+                        drawCalls_1 += this.drawWithClip(displayObject, context, dirtyList, matrix, clipRegion, root);
                     }
                     else if (displayObject.$scrollRect || displayObject.$maskRect) {
-                        drawCalls_2 += this.drawWithScrollRect(displayObject, context, dirtyList, matrix, clipRegion, root);
+                        drawCalls_1 += this.drawWithScrollRect(displayObject, context, dirtyList, matrix, clipRegion, root);
                     }
                     else {
-                        drawCalls_2 += this.drawDisplayObject(displayObject, context, dirtyList, matrix, displayObject.$displayList, clipRegion, root);
+                        drawCalls_1 += this.drawDisplayObject(displayObject, context, dirtyList, matrix, displayObject.$displayList, clipRegion, root);
                     }
                     context.setGlobalShader("");
                     if (hasBlendMode_1) {
                         context.globalCompositeOperation = defaultCompositeOp;
                     }
-                    return drawCalls_2;
+                    return drawCalls_1;
                 }
                 // 获取显示对象的链接矩阵
                 var displayMatrix_1 = egret.Matrix.create();
@@ -16579,21 +16577,21 @@ var egret;
                 displayBuffer_1.context.setTransform(1, 0, 0, 1, -region_1.minX, -region_1.minY);
                 var offsetM_1 = egret.Matrix.create().setTo(1, 0, 0, 1, -region_1.minX, -region_1.minY);
                 if (displayObject.$mask && (displayObject.$mask.$parentDisplayList || root)) {
-                    drawCalls_2 += this.drawWithClip(displayObject, displayBuffer_1.context, dirtyList, offsetM_1, region_1, root);
+                    drawCalls_1 += this.drawWithClip(displayObject, displayBuffer_1.context, dirtyList, offsetM_1, region_1, root);
                 }
                 else if (displayObject.$scrollRect || displayObject.$maskRect) {
-                    drawCalls_2 += this.drawWithScrollRect(displayObject, displayBuffer_1.context, dirtyList, offsetM_1, region_1, root);
+                    drawCalls_1 += this.drawWithScrollRect(displayObject, displayBuffer_1.context, dirtyList, offsetM_1, region_1, root);
                 }
                 else {
-                    drawCalls_2 += this.drawDisplayObject(displayObject, displayBuffer_1.context, dirtyList, offsetM_1, displayObject.$displayList, region_1, root);
+                    drawCalls_1 += this.drawDisplayObject(displayObject, displayBuffer_1.context, dirtyList, offsetM_1, displayObject.$displayList, region_1, root);
                 }
                 egret.Matrix.release(offsetM_1);
                 //绘制结果到屏幕
-                if (drawCalls_2 > 0) {
+                if (drawCalls_1 > 0) {
                     if (hasBlendMode_1) {
                         context.globalCompositeOperation = compositeOp_1;
                     }
-                    drawCalls_2++;
+                    drawCalls_1++;
                     context.globalAlpha = 1;
                     context.setTransform(1, 0, 0, 1, region_1.minX + matrix.tx, region_1.minY + matrix.ty);
                     // 绘制结果的时候，应用滤镜
@@ -16607,7 +16605,7 @@ var egret;
                 renderBufferPool.push(displayBuffer_1);
                 egret.sys.Region.release(region_1);
                 egret.Matrix.release(displayMatrix_1);
-                return drawCalls_2;
+                return drawCalls_1;
             }
             var drawCalls = 0;
             var filters = displayObject.$getFilters();
@@ -21177,28 +21175,74 @@ var egret;
                                 var wl = words.length;
                                 var charNum = 0;
                                 for (; k < wl; k++) {
-                                    w = measureTextWidth(words[k], values, element.style);
+                                    // detect 4 bytes unicode, refer https://mths.be/punycode
+                                    var codeLen = words[k].length;
+                                    var has4BytesUnicode = false;
+                                    if (codeLen == 1 && k < wl - 1) {
+                                        var charCodeHigh = words[k].charCodeAt(0);
+                                        var charCodeLow = words[k + 1].charCodeAt(0);
+                                        if (charCodeHigh >= 0xD800 && charCodeHigh <= 0xDBFF && (charCodeLow & 0xFC00) == 0xDC00) {
+                                            var realWord = words[k] + words[k + 1];
+                                            codeLen = 2;
+                                            has4BytesUnicode = true;
+                                            w = measureTextWidth(realWord, values, element.style);
+                                        }
+                                        else {
+                                            w = measureTextWidth(words[k], values, element.style);
+                                        }
+                                    }
+                                    else {
+                                        w = measureTextWidth(words[k], values, element.style);
+                                    }
+                                    // w = measureTextWidth(words[k], values, element.style);
                                     if (lineW != 0 && lineW + w > textFieldWidth && lineW + k != 0) {
                                         break;
                                     }
                                     if (ww + w > textFieldWidth) {
                                         var words2 = words[k].match(/./g);
                                         for (var k2 = 0, wl2 = words2.length; k2 < wl2; k2++) {
-                                            w = measureTextWidth(words2[k2], values, element.style);
+                                            // detect 4 bytes unicode, refer https://mths.be/punycode
+                                            var codeLen = words2[k2].length;
+                                            var has4BytesUnicode2 = false;
+                                            if (codeLen == 1 && k2 < wl2 - 1) {
+                                                var charCodeHigh = words2[k2].charCodeAt(0);
+                                                var charCodeLow = words2[k2 + 1].charCodeAt(0);
+                                                if (charCodeHigh >= 0xD800 && charCodeHigh <= 0xDBFF && (charCodeLow & 0xFC00) == 0xDC00) {
+                                                    var realWord = words2[k2] + words2[k2 + 1];
+                                                    codeLen = 2;
+                                                    has4BytesUnicode2 = true;
+                                                    w = measureTextWidth(realWord, values, element.style);
+                                                }
+                                                else {
+                                                    w = measureTextWidth(words2[k2], values, element.style);
+                                                }
+                                            }
+                                            else {
+                                                w = measureTextWidth(words2[k2], values, element.style);
+                                            }
+                                            // w = measureTextWidth(words2[k2], values, element.style);
                                             if (k2 > 0 && lineW + w > textFieldWidth) {
                                                 break;
                                             }
-                                            charNum += words2[k2].length;
+                                            // charNum += words2[k2].length;
+                                            charNum += codeLen;
                                             ww += w;
                                             lineW += w;
                                             lineCharNum += charNum;
+                                            if (has4BytesUnicode2) {
+                                                k2++;
+                                            }
                                         }
                                     }
                                     else {
-                                        charNum += words[k].length;
+                                        // charNum += words[k].length;
+                                        charNum += codeLen;
                                         ww += w;
                                         lineW += w;
                                         lineCharNum += charNum;
+                                    }
+                                    if (has4BytesUnicode) {
+                                        k++;
                                     }
                                 }
                                 if (k > 0) {
