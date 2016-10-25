@@ -134,27 +134,56 @@ namespace egret {
             return this._stageHeight;
         }
 
-        private _scaleMode:string = "";
+        /**
+         * @internal
+         */
+        $scaleMode:string = "noScale";
 
         /**
          * A StageScaleMode class that specifies which scale mode to use.
          * @default egret.StageScaleMode.NO_SCALE
          */
         public get scaleMode():string {
-            return this._scaleMode;
+            return this.$scaleMode;
         }
 
         public set scaleMode(value:string) {
-            if (this._scaleMode == value) {
+            if (this.$scaleMode == value) {
                 return;
             }
-            this._scaleMode = value;
+            this.$scaleMode = value;
             this.updateStageDisplayRule();
         }
 
-        private _contentWidth:number = 400;
+        /**
+         * @internal
+         */
+        $resolutionMode:string = "device";
 
-        private _contentHeight:number = 300;
+        /**
+         * Display Resolution for the stage ("standard", "high" or "device"), Default "device".
+         */
+        public get resolutionMode():string {
+            return this.$resolutionMode;
+        }
+
+        public set resolutionMode(value:string) {
+            if (this.$resolutionMode == value) {
+                return;
+            }
+            this.$resolutionMode = value;
+            this.updateStageDisplayRule();
+        }
+
+        /**
+         * @internal
+         */
+        $contentWidth:number = 480;
+
+        /**
+         * @internal
+         */
+        $contentHeight:number = 800;
 
         /**
          * Specifies the size of the stage content, in pixels.
@@ -164,22 +193,22 @@ namespace egret {
         public setContentSize(contentWidth:number, contentHeight:number):void {
             contentWidth = +contentWidth || 0;
             contentHeight = +contentHeight || 0;
-            if (this._contentWidth === contentWidth && this._contentHeight === contentHeight) {
+            if (this.$contentWidth === contentWidth && this.$contentHeight === contentHeight) {
                 return;
             }
-            this._contentWidth = contentWidth;
-            this._contentHeight = contentHeight;
+            this.$contentWidth = contentWidth;
+            this.$contentHeight = contentHeight;
             this.updateStageDisplayRule();
         }
 
-        private _scaleFactor:number = 1;
+        private _devicePixelRatio:number = 1;
 
         /**
-         * Indicates the effective pixel scaling factor of the stage. This value is 1 on standard screens and 2 on HiDPI
-         * (Retina display) screens.
+         * Indicates the ratio of the (vertical) size of one physical pixel on the current display device to the size of
+         * one device independent pixels(dips).
          */
-        public get contentsScaleFactor():number {
-            return this._scaleFactor;
+        public get devicePixelRatio():number {
+            return this._devicePixelRatio;
         }
 
         private _screenWidth:number = 0;
@@ -189,16 +218,16 @@ namespace egret {
         /**
          * @internal
          */
-        $updateScreenSize(screenWidth:number, screenHeight:number, scaleFactor:number):void {
+        $updateScreenSize(screenWidth:number, screenHeight:number, pixelRatio:number):void {
             screenWidth = +screenWidth || 0;
             screenHeight = +screenHeight || 0;
-            scaleFactor = +scaleFactor || 0;
-            if (screenWidth === this._screenWidth && screenHeight === this._screenHeight && this._scaleFactor == scaleFactor) {
+            pixelRatio = +pixelRatio || 0;
+            if (screenWidth === this._screenWidth && screenHeight === this._screenHeight && this._devicePixelRatio == pixelRatio) {
                 return;
             }
             this._screenWidth = screenWidth;
             this._screenHeight = screenHeight;
-            this._scaleFactor = scaleFactor;
+            this._devicePixelRatio = pixelRatio;
             this.updateStageDisplayRule();
             sys.systemTicker.requestScreenUpdate();
         }
@@ -214,8 +243,16 @@ namespace egret {
         private updateStageDisplayRule():void {
             let screenWidth = this._screenWidth;
             let screenHeight = this._screenHeight;
-            let displaySize = sys.screenAdapter.calculateStageSize(this._scaleMode, screenWidth, screenHeight,
-                this._contentWidth, this._contentHeight);
+            let pixelRatio = this._devicePixelRatio;
+            if (this.$resolutionMode !== "device") {
+                screenWidth /= pixelRatio;
+                screenHeight /= pixelRatio;
+            }
+            else {
+                pixelRatio = 1;
+            }
+            let displaySize = sys.screenAdapter.calculateStageSize(this.$scaleMode, screenWidth, screenHeight,
+                this.$contentWidth, this.$contentHeight);
 
             let transform = this.$displayRule;
             transform.stageWidth = displaySize.stageWidth;
@@ -225,12 +262,20 @@ namespace egret {
             transform.displayScaleX = screenWidth / displaySize.displayWidth;
             transform.displayScaleY = screenHeight / displaySize.displayHeight;
             transform.contentScaleFactor = 1;
-            let scaleFactor = this._scaleFactor;
-            if (scaleFactor != 1) {
-                transform.displayX *= scaleFactor;
-                transform.displayY *= scaleFactor;
-                transform.displayScaleX *= scaleFactor;
-                transform.displayScaleY *= scaleFactor;
+
+            if (pixelRatio != 1) {
+                switch (this.$resolutionMode) {
+                    case "high":
+                        transform.contentScaleFactor = pixelRatio;
+                    // fall through
+                    case "standard":
+                        transform.displayX *= pixelRatio;
+                        transform.displayY *= pixelRatio;
+                        transform.displayScaleX *= pixelRatio;
+                        transform.displayScaleY *= pixelRatio;
+                        break;
+                }
+
             }
             this.$stageBits |= sys.StageBits.DirtyDisplayRule;
             this.$invalidate();
@@ -240,8 +285,6 @@ namespace egret {
                 this.dispatchEventWith(Event.RESIZE);
             }
         }
-
-
     }
 
     /**
@@ -249,13 +292,13 @@ namespace egret {
      */
     function markCannotUse(instance:any, property:string, defaultValue:any):void {
         Object.defineProperty(instance.prototype, property, {
-            get: function () {
+            get:          function () {
                 return defaultValue;
             },
-            set: function (value) {
+            set:          function (value) {
                 throw new Error("The Stage class does not implement this property or method.");
             },
-            enumerable: true,
+            enumerable:   true,
             configurable: true
         });
     }
