@@ -234,38 +234,22 @@ namespace egret {
          * </pre>
          */
         public get matrix():Matrix {
-            let m = this.$getMatrix();
-            return m.clone();
-        }
-
-        /**
-         * @internal
-         */
-        $getMatrix():Matrix {
-            let m = this.$matrix;
-            if (!this.matrixChanged) {
-                return m;
-            }
-            this.matrixChanged = false;
-            let skewX = this._skewX;
-            let skewY = this._skewY;
+            let m = new Matrix();
+            m.tx = this._x;
+            m.ty = this._y;
+            let rotation = this._rotation;
             let scaleX = this._scaleX;
             let scaleY = this._scaleY;
-            if ((skewX == 0) && (skewY == 0)) {
+            if (rotation == 0) {
                 m.a = scaleX;
                 m.b = m.c = 0;
                 m.d = scaleY;
                 return m;
             }
-            let u = sys.cos(skewX);
-            let v = sys.sin(skewX);
-            if (skewX == skewY) {
-                m.a = u * scaleX;
-                m.b = v * scaleX;
-            } else {
-                m.a = sys.cos(skewY) * scaleX;
-                m.b = sys.sin(skewY) * scaleX;
-            }
+            let u = sys.cos(rotation);
+            let v = sys.sin(rotation);
+            m.a = u * scaleX;
+            m.b = v * scaleX;
             m.c = -v * scaleY;
             m.d = u * scaleY;
             return m;
@@ -275,13 +259,10 @@ namespace egret {
             this.setMatrix(value);
         }
 
-        protected setMatrix(value:Matrix):void {
-            let m = this.$matrix;
-            if (m.equals(value)) {
-                return;
-            }
-            m.copyFrom(value);
+        protected setMatrix(m:Matrix):void {
             // update scale
+            this._x = m.tx;
+            this._y = m.ty;
             let determinant = m.a * m.d - m.b * m.c;
             if (m.a == 1 && m.b == 0) {
                 this._scaleX = 1;
@@ -298,16 +279,75 @@ namespace egret {
                 this._scaleY = determinant < 0 ? -result : result;
             }
             // update rotation
-            let skewX = Math.atan2(m.d, m.c) - (Math.PI / 2);
             let skewY = Math.atan2(m.b, m.a);
-            this._skewX = clampRotation(skewX / DEG_TO_RAD);
-            this._skewY = clampRotation(skewY / DEG_TO_RAD);
-            this._rotation = this._skewY;
-            this.matrixChanged = false;
-            this.invalidatePosition();
+            this._rotation = clampRotation(skewY / DEG_TO_RAD);
+            this.invalidateMatrix();
         }
 
+        /**
+         * Returns a Matrix object that represents the combination of the matrix of the display object and its skewX,
+         * skewY, anchorOffsetX, anchorOffsetY properties.
+         */
+        public getDisplayMatrix():Matrix {
+            let m = this.$matrix;
+            if (!this.matrixChanged) {
+                return m;
+            }
+            this.matrixChanged = false;
+            m.tx = this._x;
+            m.ty = this._y;
+            if (this._skewX || this._skewY) {
+                let skewX = this._skewX;
+                let skewY = this._skewY;
+                let anchorX = this._anchorOffsetX;
+                let anchorY = this._anchorOffsetY;
+                let scaleX = this._scaleX;
+                let scaleY = this._scaleY;
+                let rotation = this._rotation;
 
+                let sr = sys.sin(rotation);
+                let cr = sys.cos(rotation);
+                let cy = sys.cos(skewY);
+                let sy = sys.sin(skewY);
+                let nsx = -sys.sin(skewX);
+                let cx = sys.cos(skewX);
+
+                let a = cr * scaleX;
+                let b = sr * scaleX;
+                let c = -sr * scaleY;
+                let d = cr * scaleY;
+
+                m.a = cy * a + sy * c;
+                m.b = cy * b + sy * d;
+                m.c = nsx * a + cx * c;
+                m.d = nsx * b + cx * d;
+            }
+            else {
+                if (this._rotation) {
+                    let rotation = this._rotation;
+                    let scaleX = this._scaleX;
+                    let scaleY = this._scaleY;
+                    let u = sys.cos(rotation);
+                    let v = sys.sin(rotation);
+                    m.a = u * scaleX;
+                    m.b = v * scaleX;
+                    m.c = -v * scaleY;
+                    m.d = u * scaleY;
+                }
+                else {
+                    m.a = this._scaleX;
+                    m.b = m.c = 0;
+                    m.d = this._scaleY;
+                }
+            }
+            if (this._anchorOffsetX || this._anchorOffsetY) {
+                m.tx -= this._anchorOffsetX * m.a + this._anchorOffsetY * m.c;
+                m.ty -= this._anchorOffsetX * m.b + this._anchorOffsetY * m.d;
+            }
+            return m;
+        }
+
+        private _x:number = 0;
         /**
          * Indicates the x coordinate of the DisplayObject instance relative to the local coordinates of the parent
          * DisplayObjectContainer.<br/>
@@ -318,7 +358,7 @@ namespace egret {
          * @default 0
          */
         public get x():number {
-            return this.$matrix.tx;
+            return this._x;
         }
 
         public set x(value:number) {
@@ -327,14 +367,14 @@ namespace egret {
 
         protected setX(value:number):void {
             value = +value || 0;
-            let m = this.$matrix;
-            if (value == m.tx) {
+            if (value === this._x) {
                 return;
             }
-            m.tx = value;
-            this.invalidatePosition();
+            this._x = value;
+            this.invalidateMatrix();
         }
 
+        private _y:number = 0;
         /**
          * Indicates the y coordinate of the DisplayObject instance relative to the local coordinates of the parent
          * DisplayObjectContainer. <br/>
@@ -345,7 +385,7 @@ namespace egret {
          * @default 0
          */
         public get y():number {
-            return this.$matrix.ty;
+            return this._y;
         }
 
         public set y(value:number) {
@@ -354,12 +394,11 @@ namespace egret {
 
         protected setY(value:number):void {
             value = +value || 0;
-            let m = this.$matrix;
-            if (value == m.ty) {
+            if (value === this._y) {
                 return;
             }
-            m.ty = value;
-            this.invalidatePosition();
+            this._y = value;
+            this.invalidateMatrix();
         }
 
         private _scaleX:number = 1;
@@ -434,7 +473,7 @@ namespace egret {
             if (value == this._rotation) {
                 return;
             }
-            this._skewX = this._skewY = this._rotation = value;
+            this._rotation = value;
             this.invalidateMatrix();
         }
 
@@ -487,7 +526,6 @@ namespace egret {
                 return;
             }
             this._skewY = value;
-            this._rotation = this._skewY;
             this.invalidateMatrix();
         }
 
@@ -501,7 +539,7 @@ namespace egret {
 
         protected getWidth():number {
             this.measureBounds(tempBounds);
-            this.$getMatrix().$transformBounds(tempBounds);
+            this.getDisplayMatrix().transformBounds(tempBounds);
             return tempBounds.width;
         }
 
@@ -522,7 +560,7 @@ namespace egret {
                 return;
             }
             let baseHeight = getBaseHeight(tempBounds, skewX, skewY);
-            this.$getMatrix().$transformBounds(tempBounds);
+            this.getDisplayMatrix().transformBounds(tempBounds);
             this._scaleY = tempBounds.height / baseHeight;
             this._scaleX = value / baseWidth;
             this.invalidateMatrix();
@@ -538,7 +576,7 @@ namespace egret {
 
         protected getHeight():number {
             this.measureBounds(tempBounds);
-            this.$getMatrix().$transformBounds(tempBounds);
+            this.getDisplayMatrix().transformBounds(tempBounds);
             return tempBounds.height;
         }
 
@@ -559,7 +597,7 @@ namespace egret {
                 return;
             }
             let baseWidth = getBaseWidth(tempBounds, skewX, skewY);
-            this.$getMatrix().$transformBounds(tempBounds);
+            this.getDisplayMatrix().transformBounds(tempBounds);
             this._scaleY = value / baseHeight;
             this._scaleX = tempBounds.width / baseWidth;
             this.invalidateMatrix();
@@ -581,17 +619,14 @@ namespace egret {
             return tempBounds.height;
         }
 
-        /**
-         * @internal
-         */
-        $anchorOffsetX:number = 0;
+        private _anchorOffsetX:number = 0;
 
         /**
          * Indicates the horizontal coordinate of the registration point, in pixels.
          * @default 0
          */
         public get anchorOffsetX():number {
-            return this.$anchorOffsetX;
+            return this._anchorOffsetX;
         }
 
         public set anchorOffsetX(value:number) {
@@ -600,25 +635,21 @@ namespace egret {
 
         protected setAnchorOffsetX(value:number):void {
             value = +value || 0;
-            if (value == this.$anchorOffsetX) {
+            if (value == this._anchorOffsetX) {
                 return;
             }
-            this.$anchorOffsetX = value;
-            this.$displayObjectBits |= sys.DisplayObjectBits.DirtyAnchorPoint;
-            this.$invalidate();
+            this._anchorOffsetX = value;
+            this.invalidateMatrix();
         }
 
-        /**
-         * @internal
-         */
-        $anchorOffsetY:number = 0;
+        private _anchorOffsetY:number = 0;
 
         /**
          * Indicates the vertical coordinate of the registration point, in pixels.
          * @default 0
          */
         public get anchorOffsetY():number {
-            return this.$anchorOffsetY;
+            return this._anchorOffsetY;
         }
 
         public set anchorOffsetY(value:number) {
@@ -627,12 +658,11 @@ namespace egret {
 
         protected setAnchorOffsetY(value:number):void {
             value = +value || 0;
-            if (value == this.$anchorOffsetY) {
+            if (value == this._anchorOffsetY) {
                 return;
             }
-            this.$anchorOffsetY = value;
-            this.$displayObjectBits |= sys.DisplayObjectBits.DirtyAnchorPoint;
-            this.$invalidate();
+            this._anchorOffsetY = value;
+            this.invalidateMatrix();
         }
 
         /**
@@ -987,13 +1017,6 @@ namespace egret {
                 return;
             }
             this.matrixChanged = true;
-            this.invalidatePosition();
-        }
-
-        /**
-         * This method is called when any property related to position has changed.
-         */
-        private invalidatePosition():void {
             this.$displayObjectBits |= sys.DisplayObjectBits.DirtyMatrix;
             this.$invalidate();
         }
@@ -1010,8 +1033,8 @@ namespace egret {
             }
             this.measureBounds(resultRect);
             if (includeAnchorPoint) {
-                resultRect.x -= this.$anchorOffsetX;
-                resultRect.y -= this.$anchorOffsetY;
+                resultRect.x -= this._anchorOffsetX;
+                resultRect.y -= this._anchorOffsetY;
             }
             return resultRect;
         }
@@ -1038,7 +1061,7 @@ namespace egret {
             tempMatrix.invert();
             this.$getConcatenatedMatrix(concatenatedMatrix);
             concatenatedMatrix.concat(tempMatrix);
-            concatenatedMatrix.$transformBounds(resultRect);
+            concatenatedMatrix.transformBounds(resultRect);
             return resultRect;
         }
 
@@ -1063,8 +1086,8 @@ namespace egret {
                     if (childBounds.isEmpty()) {
                         continue;
                     }
-                    let matrix = child.$getMatrixWidthOffset();
-                    matrix.$transformBounds(childBounds);
+                    let matrix = child.$getMatrixWithScrollOffset();
+                    matrix.transformBounds(childBounds);
                     if (isEmpty) {
                         isEmpty = false;
                         xMin = childBounds.x;
@@ -1110,29 +1133,24 @@ namespace egret {
             bounds.setEmpty();
         }
 
-        $getMatrixWidthOffset():Matrix {
-            let matrix = this.$getMatrix();
-            let offsetX = this.$anchorOffsetX;
-            let offsetY = this.$anchorOffsetY;
-            let scrollRect = this.$scrollRect;
-            if (scrollRect) {
-                offsetX += scrollRect.x;
-                offsetY += scrollRect.y;
+        $getMatrixWithScrollOffset():Matrix {
+            if (this.$scrollRect) {
+                let m = this.getDisplayMatrix();
+                m = offsetMatrix.copyFrom(m);
+                let scrollRect = this.$scrollRect;
+                m.tx -= scrollRect.x * m.a + scrollRect.y * m.c;
+                m.ty -= scrollRect.x * m.b + scrollRect.y * m.d;
+                return m;
             }
-            if (offsetX != 0 || offsetY != 0) {
-                offsetMatrix.setTo(1, 0, 0, 1, -offsetX, -offsetY);
-                offsetMatrix.concat(matrix);
-                return offsetMatrix;
-            }
-            return matrix;
+            return this.getDisplayMatrix();
         }
 
         $getConcatenatedMatrix(result:Matrix):void {
-            result.identity();
-            let object:DisplayObject = this;
-            while (object) {
-                result.concat(object.$getMatrixWidthOffset());
-                object = object.$parent;
+            result.copyFrom(this.$getMatrixWithScrollOffset());
+            let parent = this.$parent;
+            while (parent) {
+                result.concat(parent.$getMatrixWithScrollOffset());
+                parent = parent.$parent;
             }
         }
 
@@ -1304,7 +1322,7 @@ namespace egret {
                 let captureList = list.concat();
                 captureList.reverse();
                 list = captureList.concat(list);
-                list.splice(0,length-startIndex);
+                list.splice(0, length - startIndex);
                 targetIndex = startIndex;
             }
             else {

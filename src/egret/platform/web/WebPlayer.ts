@@ -52,7 +52,6 @@ namespace egret.web {
             stage.$contentWidth = option.contentWidth;
             stage.$contentHeight = option.contentHeight;
             stage.frameRate = option.frameRate;
-
             let canvas = this.createCanvas();
             this.attachCanvas(container, canvas);
 
@@ -62,6 +61,7 @@ namespace egret.web {
             this.stage = stage;
 
             this.updateScreenSize();
+            sys.systemTicker.addStage(stage);
         }
 
         /**
@@ -161,25 +161,53 @@ namespace egret.web {
         private container:HTMLElement;
 
         /**
-         * @private
+         * @internal
          * 舞台引用
          */
         public stage:Stage;
 
         /**
-         * @private
+         * @internal
          * 更新播放器视口尺寸
          */
         public updateScreenSize():void {
             let canvas = this.canvas;
             if (canvas['userTyping'])
                 return;
-            let option = this.playerOption;
             let screenRect = this.container.getBoundingClientRect();
             let screenWidth = screenRect.width;
             let screenHeight = screenRect.height;
             let pixelRatio = window.devicePixelRatio;
             this.stage.$updateScreenSize(screenWidth, screenHeight, pixelRatio);
+        }
+
+        /**
+         * @internal
+         */
+        public applyDisplayRule(rule:sys.StageDisplayRule):void {
+            let stageWidth = rule.stageWidth;
+            let stageHeight = rule.stageHeight;
+            let displayWidth = rule.displayScaleX * stageWidth;
+            let displayHeight = rule.displayScaleY * stageHeight;
+            //宽高不是2的整数倍会导致图片绘制出现问题
+            if (displayWidth % 2 != 0) {
+                displayWidth += 1;
+            }
+            if (displayHeight % 2 != 0) {
+                displayHeight += 1;
+            }
+            let contentScaleFactor = rule.contentScaleFactor;
+            let canvas = this.canvas;
+            if (canvas.width !== stageWidth) {
+                canvas.width = stageWidth;
+            }
+            if (canvas.height !== stageHeight) {
+                canvas.height = stageHeight;
+            }
+            canvas.style.width = displayWidth + "px";
+            canvas.style.height = displayHeight + "px";
+            canvas.style.top = rule.displayX + "px";
+            canvas.style.left = rule.displayY + "px";
         }
     }
 

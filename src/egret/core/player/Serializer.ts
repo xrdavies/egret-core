@@ -33,6 +33,59 @@
 namespace egret.sys {
 
     /**
+     * @private
+     */
+    function createEnumMap(list:string[]):Map<number> {
+        let map:Map<number> = {};
+        let length = list.length;
+        for (let i = 0; i < length; i++) {
+            map[list[i]] = i;
+        }
+        return map;
+    }
+
+    const blendModeMap = createEnumMap([
+        "normal", "layer", "add", "erase", "darken", "difference", "hardlight", "lighten", "multiply", "overlay",
+        "screen", "colordodge", "colorburn", "softlight", "exclusion", "hue", "saturation", "color", "luminosity"
+    ]);
+
+    const bitmapFillModeMap = createEnumMap([
+        "scale", "repeat", "clip"
+    ]);
+
+    const gradientTypeMap = createEnumMap([
+        "linear", "radial"
+    ]);
+
+    const lineScaleModeMap = createEnumMap([
+        "normal", "none", "horizontal", "vertical"
+    ]);
+
+    const capsStyleMap = createEnumMap([
+        "round", "square", "none"
+    ]);
+
+    const jointStyleMap = createEnumMap([
+        "round", "bevel", "miter"
+    ]);
+
+    const textFieldTypeMap = createEnumMap([
+        "dynamic", "input"
+    ]);
+
+    const horizontalAlignMap = createEnumMap([
+        "left", "right", "center"
+    ]);
+
+    const verticalAlignMap = createEnumMap([
+        "top", "bottom", "middle"
+    ]);
+
+    const softKeyboardTypeMap = createEnumMap([
+        "default", "contact", "email", "number", "punctuation", "url"
+    ]);
+
+    /**
      * @internal
      */
     export class Serializer {
@@ -56,7 +109,7 @@ namespace egret.sys {
                 buffer.writeBoolean(false);
             }
             buffer.writeFloat(+alpha || 1);
-            buffer.writeInt(sys.BlendMode[blendMode] || 0);
+            buffer.writeInt(blendModeMap[blendMode] || 0);
             if (clipRect) {
                 buffer.writeBoolean(true);
                 Serializer.writeRectangle(clipRect, buffer);
@@ -173,7 +226,7 @@ namespace egret.sys {
             buffer.writeHandle(dp.$handle);
             buffer.writeInt(bits);
             if (bits & DisplayObjectBits.DirtyMatrix) {
-                Serializer.writeMatrix(dp.$getMatrix(), buffer);
+                Serializer.writeMatrix(dp.getDisplayMatrix(), buffer);
             }
             if (bits & DisplayObjectBits.DirtyScrollRect) {
                 if (dp.$scrollRect) {
@@ -197,7 +250,7 @@ namespace egret.sys {
                 buffer.writeFloat(dp.$alpha);
             }
             if (bits & DisplayObjectBits.DirtyBlendMode) {
-                buffer.writeInt(BlendMode[dp.$blendMode] || 0);
+                buffer.writeInt(blendModeMap[dp.$blendMode] || 0);
             }
             if (bits & DisplayObjectBits.DirtyMask) {
                 let mask = dp.$mask;
@@ -219,9 +272,6 @@ namespace egret.sys {
                 else {
                     buffer.writeBoolean(false);
                 }
-            }
-            if (bits & DisplayObjectBits.DirtyAnchorPoint) {
-                buffer.write2Floats(dp.$anchorOffsetX, dp.$anchorOffsetY);
             }
             dp.$displayObjectBits = 0;
         }
@@ -253,7 +303,7 @@ namespace egret.sys {
                 buffer.writeBoolean(bitmap.$smoothing);
             }
             if (bits & BitmapBits.DirtyFillMode) {
-                buffer.writeInt(BitmapFillMode[bitmap.$fillMode] || 0);
+                buffer.writeInt(bitmapFillModeMap[bitmap.$fillMode] || 0);
             }
             bitmap.$bitmapBits = 0;
         }
@@ -282,7 +332,7 @@ namespace egret.sys {
                         buffer.writeFloat(args[index++]);              // alpha
                         break;
                     case GraphicsCommand.BEGIN_GRADIENT_FILL:
-                        buffer.writeInt(<any>GradientType[args[index++]]); // type
+                        buffer.writeInt(gradientTypeMap[args[index++]]); // type
                         this.writeUintArray(args[index++], buffer);        // colors
                         this.writeFloatArray(args[index++], buffer);       // alphas
                         this.writeIntArray(args[index++], buffer);         // ratios
@@ -326,9 +376,9 @@ namespace egret.sys {
                         buffer.writeUnsignedInt(args[index++]);                // color
                         buffer.writeFloat(args[index++]);                      // alpha
                         buffer.writeBoolean(args[index++]);                    // pixelHinting
-                        buffer.writeInt(<any>LineScaleMode[args[index++]]);    // scaleMode
-                        buffer.writeInt(<any>CapsStyle[args[index++]]);        // caps
-                        buffer.writeInt(<any>JointStyle[args[index++]]);       // joints
+                        buffer.writeInt(lineScaleModeMap[args[index++]]);    // scaleMode
+                        buffer.writeInt(capsStyleMap[args[index++]]);        // caps
+                        buffer.writeInt(jointStyleMap[args[index++]]);       // joints
                         buffer.writeFloat(args[index++]);                      // miterLimit
                         break;
                     case GraphicsCommand.LINE_TO:
@@ -352,7 +402,7 @@ namespace egret.sys {
             buffer.writeHandle(textField.$handle);
             buffer.writeInt(bits);
             if (bits & TextFieldBits.DirtyType) {
-                buffer.writeInt(TextFieldType[textField.$type]);
+                buffer.writeInt(textFieldTypeMap[textField.$type]);
             }
             if (bits & TextFieldBits.DirtyFontFamily) {
                 buffer.writeString(textField.$fontFamily);
@@ -367,10 +417,10 @@ namespace egret.sys {
                 buffer.writeBoolean(textField.$italic);
             }
             if (bits & TextFieldBits.DirtyTextAlign) {
-                buffer.writeInt(HorizontalAlign[textField.$textAlign]);
+                buffer.writeInt(horizontalAlignMap[textField.$textAlign]);
             }
             if (bits & TextFieldBits.DirtyVerticalAlign) {
-                buffer.writeInt(VerticalAlign[textField.$verticalAlign]);
+                buffer.writeInt(verticalAlignMap[textField.$verticalAlign]);
             }
             if (bits & TextFieldBits.DirtyLineSpacing) {
                 buffer.writeInt(textField.$lineSpacing);
@@ -415,7 +465,7 @@ namespace egret.sys {
                 buffer.writeString(textField.$pattern);
             }
             if (bits & TextFieldBits.DirtySoftKeyboardType) {
-                buffer.writeInt(SoftKeyboardType[textField.$softKeyboardType]);
+                buffer.writeInt(softKeyboardTypeMap[textField.$softKeyboardType]);
             }
             textField.$textFieldBits = 0;
         }

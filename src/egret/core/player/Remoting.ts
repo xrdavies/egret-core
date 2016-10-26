@@ -36,50 +36,49 @@ namespace egret.sys {
      * @internal
      */
     export const enum NodeType {
-        Node       = 0,
-        Stage      = 1,
-        BITMAP     = 2,
-        GRAPHICS   = 3,
-        TEXT_FIELD = 4
+        Node,
+        Stage,
+        BITMAP,
+        GRAPHICS,
+        TEXT_FIELD
     }
 
     /**
      * @internal
      */
     export const enum MessageTag {
-        EndOfFile           = 0,
+        EndOfFile = 0,
         UpdateDisplayObject = 10,
-        UpdateChildren      = 11,
-        UpdateStage         = 12,
-        UpdateBitmap        = 13,
-        UpdateGraphics      = 14,
-        UpdateTextField     = 15,
-        DrawToBitmap        = 20
+        UpdateChildren = 11,
+        UpdateStage = 12,
+        UpdateBitmap = 13,
+        UpdateGraphics = 14,
+        UpdateTextField = 15,
+        DrawToBitmap = 20
     }
 
     /**
      * @internal
      */
     export const enum DisplayObjectBits {
-        DirtyMatrix        = 1 << 0,
-        DirtyScrollRect    = 1 << 1,
-        DirtyFilters       = 1 << 2,
-        DirtyVisible       = 1 << 3,
+        DirtyMatrix = 1 << 0,
+        DirtyScrollRect = 1 << 1,
+        DirtyFilters = 1 << 2,
+        DirtyVisible = 1 << 3,
         DirtyCacheAsBitmap = 1 << 4,
-        DirtyAlpha         = 1 << 5,
-        DirtyBlendMode     = 1 << 6,
-        DirtyMask          = 1 << 7,
-        DirtyMaskRect      = 1 << 8,
-        DirtyAnchorPoint   = 1 << 9,
+        DirtyAlpha = 1 << 5,
+        DirtyBlendMode = 1 << 6,
+        DirtyMask = 1 << 7,
+        DirtyMaskRect = 1 << 8
     }
 
     /**
      * @internal
      */
     export const enum StageBits {
-        DirtyColor       = 1 << 0,
+        DirtyColor = 1 << 0,
         DirtyDisplayRule = 1 << 1,
-        DirtyFrameRate   = 1 << 2
+        DirtyFrameRate = 1 << 2
     }
 
     /**
@@ -88,33 +87,33 @@ namespace egret.sys {
     export const enum BitmapBits {
         DirtyBitmapData = 1 << 0,
         DirtyScale9Grid = 1 << 1,
-        DirtySmoothing  = 1 << 2,
-        DirtyFillMode   = 1 << 3
+        DirtySmoothing = 1 << 2,
+        DirtyFillMode = 1 << 3
     }
 
     export const enum TextFieldBits {
-        DirtyType              = 1 << 0,
-        DirtyFontFamily        = 1 << 1,
-        DirtySize              = 1 << 2,
-        DirtyBold              = 1 << 3,
-        DirtyItalic            = 1 << 4,
-        DirtyTextAlign         = 1 << 5,
-        DirtyVerticalAlign     = 1 << 6,
-        DirtyLineSpacing       = 1 << 7,
-        DirtyTextColor         = 1 << 8,
-        DirtyWordWrap          = 1 << 9,
-        DirtyStroke            = 1 << 10,
-        DirtyStrokeColor       = 1 << 11,
-        DirtyBorder            = 1 << 12,
-        DirtyBorderColor       = 1 << 13,
-        DirtyBackground        = 1 << 14,
-        DirtyBackgroundColor   = 1 << 15,
-        DirtyText              = 1 << 16,
+        DirtyType = 1 << 0,
+        DirtyFontFamily = 1 << 1,
+        DirtySize = 1 << 2,
+        DirtyBold = 1 << 3,
+        DirtyItalic = 1 << 4,
+        DirtyTextAlign = 1 << 5,
+        DirtyVerticalAlign = 1 << 6,
+        DirtyLineSpacing = 1 << 7,
+        DirtyTextColor = 1 << 8,
+        DirtyWordWrap = 1 << 9,
+        DirtyStroke = 1 << 10,
+        DirtyStrokeColor = 1 << 11,
+        DirtyBorder = 1 << 12,
+        DirtyBorderColor = 1 << 13,
+        DirtyBackground = 1 << 14,
+        DirtyBackgroundColor = 1 << 15,
+        DirtyText = 1 << 16,
         DirtyDisplayAsPassword = 1 << 17,
-        DirtyMaxChars          = 1 << 18,
-        DirtyMultiline         = 1 << 19,
-        DirtyPattern           = 1 << 20,
-        DirtySoftKeyboardType  = 1 << 21
+        DirtyMaxChars = 1 << 18,
+        DirtyMultiline = 1 << 19,
+        DirtyPattern = 1 << 20,
+        DirtySoftKeyboardType = 1 << 21
     }
 
     /**
@@ -122,10 +121,10 @@ namespace egret.sys {
      * Dictates how matrices are encoded.
      */
     export const enum MatrixEncoding {
-        TranslationOnly                = 0,
-        UniformScaleAndTranslationOnly = 1,
-        ScaleAndTranslationOnly        = 2,
-        All                            = 3
+        TranslationOnly,
+        UniformScaleAndTranslationOnly,
+        ScaleAndTranslationOnly,
+        All
     }
 
     /**
@@ -171,91 +170,21 @@ namespace egret.sys {
     /**
      * @internal
      */
-    export enum BlendMode {
-        "normal", "layer", "add", "erase", "darken", "difference", "hardlight", "lighten", "multiply", "overlay",
-                  "screen", "colordodge", "colorburn", "softlight", "exclusion", "hue", "saturation", "color", "luminosity"
-    }
-
-    /**
-     * @internal
-     */
-    export enum BitmapFillMode {
-        "scale", "repeat", "clip"
-    }
-
-    /**
-     * @internal
-     */
     export const enum GraphicsCommand {
-        BEGIN_FILL          = 1,
+        BEGIN_FILL = 1,
         BEGIN_GRADIENT_FILL = 2,
-        CLEAR               = 3,
-        CUBIC_CURVE_TO      = 4,
-        CURVE_TO            = 5,
-        DRAW_ARC            = 6,
-        DRAW_CIRCLE         = 7,
-        DRAW_ELLIPSE        = 8,
-        DRAW_RECT           = 9,
-        DRAW_ROUND_RECT     = 10,
-        END_FILL            = 11,
-        LINE_STYLE          = 12,
-        LINE_TO             = 13,
-        MOVE_TO             = 14
+        CLEAR = 3,
+        CUBIC_CURVE_TO = 4,
+        CURVE_TO = 5,
+        DRAW_ARC = 6,
+        DRAW_CIRCLE = 7,
+        DRAW_ELLIPSE = 8,
+        DRAW_RECT = 9,
+        DRAW_ROUND_RECT = 10,
+        END_FILL = 11,
+        LINE_STYLE = 12,
+        LINE_TO = 13,
+        MOVE_TO = 14
     }
 
-    /**
-     * @internal
-     */
-    export enum GradientType {
-        "linear", "radial"
-    }
-
-    /**
-     * @internal
-     */
-    export enum LineScaleMode{
-        "normal", "none", "horizontal", "vertical"
-    }
-
-    /**
-     * @internal
-     */
-    export enum CapsStyle {
-        "round", "square", "none"
-    }
-
-    /**
-     * @internal
-     */
-    export enum JointStyle {
-        "round", "bevel", "miter"
-    }
-
-    /**
-     * @internal
-     */
-    export enum TextFieldType {
-        "dynamic", "input"
-    }
-
-    /**
-     * @internal
-     */
-    export enum HorizontalAlign {
-        "left", "right", "center"
-    }
-
-    /**
-     * @internal
-     */
-    export enum VerticalAlign {
-        "top", "bottom", "middle"
-    }
-
-    /**
-     * @internal
-     */
-    export enum SoftKeyboardType {
-        "default", "contact", "email", "number", "punctuation", "url"
-    }
 }

@@ -244,39 +244,26 @@ namespace egret {
             let screenWidth = this._screenWidth;
             let screenHeight = this._screenHeight;
             let pixelRatio = this._devicePixelRatio;
-            if (this.$resolutionMode !== "device") {
-                screenWidth /= pixelRatio;
-                screenHeight /= pixelRatio;
+            let resolutionMode = this.$resolutionMode;
+            if (resolutionMode == "device") {
+                pixelRatio = 1;
             }
             else {
-                pixelRatio = 1;
+                screenWidth /= pixelRatio;
+                screenHeight /= pixelRatio;
             }
             let displaySize = sys.screenAdapter.calculateStageSize(this.$scaleMode, screenWidth, screenHeight,
                 this.$contentWidth, this.$contentHeight);
 
-            let transform = this.$displayRule;
-            transform.stageWidth = displaySize.stageWidth;
-            transform.stageHeight = displaySize.stageHeight;
-            transform.displayX = (screenWidth - displaySize.displayWidth) * 0.5;
-            transform.displayY = (screenHeight - displaySize.displayHeight) * 0.5;
-            transform.displayScaleX = screenWidth / displaySize.displayWidth;
-            transform.displayScaleY = screenHeight / displaySize.displayHeight;
-            transform.contentScaleFactor = 1;
+            let runle = this.$displayRule;
+            runle.stageWidth = displaySize.stageWidth;
+            runle.stageHeight = displaySize.stageHeight;
+            runle.displayX = pixelRatio * (screenWidth - displaySize.displayWidth) * 0.5;
+            runle.displayY = pixelRatio * (screenHeight - displaySize.displayHeight) * 0.5;
+            runle.displayScaleX = pixelRatio * displaySize.displayWidth / displaySize.stageWidth;
+            runle.displayScaleY = pixelRatio * displaySize.displayHeight / displaySize.stageHeight;
+            runle.contentScaleFactor = resolutionMode == "high" ? pixelRatio : 1;
 
-            if (pixelRatio != 1) {
-                switch (this.$resolutionMode) {
-                    case "high":
-                        transform.contentScaleFactor = pixelRatio;
-                    // fall through
-                    case "standard":
-                        transform.displayX *= pixelRatio;
-                        transform.displayY *= pixelRatio;
-                        transform.displayScaleX *= pixelRatio;
-                        transform.displayScaleY *= pixelRatio;
-                        break;
-                }
-
-            }
             this.$stageBits |= sys.StageBits.DirtyDisplayRule;
             this.$invalidate();
             if (this._stageWidth != displaySize.stageWidth || this._stageHeight != displaySize.stageHeight) {

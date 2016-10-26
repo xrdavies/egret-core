@@ -68,5 +68,40 @@ namespace egret {
          * @see egret.Stage#setContentSize
          */
         public static readonly EXACT_FIT:string = "exactFit";
+
+        /**
+         * Keep the original aspect ratio scaling application content, after scaling application content in the horizontal
+         * and vertical directions to fill the viewport player, but only to keep the contents of the original application
+         * constant width, height may change.<br/>
+         * In this mode, the stage width (Stage.stageWidth) is always equal to initialize external incoming application
+         * content width. Stage height (Stage.stageHeight) by the current scale with the player viewport height decision.
+         */
+        public static readonly FIXED_WIDTH:string = "fixedWidth";
+
+        /**
+         * Keep the original aspect ratio scaling application content, after scaling application content in the horizontal
+         * and vertical directions to fill the viewport player, but only to keep the contents of the original application
+         * constant height, width may change.<br/>
+         * In this mode, the stage height (Stage.stageHeight) is always equal to initialize external incoming application
+         * content height. Stage width (Stage.stageWidth) by the current scale with the player viewport width decision.
+         */
+        public static readonly FIXED_HEIGHT:string = "fixedHeight";
+
+
+        /**
+         * Keep the original aspect ratio scaling application content, after scaling application content in the horizontal
+         * and vertical directions to fill the viewport player,a narrow direction may not be wide enough and fill.<br/>
+         * In this mode, the stage height (Stage.stageHeight) and the stage width (Stage.stageWidth) by the current scale
+         * with the player viewport size.
+         */
+        public static readonly FIXED_NARROW:string = "fixedNarrow";
+
+        /**
+         * Keep the original aspect ratio scaling application content, after scaling application content in the horizontal
+         * and vertical directions to fill the viewport player, a wide direction may exceed the viewport and the player is cut.<br/>
+         * In this mode, the stage height (Stage.stageHeight) and the stage width (Stage.stageWidth) by the current scale
+         * with the player viewport size.
+         */
+        public static readonly FIXED_WIDE:string = "fixedWide";
     }
 }

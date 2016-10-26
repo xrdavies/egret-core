@@ -72,9 +72,15 @@ namespace egret.sys {
             let scaleX = (screenWidth / stageWidth) || 0;
             let scaleY = (screenHeight / stageHeight) || 0;
             switch (scaleMode) {
-                case egret.StageScaleMode.EXACT_FIT:
+                case StageScaleMode.EXACT_FIT:
                     break;
-                case egret.StageScaleMode.NO_BORDER:
+                case StageScaleMode.FIXED_HEIGHT:
+                    stageWidth = Math.round(screenWidth / scaleY);
+                    break;
+                case StageScaleMode.FIXED_WIDTH:
+                    stageHeight = Math.round(screenHeight / scaleX);
+                    break;
+                case StageScaleMode.NO_BORDER:
                     if (scaleX > scaleY) {
                         displayHeight = Math.round(stageHeight * scaleX);
                     }
@@ -82,12 +88,28 @@ namespace egret.sys {
                         displayWidth = Math.round(stageWidth * scaleY);
                     }
                     break;
-                case egret.StageScaleMode.SHOW_ALL:
+                case StageScaleMode.SHOW_ALL:
                     if (scaleX > scaleY) {
                         displayWidth = Math.round(stageWidth * scaleY);
                     }
                     else {
                         displayHeight = Math.round(stageHeight * scaleX);
+                    }
+                    break;
+                case StageScaleMode.FIXED_NARROW:
+                    if (scaleX > scaleY) {
+                        stageWidth = Math.round(screenWidth / scaleY);
+                    }
+                    else {
+                        stageHeight = Math.round(screenHeight / scaleX);
+                    }
+                    break;
+                case StageScaleMode.FIXED_WIDE:
+                    if (scaleX > scaleY) {
+                        stageHeight = Math.round(screenHeight / scaleX);
+                    }
+                    else {
+                        stageWidth = Math.round(screenWidth / scaleY);
                     }
                     break;
                 default :

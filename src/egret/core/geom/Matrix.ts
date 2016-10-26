@@ -349,9 +349,10 @@ namespace egret {
         }
 
         /**
-         * @internal
+         * Applies the geometric transformation represented by the Matrix object to the specified rectangle.
+         * @param bounds The rectangle for which you want to get the result of the matrix transformation.
          */
-        $transformBounds(bounds:Rectangle):void {
+        public transformBounds(bounds:Rectangle):void {
             let a = this.a;
             let b = this.b;
             let c = this.c;
