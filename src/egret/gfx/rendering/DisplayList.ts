@@ -40,16 +40,29 @@ namespace elf {
 
         }
 
+        public stageHandle:any = null;
+
+        public setStageHandle(handle:any):void {
+
+        }
+
+        public resetSurface():void {
+
+        }
+
+        public setClipRegion(rect:Rectangle):void {
+
+        }
+
+        public updateRenderAlpha():void {
+
+        }
+
+        public region:Rectangle = new Rectangle();
         public drawn:boolean = false;
         public dirtyTransform:boolean = true;
 
-        public stageHandle:any = null;
-
-        public region:Rectangle = new Rectangle();
-
-        public setStageHandle(handle:any):void {
-            this.stageHandle = handle;
-        }
+        public renderMatrix:Matrix = new Matrix();
 
         /**
          * Marks an area as dirty.
@@ -57,5 +70,32 @@ namespace elf {
         public invalidateRect(rect:Rectangle):void {
 
         }
+
+        /**
+         * Updates the concatenatedMatrix and concatenatedAlpha properties, and caculates dirty regions.
+         */
+        public update(forceDirtyTransform?:boolean, clipRegion?:Rectangle) {
+
+        }
+
+        /**
+         * Checks whether the node need to call the render method. If yes, apply the renderMatrix and renderAlpha then \
+         * call the render menthod.
+         */
+        public renderCheck(context:CanvasRenderingContext2D, clipRegion:Rectangle, matrix:Matrix):void {
+            if (!clipRegion || clipRegion.intersects(this.region)) {
+                //setCanvasMatrix(canvas, renderMatrix, matrix);
+                this.render(context);
+                this.drawn = true;
+            }
+        }
+
+        /**
+         * Draws the content to the specified canvas.
+         */
+        public render(context:CanvasRenderingContext2D):void {
+
+        }
+
     }
 }

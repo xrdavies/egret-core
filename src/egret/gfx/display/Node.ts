@@ -51,22 +51,6 @@ namespace elf {
             this.invalidateTransform();
         }
 
-
-        /**
-         * Indicates the horizontal coordinate of the registration point, in pixels.
-         */
-        public anchorOffsetX:number = 0;
-        /**
-         * Indicates the vertical coordinate of the registration point, in pixels.
-         */
-        public anchorOffsetY:number = 0;
-
-        public setAnchorPoint(x:number, y:number):void {
-            this.anchorOffsetX = x;
-            this.anchorOffsetY = y;
-            this.invalidateTransform();
-        }
-
         /**
          * Whether or not the display node is visible.
          */
@@ -387,17 +371,30 @@ namespace elf {
             }
         }
 
-
         /**
-         * Gets a matrix that represents the combined transformation matrixes of the display object and all of its parent
+         * Returns a matrix that represents the combination of the matrix and the offset of the scrollRect.
+         */
+        public getMatrixWithScrollOffset():Matrix {
+            if(this.scrollRect){
+                let scrollRect = this.scrollRect;
+                let m = tempMatrix.copyFrom(this.matrix);
+                m.tx -= scrollRect.left * m.a + scrollRect.top * m.c;
+                m.ty -= scrollRect.left * m.b + scrollRect.top * m.d;
+                return m;
+            }
+            return this.matrix;
+        }
+        /**
+         * Gets a matrix that represents the combined transformation matrixes of the display node and all of its parent
          * objects, back to the root level.
          */
         public getConcatenatedMatrix(result:Matrix):void {
-
-        }
-
-        public concatMatrixInto(parentMatrix:Matrix, result:Matrix):void {
-
+            result.copyFrom(this.getMatrixWithScrollOffset());
+            let parent = this.parent;
+            while (parent) {
+                result.concat(parent.getMatrixWithScrollOffset());
+                parent = parent.parent;
+            }
         }
 
         private contentBounds:Rectangle = new Rectangle();
@@ -429,20 +426,7 @@ namespace elf {
                     if (childBounds.isEmpty()) {
                         continue;
                     }
-                    let offsetX = child.anchorOffsetX;
-                    let offsetY = child.anchorOffsetY;
-                    let childScrollRect = child.scrollRect;
-                    if (childScrollRect) {
-                        offsetX += childScrollRect.left;
-                        offsetY += childScrollRect.top;
-                    }
-                    if (offsetX != 0 || offsetY != 0) {
-                        tempMatrix.setTo(1, 0, 0, 1, -offsetX, -offsetY);
-                        tempMatrix.concatInto(child.matrix, tempMatrix);
-                        tempMatrix.transformBounds(childBounds);
-                    } else {
-                        child.matrix.transformBounds(childBounds);
-                    }
+                    child.getMatrixWithScrollOffset().transformBounds(childBounds);
                     bounds.merge(childBounds);
                 }
             }
@@ -483,7 +467,66 @@ namespace elf {
          * Updates the concatenatedMatrix and concatenatedAlpha properties, and caculates dirty regions.
          */
         public update(forceDirtyTransform?:boolean, clipRegion?:Rectangle):void {
+            if (this.dirtyContent || (forceDirtyTransform && this.region)) {
+                let region = this.region;
+                let parentCache = this.displayList ? this.displayList : this.parentDisplayList;
+                if (this.drawn) {
+                    parentCache.invalidateRect(region);
+                    this.drawn = false;
+                }
+                if (this.dirtyContentBounds) {
+                    this.measureContentBounds(this.contentBounds);
+                    this.dirtyContentBounds = false;
+                }
+                region.copyFrom(this.contentBounds);
+                this.renderMatrix.transformBounds(region);
+                if (clipRegion) {
+                    region.intersect(clipRegion);
+                }
+                parentCache.invalidateRect(region);
+                this.dirtyContent = false;
+            }
+            if (this.dirtyDescendents || (forceDirtyTransform && this.children)) {
+                this.dirtyDescendents = false;
+                for (let child of this.children) {
+                    let childDirtyTransform = forceDirtyTransform || child.dirtyTransform;
+                    let childDisplayList = child.displayList;
+                    if (childDirtyTransform) {
+                        child.dirtyTransform = false;
+                        child.renderAlpha = this.renderAlpha * child.alpha;
+                        let childRenderMatrix:Matrix;
+                        if (childDisplayList) {
+                            childDisplayList.updateRenderAlpha();
+                            childRenderMatrix = childDisplayList.renderMatrix;
+                        } else {
+                            childRenderMatrix = child.renderMatrix;
+                        }
+                        child.getMatrixWithScrollOffset().concatInto(this.renderMatrix, childRenderMatrix);
+                    }
 
+                    let clipRect = child.scrollRect ? child.scrollRect : child.maskRect;
+                    if (clipRect) {
+                        let childRenderMatrix = childDisplayList ?
+                            childDisplayList.renderMatrix : child.renderMatrix;
+                        childRenderMatrix.transformBounds(clipRect);
+                        if (clipRegion) {
+                            clipRect = clipRect.clone();
+                            clipRect.intersect(clipRegion);
+                        }
+                        if (childDisplayList) {
+                            childDisplayList.update(childDirtyTransform, clipRect);
+                        } else {
+                            child.update(childDirtyTransform, clipRect);
+                        }
+                    } else {
+                        if (childDisplayList) {
+                            childDisplayList.update(childDirtyTransform, clipRegion);
+                        } else {
+                            child.update(childDirtyTransform, clipRegion);
+                        }
+                    }
+                }
+            }
         }
 
         /**
