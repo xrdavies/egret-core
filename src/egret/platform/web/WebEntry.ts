@@ -68,7 +68,7 @@ namespace egret.web {
         let length = containerList.length;
         for (let i = 0; i < length; i++) {
             let container = containerList[i];
-            let player = <WebPlayer>container["egret-player"];
+            let player = <WebScreen>container["egret-player"];
             player.updateScreenSize();
         }
     }
@@ -97,7 +97,7 @@ namespace egret.web {
         let length = list.length;
         for (let i = 0; i < length; i++) {
             let container = <HTMLDivElement>list[i];
-            let player = new WebPlayer(container);
+            let player = new CanvasScreen(container);
             container["egret-player"] = player;
         }
     }
@@ -107,11 +107,11 @@ namespace egret.web {
      */
     function startTicker(ticker:egret.sys.SystemTicker):void {
         let requestAnimationFrame =
-                window["requestAnimationFrame"] ||
-                window["webkitRequestAnimationFrame"] ||
-                window["mozRequestAnimationFrame"] ||
-                window["oRequestAnimationFrame"] ||
-                window["msRequestAnimationFrame"];
+            window["requestAnimationFrame"] ||
+            window["webkitRequestAnimationFrame"] ||
+            window["mozRequestAnimationFrame"] ||
+            window["oRequestAnimationFrame"] ||
+            window["msRequestAnimationFrame"];
 
         if (!requestAnimationFrame) {
             requestAnimationFrame = function (callback) {

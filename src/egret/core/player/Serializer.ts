@@ -206,10 +206,10 @@ namespace egret.sys {
                 buffer.writeUnsignedInt(stage.$color);
             }
             if (bits & StageBits.DirtyDisplayRule) {
-                let info = stage.$displayRule;
-                buffer.write6Floats(info.stageWidth, info.stageHeight, info.displayX,
-                    info.displayY, info.displayScaleX, info.displayScaleY);
-                buffer.writeFloat(info.contentScaleFactor);
+                let rule = stage.$displayRule;
+                buffer.write6Floats(rule.stageWidth, rule.stageHeight, rule.displayX,
+                    rule.displayY, rule.displayWidth, rule.displayHeight);
+                buffer.writeFloat(rule.contentScaleFactor);
             }
             if (bits & StageBits.DirtyFrameRate) {
                 buffer.writeFloat(stage.frameRate);

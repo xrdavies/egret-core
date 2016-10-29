@@ -19,8 +19,8 @@
 //  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 //  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
 //  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES:string = "";LOSS OF USE, DATA,
-//  OR PROFITS:string = ""; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
+//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 //  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 //  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -31,30 +31,43 @@
  * @internal
  */
 namespace elf {
+
     /**
      * @internal
-     * A class that provides constant values for visual blend mode effects.
      */
-    export const enum BlendMode {
-        MASK = -1,
-        NORMAL,
-        LAYER,
-        ADD,
-        ERASE,
-        DARKEN,
-        DIFFERENCE,
-        HARDLIGHT,
-        LIGHTEN,
-        MULTIPLY,
-        OVERLAY,
-        SCREEN,
-        COLORDODGE,
-        COLORBURN,
-        SOFTLIGHT,
-        EXCLUSION,
-        HUE,
-        SATURATION,
-        COLOR,
-        LUMINOSITY
+    export interface Screen {
+        /**
+         * Indicates the width of the screen, in pixels. It contains the scaleFactor property.
+         */
+        readonly width:number;
+
+        /**
+         * Indicates the height of the screen, in pixels. It contains the scaleFactor property.
+         */
+        readonly height:number;
+
+        /**
+         * Specifies the effective pixel scaling factor of the screen. This value is 1 on standard screens and doubled on
+         * HiDPI (Retina display) screens.
+         */
+        readonly scaleFactor:number;
+
+        /**
+         * A surface instance associated with the screen. Anything drew to it will show on the screen. <br/>
+         */
+        readonly surface:Surface;
+
+        /**
+         * Applies the stage display rule.
+         */
+        applyDisplayRule(rule:StageDisplayRule):void;
+
+        /**
+         * Call to ensure all drawing to the surface has been applied to the screen. This method is usually called at the end
+         * of one drawing session
+         */
+        present():void;
+
+
     }
 }

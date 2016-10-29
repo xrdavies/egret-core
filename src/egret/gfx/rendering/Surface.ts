@@ -34,51 +34,53 @@ namespace elf {
 
     /**
      * @internal
-     * The Point object represents a location in a two-dimensional coordinate system, where x represents the horizontal
-     * axis and y represents the vertical axis.
      */
-    export class Point {
+    export interface Surface {
+        /**
+         * The width of the surface in pixels.
+         */
+        readonly width:number;
 
         /**
-         * Creates a new point. If you pass no parameters to this method, a point is created at (0,0).
-         * @param x The horizontal coordinate.
-         * @param y The vertical coordinate.
+         * The height of the surface in pixels.
          */
-        public constructor(x:number = 0, y:number = 0) {
-            this.x = x;
-            this.y = y;
-        }
-
+        readonly height:number;
 
         /**
-         * The horizontal coordinate.
+         * The render context associated with the surface.
          */
-        public x:number;
+        readonly context:RenderContext;
 
         /**
-         * The vertical coordinate.
+         * Resize the surface. It will keep the old content if you pass the contentOffset parameter, the top/left corner
+         * of old content will be at (offsetX,offsetY). Otherwise, it clears the old content.
          */
-        public y:number;
+        resize(width:number, height:number, contentOffset?:Point):void;
 
         /**
-         * Sets the members of Point to the specified values
-         * @param x The horizontal coordinate.
-         * @param y The vertical coordinate.
+         * returns a data URI containing a representation of the image in the format specified by the type parameter
          */
-        public setTo(x:number, y:number):Point {
-            this.x = x;
-            this.y = y;
-            return this;
-        }
+        toDataURL(type?:string, encoderOptions?:any):string;
 
         /**
-         * Copies all of the point data from the source Point object into the calling Point object.
-         * @param sourcePoint The Point object from which to copy the data.
+         * Returns the color value for the specified pixel region
          */
-        public copyFrom(sourcePoint:Point):Point {
-            this.x = sourcePoint.x;
-            this.y = sourcePoint.y;
-            return this;
-        }
+        getPixels(x:number, y:number, width?:number, height?:number):Uint8ClampedArray;
+
+        /**
+         * Draws the surface to the specified render context, with its top/left corner at (x,y).
+         */
+        drawTo(context:RenderContext, x:number, y:number):void;
+
+        /**
+         * Creates an surface with specific size. The new surface is "compatible" with this one, in that it will
+         * efficiently be able to be drawn into parent surface.
+         * @param width The width of the surface in pixels.
+         * @param height The height of the surface in pixels.
+         * @param temporary Whether the surface is created for temporary use.
+         * @return A new surface instance.
+         */
+        makeSurface(width:number, height:number, temporary?:boolean):Surface;
     }
+
 }

@@ -235,7 +235,7 @@ namespace egret {
         /**
          * @internal
          */
-        $displayRule:sys.StageDisplayRule = new sys.StageDisplayRule();
+        $displayRule:sys.StageDisplayRule = {};
 
         /**
          * @private
@@ -255,14 +255,14 @@ namespace egret {
             let displaySize = sys.screenAdapter.calculateStageSize(this.$scaleMode, screenWidth, screenHeight,
                 this.$contentWidth, this.$contentHeight);
 
-            let runle = this.$displayRule;
-            runle.stageWidth = displaySize.stageWidth;
-            runle.stageHeight = displaySize.stageHeight;
-            runle.displayX = pixelRatio * (screenWidth - displaySize.displayWidth) * 0.5;
-            runle.displayY = pixelRatio * (screenHeight - displaySize.displayHeight) * 0.5;
-            runle.displayScaleX = pixelRatio * displaySize.displayWidth / displaySize.stageWidth;
-            runle.displayScaleY = pixelRatio * displaySize.displayHeight / displaySize.stageHeight;
-            runle.contentScaleFactor = resolutionMode == "high" ? pixelRatio : 1;
+            let rule = this.$displayRule;
+            rule.stageWidth = displaySize.stageWidth;
+            rule.stageHeight = displaySize.stageHeight;
+            rule.displayX = pixelRatio * (screenWidth - displaySize.displayWidth) * 0.5;
+            rule.displayY = pixelRatio * (screenHeight - displaySize.displayHeight) * 0.5;
+            rule.displayWidth = pixelRatio * displaySize.displayWidth;
+            rule.displayHeight = pixelRatio * displaySize.displayHeight;
+            rule.contentScaleFactor = resolutionMode == "high" ? pixelRatio : 1;
 
             this.$stageBits |= sys.StageBits.DirtyDisplayRule;
             this.$invalidate();

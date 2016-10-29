@@ -19,8 +19,8 @@
 //  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 //  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
 //  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES:string = "";LOSS OF USE, DATA,
-//  OR PROFITS:string = ""; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
+//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 //  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 //  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -33,28 +33,42 @@
 namespace elf {
     /**
      * @internal
-     * A class that provides constant values for visual blend mode effects.
      */
-    export const enum BlendMode {
-        MASK = -1,
-        NORMAL,
-        LAYER,
-        ADD,
-        ERASE,
-        DARKEN,
-        DIFFERENCE,
-        HARDLIGHT,
-        LIGHTEN,
-        MULTIPLY,
-        OVERLAY,
-        SCREEN,
-        COLORDODGE,
-        COLORBURN,
-        SOFTLIGHT,
-        EXCLUSION,
-        HUE,
-        SATURATION,
-        COLOR,
-        LUMINOSITY
+    export interface StageDisplayRule {
+        /**
+         * Indicates the width of the stage content, in pixels. this is the
+         */
+        stageWidth?:number;
+
+        /**
+         * Indicates the height of the stage content, in pixels.
+         */
+        stageHeight?:number;
+
+        /**
+         * The X coordinate in the destination screen at which to place the top-left corner of the stage.
+         */
+        displayX?:number;
+
+        /**
+         * The Y coordinate in the destination screen at which to place the top-left corner of the stage.
+         */
+        displayY?:number;
+
+        /**
+         * Indicates the display width in the destination screen, in pixels.
+         */
+        displayWidth?:number;
+
+        /**
+         * Indicates the display height in the destination screen, in pixels.
+         */
+        displayHeight?:number;
+
+        /**
+         * Specifies the effective pixel scaling factor of the stage. It is applied when drawing nodes to the stage.
+         */
+        contentScaleFactor?:number;
+
     }
 }

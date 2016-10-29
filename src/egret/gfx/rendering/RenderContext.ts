@@ -34,51 +34,56 @@ namespace elf {
 
     /**
      * @internal
-     * The Point object represents a location in a two-dimensional coordinate system, where x represents the horizontal
-     * axis and y represents the vertical axis.
      */
-    export class Point {
+    export interface RenderContext {
+        /**
+         * The surface object associated with the render context.
+         */
+        readonly surface?:Surface;
 
         /**
-         * Creates a new point. If you pass no parameters to this method, a point is created at (0,0).
-         * @param x The horizontal coordinate.
-         * @param y The vertical coordinate.
+         * Specifies the alpha value that is applied to shapes and images before they are drawn onto the surface. The
+         * value is in the range from 0.0 (fully transparent) to 1.0 (fully opaque).
          */
-        public constructor(x:number = 0, y:number = 0) {
-            this.x = x;
-            this.y = y;
-        }
-
+        globalAlpha:number;
 
         /**
-         * The horizontal coordinate.
+         * Whether or not images are smoothed when scaled.
          */
-        public x:number;
+        imageSmoothingEnabled?:boolean;
 
         /**
-         * The vertical coordinate.
+         * Sets all pixels in the rectangle defined by starting point (x, y) and size (width, height) to transparent black,
+         * erasing any previously drawn content.
          */
-        public y:number;
+        clearRect(x:number, y:number, w:number, h:number):void;
 
         /**
-         * Sets the members of Point to the specified values
-         * @param x The horizontal coordinate.
-         * @param y The vertical coordinate.
+         * Saves the entire state of the surface by pushing the current state onto a stack.
          */
-        public setTo(x:number, y:number):Point {
-            this.x = x;
-            this.y = y;
-            return this;
-        }
+        save():void;
 
         /**
-         * Copies all of the point data from the source Point object into the calling Point object.
-         * @param sourcePoint The Point object from which to copy the data.
+         * Restores the most recently saved canvas state by popping the top entry in the drawing state stack. If there
+         * is no saved state, this method does nothing.
          */
-        public copyFrom(sourcePoint:Point):Point {
-            this.x = sourcePoint.x;
-            this.y = sourcePoint.y;
-            return this;
-        }
+        restore():void;
+
+        /**
+         * Resets (overrides) the current transformation to the identity matrix and then invokes a transformation described
+         * by the arguments of this method.
+         */
+        setTransform(a:number, b:number, c:number, d:number, tx:number, ty:number):void;
+
+        /**
+         * Specifies the type of blend mode to apply when drawing new shapes.
+         * @see elf.BlendMode
+         */
+        setBlendMode?(value:BlendMode);
+
+        /**
+         * Modify the current clip with the specified rectangle.
+         */
+        clipRect?(x:number, y:number, width:number, height:number):void;
     }
 }

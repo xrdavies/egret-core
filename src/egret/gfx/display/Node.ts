@@ -34,11 +34,14 @@ namespace elf {
 
     let tempMatrix = new Matrix();
     let tempBounds = new Rectangle();
+    let rectanglePool:Rectangle[] = [];
 
     /**
      * @internal
      */
     export class Node {
+
+        public type:number = NodeType.Node;
 
         public externalHandle:any;
         /**
@@ -375,7 +378,7 @@ namespace elf {
          * Returns a matrix that represents the combination of the matrix and the offset of the scrollRect.
          */
         public getMatrixWithScrollOffset():Matrix {
-            if(this.scrollRect){
+            if (this.scrollRect) {
                 let scrollRect = this.scrollRect;
                 let m = tempMatrix.copyFrom(this.matrix);
                 m.tx -= scrollRect.left * m.a + scrollRect.top * m.c;
@@ -384,6 +387,7 @@ namespace elf {
             }
             return this.matrix;
         }
+
         /**
          * Gets a matrix that represents the combined transformation matrixes of the display node and all of its parent
          * objects, back to the root level.
@@ -406,9 +410,6 @@ namespace elf {
             bounds.setEmpty();
         }
 
-
-        private bounds:Rectangle = new Rectangle();
-
         /**
          * Measure the bounds of the node, includes the contentBounds and the bouds of child nodes.
          */
@@ -420,7 +421,7 @@ namespace elf {
             bounds.copyFrom(this.contentBounds);
             let children = this.children;
             if (children && children.length) {
-                let childBounds = this.bounds;
+                let childBounds = rectanglePool.length ? rectanglePool.pop() : new Rectangle();
                 for (let child of children) {
                     child.measureBounds(childBounds);
                     if (childBounds.isEmpty()) {
@@ -429,6 +430,7 @@ namespace elf {
                     child.getMatrixWithScrollOffset().transformBounds(childBounds);
                     bounds.merge(childBounds);
                 }
+                rectanglePool.push(childBounds);
             }
         }
 
@@ -529,24 +531,5 @@ namespace elf {
             }
         }
 
-        /**
-         * Checks whether the node need to call the render method. If yes, apply the renderMatrix and renderAlpha then \
-         * call the render menthod.
-         */
-        public renderCheck(context:CanvasRenderingContext2D, clipRegion:Rectangle, matrix:Matrix):void {
-            if (!clipRegion || clipRegion.intersects(this.region)) {
-                //setCanvasMatrix(context, this.renderMatrix, matrix);
-                //let alpha = toClampedAlpha(this.renderAlpha);
-                this.render(context);
-                this.drawn = true;
-            }
-        }
-
-        /**
-         * Draws the content of self to canvas.
-         */
-        public render(canvas:CanvasRenderingContext2D):void {
-
-        }
     }
 }

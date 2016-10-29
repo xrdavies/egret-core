@@ -130,40 +130,38 @@ namespace egret.sys {
     /**
      * @internal
      */
-    export class StageDisplayRule {
+    export interface StageDisplayRule {
         /**
-         * Indicates the width of the stage content, in pixels. this is the
+         * Indicates the width of the stage content, in pixels.
          */
-        public stageWidth:number = 0;
+        stageWidth?:number;
 
         /**
          * Indicates the height of the stage content, in pixels.
          */
-        public stageHeight:number = 0;
+        stageHeight?:number;
         /**
-         * The X coordinate in the destination screen at which to place the top-left corner of the stage.
+         * Indicates the X coordinate in the destination screen at which to place the top-left corner of the stage.
          */
-        public displayX:number = 0;
+        displayX?:number;
 
         /**
-         * The Y coordinate in the destination screen at which to place the top-left corner of the stage.
+         * Indicates the Y coordinate in the destination screen at which to place the top-left corner of the stage.
          */
-        public displayY:number = 0;
+        displayY?:number;
 
         /**
-         * Indicates the horizontal scale (percentage) of the stage. It is applied when drawing the stage to the screen.
-         * 1.0 equals 100% scale.
+         * Indicates the display width in the destination screen, in pixels.
          */
-        public displayScaleX:number = 1;
+        displayWidth?:number;
         /**
-         * Indicates the vertical scale (percentage) of the stage. It is applied when drawing the stage to the screen.
-         * 1.0 equals 100% scale.
+         * Indicates the display height in the destination screen, in pixels.
          */
-        public displayScaleY:number = 1;
+        displayHeight?:number;
         /**
          * Specifies the effective pixel scaling factor of the stage. It is applied when drawing nodes to the stage.
          */
-        public contentScaleFactor:number = 1;
+        contentScaleFactor?:number;
 
     }
 

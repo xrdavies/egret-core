@@ -33,16 +33,55 @@
 namespace egret.web {
 
     /**
-     * @private
+     * @internal
      */
-    export class WebPlayer extends egret.HashObject {
+    export class WebScreen extends egret.HashObject implements elf.Screen {
 
-        public constructor(container:HTMLDivElement) {
+        public constructor(container:HTMLDivElement, canvas:HTMLCanvasElement) {
             super();
-            this.init(container);
+            this.init(container, canvas);
         }
 
-        private init(container:HTMLDivElement):void {
+        /**
+         * A surface instance associated with the screen. Anything drew to it will show on the screen. <br/>
+         */
+        public surface:elf.Surface;
+
+        /**
+         * Indicates the width of the screen, in pixels. It contains the scaleFactor property.
+         */
+        public width:number;
+
+        /**
+         * Indicates the height of the screen, in pixels. It contains the scaleFactor property.
+         */
+        public height:number;
+
+        /**
+         * Specifies the effective pixel scaling factor of the screen. This value is 1 on standard screens and doubled on
+         * HiDPI (Retina display) screens.
+         */
+        public scaleFactor:number;
+
+
+        private playerOption:PlayerOption;
+
+        /**
+         * @private
+         */
+        private canvas:HTMLCanvasElement;
+        /**
+         * @private
+         */
+        private container:HTMLElement;
+
+        /**
+         * @internal
+         */
+        public stage:Stage;
+
+
+        private init(container:HTMLDivElement, canvas:HTMLCanvasElement):void {
             let option = this.readOption(container);
             sys.stage_instantiated_guard = false;
             let stage = new egret.Stage();
@@ -52,7 +91,6 @@ namespace egret.web {
             stage.$contentWidth = option.contentWidth;
             stage.$contentHeight = option.contentHeight;
             stage.frameRate = option.frameRate;
-            let canvas = this.createCanvas();
             this.attachCanvas(container, canvas);
 
             this.playerOption = option;
@@ -98,41 +136,7 @@ namespace egret.web {
         /**
          * @private
          */
-        private createCanvas():HTMLCanvasElement {
-            let canvas:HTMLCanvasElement = document.createElement("canvas");
-            let context = canvas.getContext("2d");
-            if (context["imageSmoothingEnabled"] === undefined) {
-                let keys = ["webkitImageSmoothingEnabled", "mozImageSmoothingEnabled", "msImageSmoothingEnabled"];
-                let key:string;
-                for (let i = keys.length - 1; i >= 0; i--) {
-                    key = keys[i];
-                    if (context[key] !== void 0) {
-                        break;
-                    }
-                }
-                try {
-                    Object.defineProperty(context, "imageSmoothingEnabled", {
-                        get: function () {
-                            return this[key];
-                        },
-                        set: function (value) {
-                            this[key] = value;
-                        }
-                    });
-                }
-                catch (e) {
-                    context["imageSmoothingEnabled"] = context[key];
-                }
-            }
-            return canvas;
-        }
-
-        /**
-         * @private
-         * 添加canvas到container。
-         */
         private attachCanvas(container:HTMLElement, canvas:HTMLCanvasElement):void {
-
             let style = canvas.style;
             style.cursor = "inherit";
             style.position = "absolute";
@@ -147,48 +151,26 @@ namespace egret.web {
             style["webkitTransform"] = "translateZ(0)";
         }
 
-        private playerOption:PlayerOption;
-
-        /**
-         * @private
-         * 画布实例
-         */
-        private canvas:HTMLCanvasElement;
-        /**
-         * @private
-         * 播放器容器实例
-         */
-        private container:HTMLElement;
-
         /**
          * @internal
-         * 舞台引用
-         */
-        public stage:Stage;
-
-        /**
-         * @internal
-         * 更新播放器视口尺寸
          */
         public updateScreenSize():void {
             let canvas = this.canvas;
             if (canvas['userTyping'])
                 return;
             let screenRect = this.container.getBoundingClientRect();
-            let screenWidth = screenRect.width;
-            let screenHeight = screenRect.height;
-            let pixelRatio = window.devicePixelRatio;
-            this.stage.$updateScreenSize(screenWidth, screenHeight, pixelRatio);
+            this.width = screenRect.width;
+            this.height = screenRect.height;
+            this.scaleFactor = window.devicePixelRatio;
+            this.stage.$updateScreenSize(this.width, this.height, this.scaleFactor);
         }
 
         /**
          * @internal
          */
-        public applyDisplayRule(rule:sys.StageDisplayRule):void {
-            let stageWidth = rule.stageWidth;
-            let stageHeight = rule.stageHeight;
-            let displayWidth = rule.displayScaleX * stageWidth;
-            let displayHeight = rule.displayScaleY * stageHeight;
+        public applyDisplayRule(rule:elf.StageDisplayRule):void {
+            let displayWidth = rule.displayWidth;
+            let displayHeight = rule.displayHeight;
             //宽高不是2的整数倍会导致图片绘制出现问题
             if (displayWidth % 2 != 0) {
                 displayWidth += 1;
@@ -196,20 +178,22 @@ namespace egret.web {
             if (displayHeight % 2 != 0) {
                 displayHeight += 1;
             }
-            let contentScaleFactor = rule.contentScaleFactor;
+            let surface = this.surface;
+            surface.resize(rule.stageWidth, rule.stageHeight);
             let canvas = this.canvas;
-            if (canvas.width !== stageWidth) {
-                canvas.width = stageWidth;
-            }
-            if (canvas.height !== stageHeight) {
-                canvas.height = stageHeight;
-            }
             canvas.style.width = displayWidth + "px";
             canvas.style.height = displayHeight + "px";
             canvas.style.top = rule.displayX + "px";
             canvas.style.left = rule.displayY + "px";
         }
-    }
 
+        /**
+         * Call to ensure all drawing to the surface has been applied to the screen. This method is usually called at the end
+         * of one drawing session
+         */
+        public present():void {
+
+        }
+    }
 
 }

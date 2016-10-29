@@ -299,8 +299,6 @@ namespace egret {
             if (this._skewX || this._skewY) {
                 let skewX = this._skewX;
                 let skewY = this._skewY;
-                let anchorX = this._anchorOffsetX;
-                let anchorY = this._anchorOffsetY;
                 let scaleX = this._scaleX;
                 let scaleY = this._scaleY;
                 let rotation = this._rotation;

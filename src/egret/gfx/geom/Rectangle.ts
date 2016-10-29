@@ -171,11 +171,11 @@ namespace elf {
          * @param toIntersect The Rectangle object to compare against to see if it intersects with this Rectangle object.
          */
         public intersect(toIntersect:Rectangle):void {
-            if (toIntersect.isEmpty()) {
+            if (toIntersect.left === RectEmptyFlag) {
                 this.setEmpty();
                 return;
             }
-            if (this.isEmpty()) {
+            if (this.left === RectEmptyFlag) {
                 return;
             }
             if (this.left < toIntersect.left) {
@@ -223,7 +223,7 @@ namespace elf {
          * @returns A value of true if the specified object intersects with this Rectangle object; otherwise false.
          */
         public intersects(toIntersect:Rectangle):boolean {
-            if (this.isEmpty()) {
+            if (this.left === RectEmptyFlag) {
                 return false;
             }
             let max = this.left > toIntersect.left ? this.left : toIntersect.left;
@@ -243,14 +243,15 @@ namespace elf {
          * @returns A value of true if the Rectangle object's width or height is less than or equal to 0; otherwise false.
          */
         public isEmpty():boolean {
-            return this.left == RectEmptyFlag;
+            return this.left === RectEmptyFlag;
         }
 
         /**
          * Sets all of the Rectangle object's properties to 0. A Rectangle object is empty if its width or height is less than or equal to 0.
          */
-        public setEmpty():void {
+        public setEmpty():Rectangle {
             this.left = this.top = this.right = this.bottom = RectEmptyFlag;
+            return this;
         }
 
 
@@ -272,10 +273,10 @@ namespace elf {
          * @param toMerge A Rectangle object to add to this Rectangle object.
          */
         public merge(toMerge:Rectangle):void {
-            if (toMerge.isEmpty()) {
+            if (toMerge.left === RectEmptyFlag) {
                 return;
             }
-            if (this.isEmpty()) {
+            if (this.left === RectEmptyFlag) {
                 this.copyFrom(toMerge);
                 return;
             }
