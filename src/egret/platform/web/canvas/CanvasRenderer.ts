@@ -30,57 +30,20 @@
 /**
  * @internal
  */
-namespace elf {
+namespace egret.web {
 
     /**
      * @internal
      */
-    export interface Surface {
-        /**
-         * The width of the surface in pixels.
-         */
-        readonly width:number;
+    export class CanvasRenderer extends elf.Renderer {
+        public constructor(){
+            super();
+        }
 
-        /**
-         * The height of the surface in pixels.
-         */
-        readonly height:number;
+        protected renderNode(buffer:CanvasRenderBuffer, node:elf.Node):void {
+            let context = buffer.context;
 
-        /**
-         * The render context associated with the surface.
-         */
-        readonly context:RenderContext;
+        }
 
-        /**
-         * Resize the surface. It will keep the old content if you pass the contentOffset parameter, the top/left corner
-         * of old content will be at (offsetX,offsetY). Otherwise, it clears the old content.
-         */
-        resize(width:number, height:number, contentOffset?:Point):void;
-
-        /**
-         * returns a data URI containing a representation of the image in the format specified by the type parameter
-         */
-        toDataURL(type?:string, encoderOptions?:any):string;
-
-        /**
-         * Returns the color value for the specified pixel region
-         */
-        getPixels(x:number, y:number, width?:number, height?:number):Uint8ClampedArray;
-
-        /**
-         * Draws the surface to the specified render context, with its top/left corner at (x,y).
-         */
-        drawTo(context:RenderContext, x:number, y:number):void;
-
-        /**
-         * Creates an surface with specific size. The new surface is "compatible" with this one, in that it will
-         * efficiently be able to be drawn into parent surface.
-         * @param width The width of the surface in pixels.
-         * @param height The height of the surface in pixels.
-         * @param temporary Whether the surface is created for temporary use.
-         * @return A new surface instance.
-         */
-        makeSurface(width:number, height:number, temporary?:boolean):Surface;
     }
-
 }

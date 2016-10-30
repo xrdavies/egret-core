@@ -44,7 +44,7 @@ namespace elf {
         }
 
         private root:Node;
-        public surface:Surface = null;
+        public buffer:RenderBuffer = null;
         public drawn:boolean = false;
         public stageHandle:any = null;
 
@@ -111,49 +111,48 @@ namespace elf {
          * Checks whether the display list need to call the render method. If yes, apply the renderMatrix and renderAlpha
          * then call the render method.
          */
-        public renderCheck(context:RenderContext, clipRegion:Rectangle, offset?:Point):void {
-            if(!clipRegion||clipRegion.intersects(this.region)){
-                let m = this.renderMatrix;
+        public renderCheck(buffer:RenderBuffer, clipRegion:Rectangle, offset?:Point):void {
+            if (!clipRegion || clipRegion.intersects(this.region)) {
+                let renderMatrix = this.renderMatrix;
                 if (offset) {
-                    context.setTransform(m.a, m.b, m.c, m.d, m.tx + offset.x, m.ty + offset.y);
+                    renderMatrix = tempMatrix.copyFrom(renderMatrix);
+                    renderMatrix.tx += offset.x;
+                    renderMatrix.ty += offset.y;
                 }
-                else {
-                    context.setTransform(m.a, m.b, m.c, m.d, m.tx, m.ty);
-                }
-                context.globalAlpha = 1;
-                this.render(context);
+                buffer.setMatrix(renderMatrix);
+                buffer.setAlpha(1);
+                this.render(buffer);
                 this.drawn = true;
             }
         }
+
         /**
          * Draws the content to the specified render buffer.
          */
-        public render(context:RenderContext):void {
+        public render(buffer:RenderBuffer):void {
             let bounds = this.bounds;
-            if (!this.surface) {
-                this.surface = context.surface.makeSurface(bounds.width(), bounds.height())
+            if (!this.buffer) {
+                this.buffer = buffer.makeRenderBuffer(bounds.width(), bounds.height())
             }
-            let displayContext = this.surface.context;
+            let displayBuffer = this.buffer;
             let offset = this.offsetPoint;
             if (this.dirtyList.length > 0) {
                 let root = this.root;
                 for (let rect of this.dirtyList) {
-                    displayContext.save();
+                    displayBuffer.save();
+                    displayBuffer.resetMatrix();
                     if (offset) {
-                        displayContext.setTransform(1, 0, 0, 1, offset.x, offset.y);
+                        displayBuffer.translate(offset.x, offset.y);
                     }
-                    else {
-                        displayContext.setTransform(1, 0, 0, 1, 0, 0);
-                    }
-                    displayContext.clearRect(rect.left, rect.top, rect.width(), rect.height());
-                    displayContext.clipRect(rect.left, rect.top, rect.width(), rect.height());
-                    systemRenderer.render(displayContext, root, rect, offset);
-                    displayContext.restore();
+                    displayBuffer.clearRect(rect);
+                    displayBuffer.clipRect(rect);
+                    systemRenderer.render(displayBuffer, root, rect, offset);
+                    displayBuffer.restore();
                 }
                 this.clearDirtyList();
             }
-            context.imageSmoothingEnabled = true;
-            this.surface.drawTo(context, bounds.left, bounds.top);
+            buffer.setSmoothing(true);
+            buffer.drawBuffer(displayBuffer, bounds.left, bounds.top)
         }
 
     }

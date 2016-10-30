@@ -77,14 +77,14 @@ declare namespace egret {
          * of color channel information, including an alpha transparency channel.
          * @param width The width of the bitmap image in pixels.
          * @param height The height of the bitmap image in pixels.
-         * @param transparent Specifies whether the bitmap image supports per-pixel transparency. The default value is true (transparent).
-         * To create a fully transparent bitmap, set the value of the transparent parameter to true and the value of the fillColor
-         * parameter to 0x00000000 (or to 0). Setting the transparent property to false can result in minor improvements in
-         * rendering performance. The default value is true.
-         * @param fillColor A 32-bit ARGB color value that you use to fill the bitmap image area.
-         * The default value is 0xFFFFFFFF (solid white).
+         * @param transparent (Not supported in Web platform) Specifies whether the bitmap image supports per-pixel
+         * transparency. The default value is true (transparent). To create a fully transparent bitmap, set the value of
+         * the transparent parameter to true and the value of the fillColor parameter to 0x00000000 (or to 0). Setting the
+         * transparent property to false can result in minor improvements in rendering performance. The default value is true.
+         * @param fillColor (Not supported in Web platform) A 32-bit ARGB color value that you use to fill the bitmap image area.
+         * The default value is 0x00000000 (transparent black).
          * @version Egret 3.5
-         * @platform Native
+         * @platform Web,Native
          */
         constructor(width:number, height:number, transparent?:boolean, fillColor?:number);
 
@@ -93,6 +93,7 @@ declare namespace egret {
          * The handle of the backend bitmap data.
          */
         $handle:any;
+
         /**
          * @language zh_CN
          * 表示此对象唯一的哈希值,用于唯一确定一个对象。hashCode为大于等于1的整数。
@@ -160,7 +161,7 @@ declare namespace egret {
          * the memory occupied by the actual BitmapData object is released at the time the BitmapData object is collected
          * by the garbage collector.
          * @version Egret 3.5
-         * @platform Native
+         * @platform Web,Native
          */
         dispose():void;
 
@@ -197,6 +198,7 @@ declare namespace egret {
          * @version Egret 3.5
          * @platform Web,Native
          */
-        draw(source:DisplayObject|BitmapData, matrix?:Matrix, alpha?:number, blendMode?:string, clipRect?:Rectangle, smoothing?:boolean);
+        draw(source:DisplayObject|BitmapData, matrix?:Matrix, alpha?:number,
+             blendMode?:string, clipRect?:Rectangle, smoothing?:boolean):void;
     }
 }

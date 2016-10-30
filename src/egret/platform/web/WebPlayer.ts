@@ -35,17 +35,22 @@ namespace egret.web {
     /**
      * @internal
      */
-    export class WebScreen extends egret.HashObject implements elf.Screen {
+    export class WebPlayer extends egret.HashObject implements elf.Screen {
 
-        public constructor(container:HTMLDivElement, canvas:HTMLCanvasElement) {
+        public constructor(container:HTMLDivElement) {
             super();
-            this.init(container, canvas);
+            let easelHost = new WebEasel(0, 0);
+            this.easelHost = easelHost;
+            this.buffer = easelHost.buffer;
+            this.init(container, easelHost.canvas);
         }
+
+        private easelHost:WebEasel;
 
         /**
          * A surface instance associated with the screen. Anything drew to it will show on the screen. <br/>
          */
-        public surface:elf.Surface;
+        public buffer:elf.RenderBuffer;
 
         /**
          * Indicates the width of the screen, in pixels. It contains the scaleFactor property.
@@ -178,8 +183,8 @@ namespace egret.web {
             if (displayHeight % 2 != 0) {
                 displayHeight += 1;
             }
-            let surface = this.surface;
-            surface.resize(rule.stageWidth, rule.stageHeight);
+            let buffer = this.buffer;
+            buffer.resize(rule.stageWidth, rule.stageHeight);
             let canvas = this.canvas;
             canvas.style.width = displayWidth + "px";
             canvas.style.height = displayHeight + "px";
@@ -192,7 +197,7 @@ namespace egret.web {
          * of one drawing session
          */
         public present():void {
-
+            this.easelHost.flush();
         }
     }
 

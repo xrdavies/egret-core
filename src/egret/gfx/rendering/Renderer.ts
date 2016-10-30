@@ -34,19 +34,20 @@ namespace elf {
 
     let tempBounds:Rectangle = new Rectangle();
     let offsetMatrix:Matrix = new Matrix();
+    let tempMatrix:Matrix = new Matrix();
     let rectanglePool:Rectangle[] = [];
     let pointPool:Point[] = [];
 
     /**
      * @private
      */
-    function setMatrixWithOffset(context:RenderContext, m:Matrix, offset?:Point):void {
+    function setMatrixWithOffset(context:RenderBuffer, m:Matrix, offset?:Point):void {
         if (offset) {
-            context.setTransform(m.a, m.b, m.c, m.d, m.tx + offset.x, m.ty + offset.y);
+            m = tempMatrix.copyFrom(m);
+            m.tx += offset.x;
+            m.ty += offset.y;
         }
-        else {
-            context.setTransform(m.a, m.b, m.c, m.d, m.tx, m.ty);
-        }
+        context.setMatrix(m);
     }
 
     /**
@@ -59,23 +60,23 @@ namespace elf {
      */
     export class Renderer {
         /**
-         * Draws the node and all its children onto the specified render context. This method updates the drawn property of the
+         * Draws the node and all its children onto the specified render buffer. This method updates the drawn property of the
          * display node after drawing.
-         * @param context The render context to be drawn to.
-         * @param node The node to draw to the render context.
+         * @param buffer The render buffer to be drawn to.
+         * @param node The node to draw to the render buffer.
          * @param clipRegion A Rectangle object that defines the area of the node to draw.
          * @param offset A Point object used to translate the coordinates of the node.
          */
-        public render(context:RenderContext, node:Node, clipRegion:Rectangle, offset?:Point):void {
-            this.renderNodeTree(context, node, clipRegion, offset);
+        public render(buffer:RenderBuffer, node:Node, clipRegion:Rectangle, offset?:Point):void {
+            this.renderNodeTree(buffer, node, clipRegion, offset);
         }
 
-        private renderNodeTree(context:RenderContext, node:Node, clipRegion:Rectangle, offset?:Point):void {
+        private renderNodeTree(buffer:RenderBuffer, node:Node, clipRegion:Rectangle, offset?:Point):void {
             if (node.region) {
                 if (!clipRegion || clipRegion.intersects(node.region)) {
-                    setMatrixWithOffset(context, node.renderMatrix, offset);
-                    context.globalAlpha = node.renderAlpha;
-                    this.renderNode(context, node);
+                    setMatrixWithOffset(buffer, node.renderMatrix, offset);
+                    buffer.setAlpha(node.renderAlpha);
+                    this.renderNode(buffer, node);
                     node.drawn = true;
                 }
             }
@@ -87,30 +88,30 @@ namespace elf {
                     continue;
                 }
                 if (child.blendMode > BlendMode.LAYER || child.mask) {
-                    this.renderNodeTreeComplex(context, child, clipRegion, offset);
+                    this.renderNodeTreeComplex(buffer, child, clipRegion, offset);
                 } else {
                     let clipRect = child.scrollRect ? child.scrollRect : child.maskRect;
                     if (clipRect) {
                         if (clipRect.isEmpty()) {
                             continue;
                         }
-                        setMatrixWithOffset(context, child.renderMatrix, offset);
-                        context.clipRect(clipRect.left, clipRect.top, clipRect.width(), clipRect.height());
+                        setMatrixWithOffset(buffer, child.renderMatrix, offset);
+                        buffer.clipRect(clipRect);
 
                     }
                     if (child.displayList) {
-                        child.displayList.renderCheck(context, clipRegion, offset);
+                        child.displayList.renderCheck(buffer, clipRegion, offset);
                     } else {
-                        this.renderNodeTree(context, child, clipRegion, offset);
+                        this.renderNodeTree(buffer, child, clipRegion, offset);
                     }
                     if (clipRect) {
-                        context.restore();
+                        buffer.restore();
                     }
                 }
             }
         }
 
-        private renderNodeTreeComplex(context:RenderContext, node:Node, clipRegion:Rectangle, offset?:Point):void {
+        private renderNodeTreeComplex(buffer:RenderBuffer, node:Node, clipRegion:Rectangle, offset?:Point):void {
             let nodeBounds = rectanglePool.length ? rectanglePool.pop().setEmpty() : new Rectangle();
             node.mergeRegions(nodeBounds);
 
@@ -134,48 +135,46 @@ namespace elf {
                 offsetPoint = pointPool.length ? pointPool.pop() : new Point();
                 offsetPoint.setTo(-nodeBounds.left, -nodeBounds.top);
             }
-            let nodeSurface = context.surface.makeSurface(nodeBounds.width(), nodeBounds.height(), true);
-            let nodeContext = nodeSurface.context;
+            let nodeBuffer = buffer.makeRenderBuffer(nodeBounds.width(), nodeBounds.height(), true);
             // maskRect is ignored if scrollRect is not null.
             let clipRect = node.scrollRect ? node.scrollRect : node.maskRect;
             if (clipRect) {
                 if (clipRect.isEmpty()) {
                     return;
                 }
-                nodeContext.save();
-                setMatrixWithOffset(nodeContext, node.renderMatrix, offsetPoint);
-                nodeContext.clipRect(clipRect.left, clipRect.top, clipRect.width(), clipRect.height());
+                nodeBuffer.save();
+                setMatrixWithOffset(nodeBuffer, node.renderMatrix, offsetPoint);
+                nodeBuffer.clipRect(clipRect);
             }
             if (node.displayList) {
-                node.displayList.renderCheck(nodeContext, nodeBounds, offsetPoint);
+                node.displayList.renderCheck(nodeBuffer, nodeBounds, offsetPoint);
             } else {
-                this.renderNodeTree(nodeContext, node, nodeBounds, offsetPoint);
+                this.renderNodeTree(nodeBuffer, node, nodeBounds, offsetPoint);
             }
 
             if (clipRect) {
-                nodeContext.restore();
+                nodeBuffer.restore();
             }
 
             if (mask) {
-                let maskSurface = context.surface.makeSurface(nodeBounds.width(), nodeBounds.height(), true);
-                let maskContext = maskSurface.context;
+                let maskBuffer = buffer.makeRenderBuffer(nodeBounds.width(), nodeBounds.height(), true);
                 if (mask.displayList) {
-                    mask.displayList.renderCheck(maskContext, nodeBounds, offsetPoint);
+                    mask.displayList.renderCheck(maskBuffer, nodeBounds, offsetPoint);
                 } else {
-                    this.renderNodeTree(maskContext, mask, nodeBounds, offsetPoint);
+                    this.renderNodeTree(maskBuffer, mask, nodeBounds, offsetPoint);
                 }
-                nodeContext.setTransform(1, 0, 0, 1, 0, 1);
-                nodeContext.setBlendMode(BlendMode.MASK);
-                nodeContext.globalAlpha = 1;
-                maskSurface.drawTo(nodeContext, 0, 0);
+                nodeBuffer.resetMatrix();
+                nodeBuffer.setBlendMode(BlendMode.MASK);
+                nodeBuffer.setAlpha(1);
+                nodeBuffer.drawBuffer(maskBuffer, 0, 0);
             }
 
             offsetMatrix.tx = nodeBounds.left;
             offsetMatrix.ty = nodeBounds.top;
-            setMatrixWithOffset(context, offsetMatrix, offset);
-            context.setBlendMode(node.blendMode);
-            context.globalAlpha = 1;
-            nodeSurface.drawTo(context, 0, 0);
+            setMatrixWithOffset(buffer, offsetMatrix, offset);
+            buffer.setBlendMode(node.blendMode);
+            buffer.setAlpha(1);
+            buffer.drawBuffer(nodeBuffer, 0, 0);
 
             rectanglePool.push(nodeBounds);
             if (offsetPoint) {
@@ -183,11 +182,139 @@ namespace elf {
             }
         }
 
+
         /**
-         * Draws the BitmapData object onto the specified render context. You can specify  matrix and a destination clipRect parameter to
+         * Draws the node and all its children onto the specified render buffer. You can specify  matrix and a destination
+         * clipRect parameter to control how the rendering performs.
+         * @param buffer The render buffer to be drawn to.
+         * @param node The node to draw to the render buffer.
+         * @param matrix A Matrix object used to scale, rotate, or translate the coordinates of the node. If you do not
+         * want to apply a matrix transformation to the image, set this parameter to an identity matrix, or pass a null
+         * value.
+         * @param alpha A float value that you use to adjust the alpha values of the node.
+         * @param blendMode A string value, from the BlendMode class, specifying the blend mode to be applied to the node.
+         * @param clipRect A Rectangle object that defines the area of the node to draw. If you do not supply this value,
+         * no clipping occurs and the entire node is drawn.
+         */
+        public draw(buffer:RenderBuffer, node:Node, matrix?:Matrix, alpha:number = 1,
+                    blendMode:number = 0, clipRect?:Rectangle):void {
+            buffer.save();
+            if (clipRect) {
+                buffer.resetMatrix();
+                buffer.clipRect(clipRect);
+            }
+            let renderMatrix = new Matrix();
+            if (matrix) {
+                renderMatrix.copyFrom(matrix);
+            }
+            if (blendMode > BlendMode.LAYER || clipRect) {
+                this.drawNodeTreeComplex(buffer, node, renderMatrix, alpha, node.blendMode, clipRect);
+            } else {
+                this.drawNodeTree(buffer, node, renderMatrix, alpha);
+            }
+            buffer.restore();
+
+        }
+
+
+        private drawNodeTree(buffer:RenderBuffer, node:Node, renderMatrix:Matrix, renderAlpha:number):void {
+            if (node.region) {
+                buffer.setMatrix(renderMatrix);
+                buffer.setAlpha(renderAlpha);
+                this.renderNode(buffer, node);
+            }
+            if (!node.children) {
+                return;
+            }
+            for (let child of node.children) {
+                if (child.renderAlpha == 0 || !child.visible || child.maskedObject) {
+                    continue;
+                }
+                let childRenderAlpha = renderAlpha * child.alpha;
+                let childRenderMatrix = new Matrix();
+                child.getMatrixWithScrollOffset().concatInto(renderMatrix, childRenderMatrix);
+                if (child.blendMode > BlendMode.LAYER || child.mask) {
+                    // maskRect is ignored if scrollRect is not null.
+                    let clipRect = child.scrollRect ? child.scrollRect : child.maskRect;
+                    this.drawNodeTreeComplex(buffer, child, childRenderMatrix, childRenderAlpha,
+                        child.blendMode, clipRect, child.mask);
+                } else {
+                    let clipRect = child.scrollRect ? child.scrollRect : child.maskRect;
+                    if (clipRect) {
+                        if (clipRect.isEmpty()) {
+                            continue;
+                        }
+                        buffer.save();
+                        buffer.setMatrix(childRenderMatrix);
+                        buffer.clipRect(clipRect);
+
+                    }
+                    this.drawNodeTree(buffer, child, childRenderMatrix, childRenderAlpha);
+                    if (clipRect) {
+                        buffer.restore();
+                    }
+                }
+            }
+        }
+
+        private drawNodeTreeComplex(buffer:RenderBuffer, node:Node, renderMatrix:Matrix, renderAlpha:number,
+                                    blendMode:number = 0, clipRect?:Rectangle, mask?:Node):void {
+            let nodeBounds = rectanglePool.length ? rectanglePool.pop() : new Rectangle();
+            node.measureBounds(nodeBounds);
+            let maskMatrix:Matrix;
+            if (mask) {
+                maskMatrix = new Matrix();
+                mask.getConcatenatedMatrix(maskMatrix);
+                node.getConcatenatedMatrix(tempMatrix);
+                tempMatrix.invert();
+                maskMatrix.concat(tempMatrix);
+                mask.measureBounds(tempBounds);
+                maskMatrix.transformBounds(tempBounds);
+                nodeBounds.intersect(tempBounds);
+            }
+            if (nodeBounds.isEmpty()) {
+                return;
+            }
+            let offsetMatrix = new Matrix();
+            if (nodeBounds.left != 0 || nodeBounds.top != 0) {
+                offsetMatrix.setTo(1, 0, 0, 1, -nodeBounds.left, -nodeBounds.top);
+            }
+            let nodeBuffer = buffer.makeRenderBuffer(nodeBounds.width(), nodeBounds.height(), true);
+
+            if (clipRect) {
+                if (clipRect.isEmpty()) {
+                    return;
+                }
+                nodeBuffer.save();
+                nodeBuffer.setMatrix(offsetMatrix);
+                nodeBuffer.clipRect(clipRect);
+            }
+            this.drawNodeTree(nodeBuffer, node, offsetMatrix, renderAlpha);
+            if (clipRect) {
+                nodeBuffer.restore();
+            }
+
+            if (mask) {
+                let maskBuffer = buffer.makeRenderBuffer(nodeBounds.width(), nodeBounds.height(), true);
+                maskMatrix.concat(offsetMatrix);
+                this.drawNodeTree(maskBuffer, mask, maskMatrix, 1);
+                nodeBuffer.resetMatrix();
+                nodeBuffer.setBlendMode(BlendMode.MASK);
+                nodeBuffer.drawBuffer(maskBuffer, 0, 0);
+            }
+
+            buffer.setMatrix(renderMatrix);
+            buffer.setBlendMode(blendMode);
+            buffer.setAlpha(1);
+            buffer.drawBuffer(nodeBuffer, nodeBounds.left, nodeBounds.top);
+            rectanglePool.push(nodeBounds);
+        }
+
+        /**
+         * Draws the BitmapData object onto the specified render buffer. You can specify  matrix and a destination clipRect parameter to
          * control how the rendering performs.  Optionally, you can specify whether the bitmap should be smoothed when scaled
-         * @param context The render context to be drawn to.
-         * @param source The BitmapData object to draw to the render context.
+         * @param buffer The render buffer to be drawn to.
+         * @param source The BitmapData object to draw to the render buffer.
          * @param matrix A Matrix object used to scale, rotate, or translate the coordinates of the BitmapData object. If
          * you do not want to apply a matrix transformation to the image, set this parameter to an identity matrix, or
          * pass a null value.
@@ -200,40 +327,25 @@ namespace elf {
          * due to a scaling or rotation in the matrix parameter. With smoothing set to false, the rotated or scaled
          * BitmapData object can appear pixelated or jagged.
          */
-        public drawBitmapData(context:RenderContext, source:BitmapData, matrix?:Matrix, alpha:number = 1,
+        public drawBitmapData(buffer:RenderBuffer, source:BitmapData, matrix?:Matrix, alpha:number = 1,
                               blendMode:number = 0, clipRect?:Rectangle, smoothing?:boolean):void {
-        }
-
-        /**
-         * Draws the node and all its children onto the specified render context. You can specify  matrix and a destination
-         * clipRect parameter to control how the rendering performs.
-         * @param context The render context to be drawn to.
-         * @param node The node to draw to the render context.
-         * @param matrix A Matrix object used to scale, rotate, or translate the coordinates of the node. If you do not
-         * want to apply a matrix transformation to the image, set this parameter to an identity matrix, or pass a null
-         * value.
-         * @param alpha A float value that you use to adjust the alpha values of the node.
-         * @param blendMode A string value, from the BlendMode class, specifying the blend mode to be applied to the node.
-         * @param clipRect A Rectangle object that defines the area of the node to draw. If you do not supply this value,
-         * no clipping occurs and the entire node is drawn.
-         */
-        public draw(context:RenderContext, node:Node, matrix?:Matrix, alpha:number = 1,
-                    blendMode:number = 0, clipRect?:Rectangle):void {
-
+            buffer.save();
+            if (clipRect) {
+                buffer.resetMatrix()
+                buffer.clipRect(clipRect);
+            }
+            buffer.setSmoothing(smoothing);
+            buffer.setAlpha(alpha);
+            buffer.setBlendMode(blendMode);
+            if (matrix) {
+                buffer.setMatrix(matrix);
+            }
+            buffer.drawImage(source, 0, 0);
+            buffer.restore();
         }
 
 
-        private drawNodeTree(context:RenderContext, node:Node, renderMatrix:Matrix, renderAlpha:number):void {
-
-        }
-
-        private drawNodeTreeComplex(context:RenderContext, node:Node, renderMatrix:Matrix, renderAlpha:number,
-                                    blendMode:number = 0, clipRect?:Rectangle, mask?:Node):void {
-
-        }
-
-
-        protected renderNode(context:RenderContext, node:Node):void {
+        protected renderNode(context:RenderBuffer, node:Node):void {
 
         }
 

@@ -68,7 +68,7 @@ namespace egret.web {
         let length = containerList.length;
         for (let i = 0; i < length; i++) {
             let container = containerList[i];
-            let player = <WebScreen>container["egret-player"];
+            let player = <WebPlayer>container["egret-player"];
             player.updateScreenSize();
         }
     }
@@ -93,13 +93,18 @@ namespace egret.web {
             sys.screenAdapter = options.screenAdapter;
         }
 
+        elf.systemRenderer = new CanvasRenderer();
+        egret.web.WebEasel = CanvasEasel;
+
         let list = document.querySelectorAll(".egret-player");
         let length = list.length;
         for (let i = 0; i < length; i++) {
             let container = <HTMLDivElement>list[i];
-            let player = new CanvasScreen(container);
+            let player = new WebPlayer(container);
             container["egret-player"] = player;
         }
+
+
     }
 
     /**

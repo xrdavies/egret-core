@@ -31,25 +31,33 @@
  * @internal
  */
 namespace egret.web {
-
     /**
      * @internal
+     * Easel is a surface host which creates the surfaces.
      */
-    export class CanvasScreen extends WebScreen {
-
-        public constructor(container:HTMLDivElement) {
-            let surface = new CanvasSurface(1,1);
-            super(container, surface.canvas);
-            this.surface = surface;
-        }
+    export interface WebEasel {
+        /**
+         * The canvas element associated with the surface.
+         */
+        readonly canvas:HTMLCanvasElement;
+        /**
+         * The default surface of the easel, anything drawn to it will show on the canvas.
+         */
+        readonly buffer:elf.RenderBuffer;
 
         /**
-         * Call to ensure all drawing to the surface has been applied to the screen. This method is usually called at the end
-         * of one drawing session
+         * Call to ensure all drawing to the surface has been issued to the underlying graphic API. This method is usually
+         * called at the end of one drawing session
          */
-        public present():void {
-            cleanCanvasSurfacePool();
-        }
-
+        flush():void;
     }
+
+    export let WebEasel:{
+        /**
+         * Creates a WebEasel instance.
+         * @param width The width of the default surface in pixels.
+         * @param height The height of the default surface in pixels.
+         */
+        new(width:number, height:number):WebEasel;
+    };
 }

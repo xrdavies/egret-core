@@ -413,7 +413,7 @@ namespace elf {
         /**
          * Measure the bounds of the node, includes the contentBounds and the bouds of child nodes.
          */
-        private measureBounds(bounds:Rectangle):void {
+        public measureBounds(bounds:Rectangle):void {
             if (this.dirtyContentBounds) {
                 this.measureContentBounds(this.contentBounds);
                 this.dirtyContentBounds = false;
@@ -432,14 +432,6 @@ namespace elf {
                 }
                 rectanglePool.push(childBounds);
             }
-        }
-
-        /**
-         * Returns a rectangle that defines the area of the display node.
-         */
-        public getBounds():Rectangle {
-            this.measureBounds(tempBounds);
-            return tempBounds;
         }
 
         /**

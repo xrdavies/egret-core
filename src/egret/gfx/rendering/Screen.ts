@@ -53,9 +53,9 @@ namespace elf {
         readonly scaleFactor:number;
 
         /**
-         * A surface instance associated with the screen. Anything drew to it will show on the screen. <br/>
+         * A render buffer instance associated with the screen. Anything drew to it will show on the screen. <br/>
          */
-        readonly surface:Surface;
+        readonly buffer:RenderBuffer;
 
         /**
          * Applies the stage display rule.
@@ -63,7 +63,7 @@ namespace elf {
         applyDisplayRule(rule:StageDisplayRule):void;
 
         /**
-         * Call to ensure all drawing to the surface has been applied to the screen. This method is usually called at the end
+         * Call to ensure all drawing to the surface has been applied to the easel. This method is usually called at the end
          * of one drawing session
          */
         present():void;
