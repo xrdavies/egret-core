@@ -145,6 +145,28 @@ declare namespace egret {
 
         /**
          * @language zh_CN
+         * 从像素数据的矩形区域生成一个 Uint8ClampedArray 对象。为每个像素写入四个无符号整型数字（R,G,B,A）到数组。
+         * @param x 要被提取的图像数据矩形区域的左上角 x 坐标。
+         * @param y 要被提取的图像数据矩形区域的左上角 y 坐标。
+         * @param width 要被提取的图像数据矩形区域的宽度。 默认值为1.
+         * @param height 要被提取的图像数据矩形区域的高度。 默认值为1.
+         * @returns 一个 Uint8ClampedArray 对象，包含给定的矩形图像数据。
+         */
+        /**
+         * Generates an Uint8ClampedArray from a rectangular region of pixel data. Writes four unsigned integers
+         * (R, G, B, A) for each pixel into the array.
+         * @param x The x coordinate of the upper left corner of the rectangle from which the pixel data will be extracted.
+         * @param y The y coordinate of the upper left corner of the rectangle from which the pixel data will be extracted.
+         * @param width The width of the rectangle from which the pixel data will be extracted. The default value is 1.
+         * @param height The height of the rectangle from which the pixel data will be extracted. The default value is 1.
+         * @returns An Uint8ClampedArray containing the pixel data for the given rectangle of the BitmapData.
+         * @version Egret 3.5
+         * @platform Web,Native
+         */
+        getPixels(x:number, y:number, width?:number, height?:number):Uint8ClampedArray;
+
+        /**
+         * @language zh_CN
          * 释放用来存储 BitmapData 对象的内存。<br/>
          * 对图像调用 dispose() 方法时，该图像的宽度和高度将设置为 0。对此 BitmapData 实例的方法或属性的所有后续调用都将失败，并引发异常。<br/>
          * BitmapData.dispose() 立即释放由实际的位图数据占用的内存。使用 BitmapData.dispose() 后，BitmapData 对象不再可用，而且，

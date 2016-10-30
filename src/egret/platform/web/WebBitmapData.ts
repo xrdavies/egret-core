@@ -117,13 +117,13 @@ namespace egret.web {
         }
 
         /**
-         * Generates an Uint8ClampedArray array from a rectangular region of pixel data. Writes four unsigned integers
+         * Generates an Uint8ClampedArray from a rectangular region of pixel data. Writes four unsigned integers
          * (R, G, B, A) for each pixel into the array.
          * @param x The x coordinate of the upper left corner of the rectangle from which the pixel data will be extracted.
          * @param y The y coordinate of the upper left corner of the rectangle from which the pixel data will be extracted.
-         * @param width The width of the rectangle from which the pixel data will be extracted.
-         * @param height The height of the rectangle from which the pixel data will be extracted.
-         * @returns An Uint8ClampedArray array containing the pixel data for the given rectangle of the BitmapData.
+         * @param width The width of the rectangle from which the pixel data will be extracted. The default value is 1.
+         * @param height The height of the rectangle from which the pixel data will be extracted. The default value is 1.
+         * @returns An Uint8ClampedArray containing the pixel data for the given rectangle of the BitmapData.
          */
         public getPixels(x:number, y:number, width:number = 1, height:number = 1):Uint8ClampedArray {
             let buffer = this.getRenderBuffer();
