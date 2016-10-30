@@ -53,11 +53,9 @@ namespace egret.web {
     }
 
     export class CanvasRenderBuffer implements elf.RenderBuffer {
-        public constructor(width:number, height:number) {
-            let canvas:HTMLCanvasElement = document.createElement("canvas");
-            canvas.width = width;
-            canvas.height = height;
+        public constructor(canvas:HTMLCanvasElement, easelHost:CanvasEasel) {
             this.canvas = canvas;
+            this.easelHost = easelHost;
             let context = canvas.getContext("2d");
             this.context = context;
             if (!ImageSmoothingEnabledKey) {
@@ -66,7 +64,7 @@ namespace egret.web {
             this._smoothing = context[ImageSmoothingEnabledKey];
         }
 
-        public easelHost:CanvasEasel;
+        private easelHost:CanvasEasel;
         public canvas:HTMLCanvasElement;
         public context:CanvasRenderingContext2D;
 

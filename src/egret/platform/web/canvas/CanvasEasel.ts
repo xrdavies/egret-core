@@ -80,15 +80,16 @@ namespace egret.web {
                     }
                     buffer.resize(width, height);
                 }
-                else {
-                    buffer = new CanvasRenderBuffer(width, height);
-                }
+            }
+            if (!buffer) {
+                let canvas:HTMLCanvasElement = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                buffer = new CanvasRenderBuffer(canvas, this);
+            }
+            if (temporary) {
                 temporaryBuffers.push(buffer);
             }
-            else {
-                buffer = new CanvasRenderBuffer(width, height);
-            }
-            buffer.easelHost = this;
             return buffer;
         }
 
