@@ -34,10 +34,61 @@ namespace elf {
     /**
      * @internal
      */
-    export class Bitmap extends Node{
-        public constructor(){
+    export class Bitmap extends Node {
+        public constructor() {
             super();
             this.type = NodeType.BITMAP;
+        }
+
+        /**
+         * The BitmapData object being referenced.
+         */
+        public bitmapData:BitmapData = null;
+
+        public setBitmapData(value:BitmapData):void {
+            this.bitmapData = value;
+            this.invalidateContent();
+        }
+
+        /**
+         * Whether or not the bitmap is smoothed when scaled.
+         */
+        public smoothing:boolean = true;
+
+        public setSmoothing(value:boolean):void {
+            this.smoothing = value;
+            this.invalidateContent();
+        }
+
+        /**
+         * The current scaling grid that is in effect. If set to null, the entire bitmap is scaled normally when any scale
+         * transformation is applied.
+         */
+        public scale9Grid:Rectangle = null;
+
+        public setScale9Grid(value:Rectangle):void {
+            this.scale9Grid = value;
+            this.invalidateContent();
+        }
+
+        /**
+         * Determines how the bitmap fills in the dimensions.
+         */
+        public fillMode:number = BitmapFillMode.SCALE;
+
+        public setFillMode(value:number):void {
+            this.fillMode = value;
+            this.invalidateContent();
+        }
+
+        protected measureContentBounds(bounds:Rectangle):void {
+            let bitmapData = this.bitmapData;
+            if (bitmapData) {
+                bounds.setTo(0, 0, bitmapData.width, bitmapData.height);
+            }
+            else {
+                bounds.setEmpty();
+            }
         }
     }
 }

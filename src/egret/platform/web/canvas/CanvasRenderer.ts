@@ -36,12 +36,40 @@ namespace egret.web {
      * @internal
      */
     export class CanvasRenderer extends elf.Renderer {
-        public constructor(){
+        public constructor() {
             super();
         }
 
         protected renderNode(buffer:CanvasRenderBuffer, node:elf.Node):void {
             let context = buffer.context;
+            switch (node.type) {
+                case elf.NodeType.BITMAP:
+                    this.renderBitmap(context, <elf.Bitmap>node);
+                    break;
+                case elf.NodeType.GRAPHICS:
+                    this.renderGraphics(context, <elf.Graphics>node);
+                    break;
+                case elf.NodeType.TEXT_FIELD:
+                    this.renderTextFiled(context, <elf.TextField>node);
+                    break;
+
+            }
+        }
+
+        private renderBitmap(context:CanvasRenderingContext2D, node:elf.Bitmap):void {
+            let bitmapData = <WebBitmapData>node.bitmapData;
+            if (!bitmapData) {
+                return;
+            }
+            node.setSmoothing(node.smoothing);
+            context.drawImage(bitmapData.source, 0, 0);
+        }
+
+        private renderGraphics(context:CanvasRenderingContext2D, node:elf.Graphics):void {
+
+        }
+
+        private renderTextFiled(context:CanvasRenderingContext2D, node:elf.TextField):void {
 
         }
 
