@@ -145,6 +145,17 @@ declare namespace egret {
 
         /**
          * @language zh_CN
+         * 返回一个新的 BitmapData 对象，它是对原始实例的克隆，包含与原始实例所含位图完全相同的副本。
+         */
+        /**
+         * Returns a new BitmapData object that is a clone of the original instance with an exact copy of the contained bitmap.
+         * @version Egret 3.5
+         * @platform Web,Native
+         */
+        clone():BitmapData;
+
+        /**
+         * @language zh_CN
          * 从像素数据的矩形区域生成一个 Uint8ClampedArray 对象。为每个像素写入四个无符号整型数字（R,G,B,A）到数组。
          * @param x 要被提取的图像数据矩形区域的左上角 x 坐标。
          * @param y 要被提取的图像数据矩形区域的左上角 y 坐标。

@@ -92,9 +92,9 @@ namespace egret.web {
         public height:number;
 
         /**
-         * Always returns true in browser.
+         * Not supported in web platform.
          */
-        public transparent:boolean = true;
+        public transparent:boolean;
 
         /**
          * The drawable source.
@@ -114,6 +114,15 @@ namespace egret.web {
             this.buffer = buffer;
             return buffer;
 
+        }
+
+        /**
+         * Returns a new BitmapData object that is a clone of the original instance with an exact copy of the contained bitmap.
+         */
+        public clone():WebBitmapData {
+            let data = new WebBitmapData(this.width, this.height);
+            data.buffer.drawImage(this, 0, 0);
+            return data;
         }
 
         /**
