@@ -5843,6 +5843,7 @@ var egret;
             var strokePath = this.strokePath;
             fillPath && fillPath.drawEllipse(x, y, width, height);
             strokePath && strokePath.drawEllipse(x, y, width, height);
+            this.extendBoundsByPoint(x, y);
             this.extendBoundsByPoint(x + width, y + height);
             this.updatePosition(x + width, y + height * 0.5);
             this.$renderNode.dirtyRender = true;
@@ -17835,7 +17836,7 @@ var egret;
              * @platform Web,Native
              */
             ,function () {
-                return "3.2.1";
+                return "3.2.2";
             }
         );
         /**
