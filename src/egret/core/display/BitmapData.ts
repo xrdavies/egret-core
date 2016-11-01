@@ -254,6 +254,22 @@ declare namespace egret {
 
         /**
          * @language zh_CN
+         * 使用指定的 ARGB 颜色填充一个矩形像素区域。
+         * @param rect 要填充的矩形区域。
+         * @param color 用于填充区域的 ARGB 颜色值。通常以十六进制格式指定 ARGB 颜色；例如，0xFF336699。
+         */
+        /**
+         * Fills a rectangular area of pixels with a specified ARGB color.
+         * @param rect The rectangular area to fill.
+         * @param color The ARGB color value that fills the area. ARGB colors are often specified in hexadecimal format;
+         * for example, 0xFF336699.
+         * @version Egret 3.5
+         * @platform Web,Native
+         */
+        fillRect(rect:Rectangle, color:number):void;
+
+        /**
+         * @language zh_CN
          * 返回一个包含图片内容的 data URI 。可以使用 type 参数指定图片类型，默认为 PNG 格式。
          * @param type 图片格式，默认为 "image/png"
          * @param quality 图片质量, 指定图片格式为 "image/jpeg" 或 "image/webp" 时有效。取值范围为 0 到 1 。如果超出取值范围，

@@ -32,6 +32,8 @@
  */
 namespace egret.web {
 
+    let tempRect = new elf.Rectangle();
+
     /**
      * @internal
      */
@@ -68,8 +70,8 @@ namespace egret.web {
                 source = easelHost.canvas;
                 this.buffer = easelHost.buffer;
                 if (fillColor) {
-                    fillColor = fillColor >>> 0;
-                    easelHost.buffer.fillRect(0, 0, width, height, fillColor);
+                    fillColor = +fillColor >>> 0;
+                    easelHost.buffer.clearRect(tempRect.setTo(0, 0, width, height), fillColor);
                 }
             }
 
@@ -202,6 +204,18 @@ namespace egret.web {
          */
         public encode(type?:string, quality?:number):ArrayBuffer {
             return null;
+        }
+
+        /**
+         * Fills a rectangular area of pixels with a specified ARGB color.
+         * @param rect The rectangular area to fill.
+         * @param color The ARGB color value that fills the area. ARGB colors are often specified in hexadecimal format;
+         * for example, 0xFF336699.
+         */
+        public fillRect(rect:Rectangle, color:number):void {
+            let buffer = this.getRenderBuffer();
+            color = +color >>> 0;
+            buffer.clearRect(tempRect.setTo(rect.x, rect.y, rect.width, rect.height), color);
         }
 
         /**

@@ -64,10 +64,10 @@ namespace elf {
         setSmoothing(value:boolean):void;
 
         /**
-         * Sets all pixels in the rectangle defined by starting point (x, y) and size (width, height) to transparent black,
+         * Sets all pixels in the rectangle defined by starting point (x, y) and size (width, height) to specified color,
          * erasing any previously drawn content.
          */
-        clearRect(rect:Rectangle):void;
+        clearRect(rect:Rectangle, color?:number):void;
 
         /**
          * Saves the entire state of the render buffer by pushing the current state onto a stack.
@@ -131,11 +131,6 @@ namespace elf {
          * Draws the BitmapData object to the render context, with its top/left corner at (x,y).
          */
         drawImage(data:BitmapData, x:number, y:number):void;
-
-        /**
-         * Fills a rectangular area of pixels with a specified ARGB color.
-         */
-        fillRect(x:number, y:number, width:number, height:number, color:number):void;
 
         /**
          * Creates an render buffer with specific size. The new render buffer is "compatible" with this one, in that it

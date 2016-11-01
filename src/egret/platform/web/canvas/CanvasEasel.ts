@@ -88,8 +88,7 @@ namespace egret.web {
                 let canvas:HTMLCanvasElement = document.createElement("canvas");
                 canvas.width = width;
                 canvas.height = height;
-                let context = <CanvasRenderingContext2D>canvas.getContext("2d", {alpha: transparent});
-                buffer = new CanvasRenderBuffer(canvas, context, this);
+                buffer = new CanvasRenderBuffer(canvas, transparent, this);
             }
             if (temporary) {
                 temporaryBuffers.push(buffer);

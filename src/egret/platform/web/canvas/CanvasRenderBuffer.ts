@@ -53,9 +53,11 @@ namespace egret.web {
     }
 
     export class CanvasRenderBuffer implements elf.RenderBuffer {
-        public constructor(canvas:HTMLCanvasElement, context:CanvasRenderingContext2D, easelHost:CanvasEasel) {
+        public constructor(canvas:HTMLCanvasElement, transparent:boolean, easelHost:CanvasEasel) {
             this.canvas = canvas;
+            this.transparent = transparent;
             this.easelHost = easelHost;
+            let context = <CanvasRenderingContext2D>canvas.getContext("2d", {alpha: transparent});
             this.context = context;
             if (!ImageSmoothingEnabledKey) {
                 ImageSmoothingEnabledKey = getImageSmoothingEnabledKey(context);
@@ -64,6 +66,7 @@ namespace egret.web {
         }
 
         private easelHost:CanvasEasel;
+        private transparent:boolean;
         public canvas:HTMLCanvasElement;
         public context:CanvasRenderingContext2D;
 
@@ -143,11 +146,27 @@ namespace egret.web {
         }
 
         /**
-         * Sets all pixels in the rectangle defined by starting point (x, y) and size (width, height) to transparent black,
+         * Sets all pixels in the rectangle defined by starting point (x, y) and size (width, height) to specified color,
          * erasing any previously drawn content.
          */
-        public clearRect(rect:elf.Rectangle):void {
+        public clearRect(rect:elf.Rectangle, color?:number):void {
             this.context.clearRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+            if (!color) {
+                return;
+            }
+            let r = (color >> 16) & 0xFF;
+            let g = (color >> 8) & 0xFF;
+            let b = color & 0xFF;
+            let context = this.context;
+            if (this.transparent) {
+                let a = ((color >> 24) & 0xFF) / 255;
+                context.fillStyle = "rgba(" + r + "," + g + "," + b + "," + a + ")";
+            }
+            else {
+                context.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+            }
+            context.globalAlpha = 1;
+            context.fillRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
         }
 
         /**
@@ -242,20 +261,6 @@ namespace egret.web {
          */
         public drawImage(data:WebBitmapData, x:number, y:number):void {
             this.context.drawImage(data.source, x, y);
-        }
-
-        /**
-         * Fills a rectangular area of pixels with a specified ARGB color.
-         */
-        public fillRect(x:number, y:number, width:number, height:number, color:number):void {
-            let a = ((color >> 24) & 0xFF) / 255;
-            let r = (color >> 16) & 0xFF;
-            let g = (color >> 8) & 0xFF;
-            let b = color & 0xFF;
-            let context = this.context;
-            context.fillStyle = "rgba("+r+","+g+","+b+","+a+")";
-            context.globalAlpha = 1;
-            context.fillRect(x, y, width, height);
         }
 
         /**
