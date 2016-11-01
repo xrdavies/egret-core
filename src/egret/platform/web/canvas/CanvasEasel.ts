@@ -42,8 +42,8 @@ namespace egret.web {
 
         /**
          * Creates a WebEasel instance.
-         * @param width The width of the default surface in pixels.
-         * @param height The height of the default surface in pixels.
+         * @param width The width of the default render buffer in pixels.
+         * @param height The height of the default render buffer in pixels.
          */
         public constructor(width:number, height:number) {
             this.buffer = this.makeRenderBuffer(width, height);
@@ -51,25 +51,26 @@ namespace egret.web {
         }
 
         /**
-         * The canvas element associated with the surface.
+         * The canvas element associated with the render buffer.
          */
         public canvas:HTMLCanvasElement;
         /**
-         * The default surface of the easel, anything drawn to it will show on the canvas.
+         * The default render buffer of the easel, anything drawn to it will show on the canvas.
          */
         public buffer:CanvasRenderBuffer;
 
         /**
-         * Creates an buffer with specific size. The new buffer is "compatible" with this one, in that it will
-         * efficiently be able to be drawn into parent buffer.
-         * @param width The width of the buffer in pixels.
-         * @param height The height of the buffer in pixels.
-         * @param temporary Whether the buffer is created for temporary use.
-         * @return A new buffer instance.
+         * Creates an render buffer with specific size. The new render buffer is "compatible" with this one, in that it
+         * will efficiently be able to be drawn into parent buffer.
+         * @param width The width of the render buffer in pixels.
+         * @param height The height of the render buffer in pixels.
+         * @param temporary Whether the render buffer is created for temporary use.
+         * @return A new render buffer instance.
          */
         public makeRenderBuffer(width:number, height:number, temporary?:boolean):CanvasRenderBuffer {
             let buffer:CanvasRenderBuffer;
             if (temporary) {
+                // We use the global render buff pool because any canvas render buffer can be drawn to another one.
                 buffer = renderBufferPool.pop();
                 if (buffer) {
                     if (width < buffer.width) {
@@ -94,13 +95,13 @@ namespace egret.web {
         }
 
         /**
-         * Call to ensure all drawing to the surface has been issued to the underlying graphic API. This method is usually
-         * called at the end of one drawing session.
+         * Call to ensure all drawing to the render buffer has been issued to the underlying graphic API. This method is
+         * usually called at the end of one drawing session.
          */
         public flush():void {
-            for (let surface of temporaryBuffers) {
-                surface.resize(0, 0);
-                renderBufferPool.push(surface);
+            for (let buffer of temporaryBuffers) {
+                buffer.resize(0, 0);
+                renderBufferPool.push(buffer);
             }
             temporaryBuffers = [];
             if (renderBufferPool.length > 6) {

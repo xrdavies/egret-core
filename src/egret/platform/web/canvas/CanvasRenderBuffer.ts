@@ -69,14 +69,14 @@ namespace egret.web {
         public context:CanvasRenderingContext2D;
 
         /**
-         * The width of the surface in pixels.
+         * The width of the render buffer in pixels.
          */
         public get width():number {
             return this.canvas.width;
         }
 
         /**
-         * The height of the surface in pixels.
+         * The height of the render buffer in pixels.
          */
         public get height():number {
             return this.canvas.height;
@@ -84,8 +84,8 @@ namespace egret.web {
 
 
         /**
-         * Resize the surface. It will keep the old content if you pass the contentOffset parameter, the top/left corner
-         * of old content will be at (offsetX,offsetY). Otherwise, it clears the old content.
+         * Resize the render buffer. It will keep the old content if you pass the contentOffset parameter, the top/left
+         * corner of old content will be at (offsetX,offsetY). Otherwise, it clears the old content.
          */
         public resize(width:number, height:number, contentOffset?:elf.Point):void {
             if (contentOffset) {
@@ -119,8 +119,8 @@ namespace egret.web {
         private _alpha:number = 1;
 
         /**
-         * Specifies the alpha value that is applied to shapes and images before they are drawn onto the surface. The
-         * value is in the range from 0.0 (fully transparent) to 1.0 (fully opaque).
+         * Specifies the alpha value that is applied to shapes and images before they are drawn onto the render buffer.
+         * The value is in the range from 0.0 (fully transparent) to 1.0 (fully opaque).
          */
         public setAlpha(value:number):void {
             if (this._alpha === value) {
@@ -152,7 +152,7 @@ namespace egret.web {
         }
 
         /**
-         * Saves the entire state of the surface by pushing the current state onto a stack.
+         * Saves the entire state of the render buffer by pushing the current state onto a stack.
          */
         public save():void {
             this.context.save();
@@ -232,7 +232,7 @@ namespace egret.web {
         }
 
         /**
-         * Draws the surface to the specified render context, with its top/left corner at (x,y).
+         * Draws the render buffer to the specified render context, with its top/left corner at (x,y).
          */
         public drawBuffer(buffer:CanvasRenderBuffer, x:number, y:number):void {
             this.context.drawImage(buffer.canvas, x, y);
@@ -246,12 +246,11 @@ namespace egret.web {
         }
 
         /**
-         * Creates an surface with specific size. The new surface is "compatible" with this one, in that it will
-         * efficiently be able to be drawn into parent surface.
-         * @param width The width of the surface in pixels.
-         * @param height The height of the surface in pixels.
-         * @param temporary Whether the surface is created for temporary use.
-         * @return A new surface instance.
+         * Creates an render buffer with specific size. The new render buffer is "compatible" with this one, in that it
+         * will efficiently be able to be drawn into parent render buffer.
+         * @param width The width of the render buffer in pixels.
+         * @param height The height of the render buffer in pixels.
+         * @param temporary Whether the render buffer is created for temporary use.
          */
         public makeRenderBuffer(width:number, height:number, temporary?:boolean):CanvasRenderBuffer {
             return this.easelHost.makeRenderBuffer(width, height, temporary);

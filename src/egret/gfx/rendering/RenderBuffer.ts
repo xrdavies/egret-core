@@ -37,24 +37,24 @@ namespace elf {
      */
     export interface RenderBuffer {
         /**
-         * The width of the surface in pixels.
+         * The width of the render buffer in pixels.
          */
         readonly width:number;
 
         /**
-         * The height of the surface in pixels.
+         * The height of the render buffer in pixels.
          */
         readonly height:number;
 
         /**
-         * Resize the surface. It will keep the old content if you pass the contentOffset parameter, the top/left corner
-         * of old content will be at (offsetX,offsetY). Otherwise, it clears the old content.
+         * Resize the render buffer. It will keep the old content if you pass the contentOffset parameter, the top/left
+         * corner of old content will be at (offsetX,offsetY). Otherwise, it clears the old content.
          */
         resize(width:number, height:number, contentOffset?:Point):void;
 
         /**
-         * Specifies the alpha value that is applied to shapes and images before they are drawn onto the surface. The
-         * value is in the range from 0.0 (fully transparent) to 1.0 (fully opaque).
+         * Specifies the alpha value that is applied to shapes and images before they are drawn onto the render buffer.
+         * The value is in the range from 0.0 (fully transparent) to 1.0 (fully opaque).
          */
         setAlpha(value:number):void;
 
@@ -70,7 +70,7 @@ namespace elf {
         clearRect(rect:Rectangle):void;
 
         /**
-         * Saves the entire state of the surface by pushing the current state onto a stack.
+         * Saves the entire state of the render buffer by pushing the current state onto a stack.
          */
         save():void;
 
@@ -118,7 +118,7 @@ namespace elf {
         getPixels(x:number, y:number, width:number, height:number):Uint8ClampedArray;
 
         /**
-         * Draws the surface to the specified render context, with its top/left corner at (x,y).
+         * Draws another render buffer to this one, with its top/left corner at (x,y).
          */
         drawBuffer(buffer:RenderBuffer, x:number, y:number):void;
 
@@ -128,12 +128,12 @@ namespace elf {
         drawImage(data:BitmapData, x:number, y:number):void;
 
         /**
-         * Creates an surface with specific size. The new surface is "compatible" with this one, in that it will
-         * efficiently be able to be drawn into parent surface.
-         * @param width The width of the surface in pixels.
-         * @param height The height of the surface in pixels.
-         * @param temporary Whether the surface is created for temporary use.
-         * @return A new surface instance.
+         * Creates an render buffer with specific size. The new render buffer is "compatible" with this one, in that it
+         * will efficiently be able to be drawn into parent render buffer.
+         * @param width The width of the render buffer in pixels.
+         * @param height The height of the render buffer in pixels.
+         * @param temporary Whether the render buffer is created for temporary use.
+         * @return A new render buffer instance.
          */
         makeRenderBuffer(width:number, height:number, temporary?:boolean):RenderBuffer;
 

@@ -48,7 +48,7 @@ namespace egret.web {
         private easelHost:WebEasel;
 
         /**
-         * A surface instance associated with the screen. Anything drew to it will show on the screen. <br/>
+         * A render buffer instance associated with the screen. Anything drew to it will show on the screen. <br/>
          */
         public buffer:elf.RenderBuffer;
 
@@ -193,8 +193,8 @@ namespace egret.web {
         }
 
         /**
-         * Call to ensure all drawing to the surface has been applied to the screen. This method is usually called at the end
-         * of one drawing session
+         * Call to ensure all drawing to the render buffer has been applied to the screen. This method is usually called
+         * at the end of one drawing session
          */
         public present():void {
             this.easelHost.flush();

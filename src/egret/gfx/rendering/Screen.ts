@@ -63,8 +63,8 @@ namespace elf {
         applyDisplayRule(rule:StageDisplayRule):void;
 
         /**
-         * Call to ensure all drawing to the surface has been applied to the easel. This method is usually called at the end
-         * of one drawing session
+         * Call to ensure all drawing to the render buffer has been applied to the easel. This method is usually called
+         * at the end of one drawing session
          */
         present():void;
 

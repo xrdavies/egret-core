@@ -33,21 +33,21 @@
 namespace egret.web {
     /**
      * @internal
-     * Easel is a surface host which creates the surfaces.
+     * Easel is a render buffer host which creates the render buffers.
      */
     export interface WebEasel {
         /**
-         * The canvas element associated with the surface.
+         * The canvas element associated with the easel.
          */
         readonly canvas:HTMLCanvasElement;
         /**
-         * The default surface of the easel, anything drawn to it will show on the canvas.
+         * The default render buffer of the easel, anything drawn to it will show on the canvas.
          */
         readonly buffer:elf.RenderBuffer;
 
         /**
-         * Call to ensure all drawing to the surface has been issued to the underlying graphic API. This method is usually
-         * called at the end of one drawing session
+         * Call to ensure all drawing to the render buffer has been issued to the underlying graphic API. This method is
+         * usually called at the end of one drawing session.
          */
         flush():void;
     }
@@ -55,8 +55,8 @@ namespace egret.web {
     export let WebEasel:{
         /**
          * Creates a WebEasel instance.
-         * @param width The width of the default surface in pixels.
-         * @param height The height of the default surface in pixels.
+         * @param width The width of the default render buffer in pixels.
+         * @param height The height of the default render buffer in pixels.
          */
         new(width:number, height:number):WebEasel;
     };
