@@ -39,7 +39,7 @@ namespace egret.web {
 
         public constructor(container:HTMLDivElement) {
             super();
-            let easelHost = new WebEasel(0, 0);
+            let easelHost = new WebEasel(0, 0, true);
             this.easelHost = easelHost;
             this.buffer = easelHost.buffer;
             this.init(container, easelHost.canvas);

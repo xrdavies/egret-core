@@ -63,10 +63,9 @@ declare namespace egret {
          * 透明度通道。<br/>
          * @param width 位图图像的宽度，以像素为单位。
          * @param height 位图图像的高度，以像素为单位。
-         * @param transparent 指定位图图像是否支持每个像素具有不同的透明度。默认值为 true（透明）。要创建完全透明的位图，请将
-         * transparent 参数的值设置为 true，将 fillColor 参数的值设置为 0x00000000（或设置为 0）。将 transparent 属性设置为 false
-         * 可以略微提升呈现性能。默认值为 true。
-         * @param fillColor 用于填充位图图像区域的 32 位 ARGB 颜色值。默认值为 0xFFFFFFFF（纯白色）。
+         * @param transparent 指定位图图像是否支持每个像素具有不同的透明度。默认值为 true（透明）。将 transparent 属性设置为 false
+         * 可以略微提升呈现性能。
+         * @param fillColor 用于填充位图图像区域的 32 位 ARGB 颜色值。默认值为 0x00000000（透明黑色）。
          */
         /**
          * Creates a BitmapData object with a specified width and height. If you specify a value for the fillColor parameter,
@@ -77,12 +76,11 @@ declare namespace egret {
          * of color channel information, including an alpha transparency channel.
          * @param width The width of the bitmap image in pixels.
          * @param height The height of the bitmap image in pixels.
-         * @param transparent (Not supported in Web platform) Specifies whether the bitmap image supports per-pixel
-         * transparency. The default value is true (transparent). To create a fully transparent bitmap, set the value of
-         * the transparent parameter to true and the value of the fillColor parameter to 0x00000000 (or to 0). Setting the
-         * transparent property to false can result in minor improvements in rendering performance. The default value is true.
-         * @param fillColor (Not supported in Web platform) A 32-bit ARGB color value that you use to fill the bitmap image area.
-         * The default value is 0x00000000 (transparent black).
+         * @param transparent Specifies whether the bitmap image supports per-pixel transparency. The default value is
+         * true (transparent). Setting the transparent property to false can result in minor improvements in rendering
+         * performance.
+         * @param fillColor A 32-bit ARGB color value that you use to fill the bitmap image area. The default value is
+         * 0x00000000 (transparent black).
          * @version Egret 3.5
          * @platform Web,Native
          */
@@ -233,5 +231,46 @@ declare namespace egret {
          */
         draw(source:DisplayObject|BitmapData, matrix?:Matrix, alpha?:number,
              blendMode?:string, clipRect?:Rectangle, smoothing?:boolean):void;
+
+        /**
+         * @language zh_CN
+         * 使用指定的图片格式压缩这个 BitmapData 对象，并返回压缩后的字节数组(ArrayBuffer)。
+         * @param type 图片格式，默认为 "image/png"
+         * @param quality 图片质量, 指定图片格式为 "image/jpeg" 或 "image/webp" 时有效。取值范围为 0 到 1 。如果超出取值范围，
+         * 将会使用默认值，对 "image/jpeg" 是 0.92，对 "image/webp" 是 0.8。其他参数会被忽略。
+         * @returns 一个包含编码后图片数据的 ArrayBuffer 对象.
+         */
+        /**
+         * Compresses this BitmapData object using the format specified by the type parameter and returns a ArrayBuffer object.
+         * @param type A string indicating the image format. The default type is "image/png".
+         * @param quality A number between 0 and 1 indicating image quality if the requested type is "image/jpeg"
+         * or "image/webp". If this argument is anything else, the default value for image quality is used. The default
+         * value is 0.92 for "image/jpeg", and 0.8 for "image/webp". Other arguments are ignored.
+         * @returns A ArrayBuffer containing the encoded image.
+         * @version Egret 3.5
+         * @platform Native
+         */
+        encode(type?:string, quality?:number):ArrayBuffer;
+
+        /**
+         * @language zh_CN
+         * 返回一个包含图片内容的 data URI 。可以使用 type 参数指定图片类型，默认为 PNG 格式。
+         * @param type 图片格式，默认为 "image/png"
+         * @param quality 图片质量, 指定图片格式为 "image/jpeg" 或 "image/webp" 时有效。取值范围为 0 到 1 。如果超出取值范围，
+         * 将会使用默认值，对 "image/jpeg" 是 0.92，对 "image/webp" 是 0.8。其他参数会被忽略。
+         * @returns 一个包含图片内容的 data URI 字符串.
+         */
+        /**
+         * Returns a data URI containing a representation of the image in the format specified by the type parameter.
+         * (defaults to PNG)
+         * @param type A string indicating the image format. The default type is "image/png".
+         * @param quality A number between 0 and 1 indicating image quality if the requested type is "image/jpeg"
+         * or "image/webp". If this argument is anything else, the default value for image quality is used. The default
+         * value is 0.92 for "image/jpeg", and 0.8 for "image/webp". Other arguments are ignored.
+         * @returns A string containing the data URI of encoded image.
+         * @version Egret 3.5
+         * @platform Web,Native
+         */
+        toDataURL(type?:string, quality?:number):string;
     }
 }

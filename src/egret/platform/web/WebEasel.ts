@@ -57,7 +57,8 @@ namespace egret.web {
          * Creates a WebEasel instance.
          * @param width The width of the default render buffer in pixels.
          * @param height The height of the default render buffer in pixels.
+         * @param transparent Specifies whether the default render buffer contains an alpha channel.
          */
-        new(width:number, height:number):WebEasel;
+        new(width:number, height:number, transparent:boolean):WebEasel;
     };
 }

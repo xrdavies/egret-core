@@ -108,9 +108,14 @@ namespace elf {
         clipRect(rect:Rectangle):void;
 
         /**
-         * returns a data URI containing a representation of the image in the format specified by the type parameter
+         * Returns a data URI containing a representation of the image in the format specified by the type parameter.
+         * (defaults to PNG)
+         * @param type A string indicating the image format. The default type is "image/png".
+         * @param quality A number between 0 and 1 indicating image quality if the requested type is "image/jpeg"
+         * or "image/webp". If this argument is anything else, the default value for image quality is used. The default
+         * value is 0.92 for "image/jpeg", and 0.8 for "image/webp". Other arguments are ignored.
          */
-        toDataURL(type?:string, encoderOptions?:any):string;
+        toDataURL(type?:string, quality?:number):string;
 
         /**
          * Returns the color value for the specified pixel region
@@ -126,6 +131,11 @@ namespace elf {
          * Draws the BitmapData object to the render context, with its top/left corner at (x,y).
          */
         drawImage(data:BitmapData, x:number, y:number):void;
+
+        /**
+         * Fills a rectangular area of pixels with a specified ARGB color.
+         */
+        fillRect(x:number, y:number, width:number, height:number, color:number):void;
 
         /**
          * Creates an render buffer with specific size. The new render buffer is "compatible" with this one, in that it

@@ -46,12 +46,11 @@ namespace egret.web {
          * of color channel information, including an alpha transparency channel.
          * @param width The width of the bitmap image in pixels.
          * @param height The height of the bitmap image in pixels.
-         * @param transparent (Not supported in Web platform) Specifies whether the bitmap image supports per-pixel
-         * transparency. The default value is true (transparent). To create a fully transparent bitmap, set the value of
-         * the transparent parameter to true and the value of the fillColor parameter to 0x00000000 (or to 0). Setting the
-         * transparent property to false can result in minor improvements in rendering performance. The default value is true.
-         * @param fillColor (Not supported in Web platform) A 32-bit ARGB color value that you use to fill the bitmap image area.
-         * The default value is 0x00000000 (transparent black).
+         * @param transparent Specifies whether the bitmap image supports per-pixel transparency. The default value is
+         * true (transparent). Setting the transparent property to false can result in minor improvements in rendering
+         * performance.
+         * @param fillColor A 32-bit ARGB color value that you use to fill the bitmap image area. The default value is
+         * 0x00000000 (transparent black).
          */
         public constructor(width:number, height:number, transparent?:boolean, fillColor?:number) {
             super();
@@ -65,9 +64,13 @@ namespace egret.web {
                 if (width <= 0 || height <= 0) {
                     throw new Error("Invalid BitmapData.");
                 }
-                let easelHost = new WebEasel(width, height);
+                let easelHost = new WebEasel(width, height, transparent);
                 source = easelHost.canvas;
                 this.buffer = easelHost.buffer;
+                if (fillColor) {
+                    fillColor = fillColor >>> 0;
+                    easelHost.buffer.fillRect(0, 0, width, height, fillColor);
+                }
             }
 
             this.source = source;
@@ -107,7 +110,9 @@ namespace egret.web {
             if (this.buffer || !this.source) {
                 return this.buffer;
             }
-            let easelHost = new WebEasel(this.width, this.height);
+            // We can not know whether the source contains an alpha channel on the web platform,
+            // so just assume the transparent parameter to be true.
+            let easelHost = new WebEasel(this.width, this.height, true);
             let buffer = easelHost.buffer;
             buffer.drawImage(this, 0, 0);
             this.source = easelHost.canvas;
@@ -152,6 +157,9 @@ namespace egret.web {
         public dispose():void {
             this.width = this.height = 0;
             this.source = null;
+            if (this.buffer) {
+                this.buffer.resize(0, 0);
+            }
             this.buffer = null;
         }
 
@@ -182,6 +190,31 @@ namespace egret.web {
             sys.Serializer.writeDrawToBitmap(this, buffer, source, matrix, alpha, blendMode, clipRect, smoothing);
             sys.UpdateAndGet(buffer);
             buffer.clear();
+        }
+
+        /**
+         * Compresses this BitmapData object using the format specified by the type parameter and returns a ArrayBuffer object.
+         * @param type A string indicating the image format. The default type is "image/png".
+         * @param quality A number between 0 and 1 indicating image quality if the requested type is "image/jpeg"
+         * or "image/webp". If this argument is anything else, the default value for image quality is used. The default
+         * value is 0.92 for "image/jpeg", and 0.8 for "image/webp". Other arguments are ignored.
+         * @returns A ArrayBuffer containing the encoded image.
+         */
+        public encode(type?:string, quality?:number):ArrayBuffer {
+            return null;
+        }
+
+        /**
+         * Returns a data URI containing a representation of the image in the format specified by the type parameter.
+         * (defaults to PNG)
+         * @param type A string indicating the image format. The default type is "image/png".
+         * @param quality A number between 0 and 1 indicating image quality if the requested type is "image/jpeg"
+         * or "image/webp". If this argument is anything else, the default value for image quality is used. The default
+         * value is 0.92 for "image/jpeg", and 0.8 for "image/webp". Other arguments are ignored.
+         */
+        public toDataURL(type?:string, quality?:number):string {
+            let buffer = this.getRenderBuffer();
+            return buffer.toDataURL(type, quality);
         }
     }
 

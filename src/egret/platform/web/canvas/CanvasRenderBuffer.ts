@@ -53,10 +53,9 @@ namespace egret.web {
     }
 
     export class CanvasRenderBuffer implements elf.RenderBuffer {
-        public constructor(canvas:HTMLCanvasElement, easelHost:CanvasEasel) {
+        public constructor(canvas:HTMLCanvasElement, context:CanvasRenderingContext2D, easelHost:CanvasEasel) {
             this.canvas = canvas;
             this.easelHost = easelHost;
-            let context = canvas.getContext("2d");
             this.context = context;
             if (!ImageSmoothingEnabledKey) {
                 ImageSmoothingEnabledKey = getImageSmoothingEnabledKey(context);
@@ -243,6 +242,20 @@ namespace egret.web {
          */
         public drawImage(data:WebBitmapData, x:number, y:number):void {
             this.context.drawImage(data.source, x, y);
+        }
+
+        /**
+         * Fills a rectangular area of pixels with a specified ARGB color.
+         */
+        public fillRect(x:number, y:number, width:number, height:number, color:number):void {
+            let a = ((color >> 24) & 0xFF) / 255;
+            let r = (color >> 16) & 0xFF;
+            let g = (color >> 8) & 0xFF;
+            let b = color & 0xFF;
+            let context = this.context;
+            context.fillStyle = "rgba("+r+","+g+","+b+","+a+")";
+            context.globalAlpha = 1;
+            context.fillRect(x, y, width, height);
         }
 
         /**

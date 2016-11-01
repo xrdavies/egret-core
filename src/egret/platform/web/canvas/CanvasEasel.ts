@@ -44,9 +44,10 @@ namespace egret.web {
          * Creates a WebEasel instance.
          * @param width The width of the default render buffer in pixels.
          * @param height The height of the default render buffer in pixels.
+         * @param transparent Specifies whether the default render buffer contains an alpha channel.
          */
-        public constructor(width:number, height:number) {
-            this.buffer = this.makeRenderBuffer(width, height);
+        public constructor(width:number, height:number, transparent:boolean) {
+            this.buffer = this.makeRenderBuffer(width, height, transparent);
             this.canvas = this.buffer.canvas;
         }
 
@@ -65,9 +66,10 @@ namespace egret.web {
          * @param width The width of the render buffer in pixels.
          * @param height The height of the render buffer in pixels.
          * @param temporary Whether the render buffer is created for temporary use.
+         * @param transparent Whether the render buffer contains an alpha channel.
          * @return A new render buffer instance.
          */
-        public makeRenderBuffer(width:number, height:number, temporary?:boolean):CanvasRenderBuffer {
+        public makeRenderBuffer(width:number, height:number, temporary?:boolean, transparent:boolean = true):CanvasRenderBuffer {
             let buffer:CanvasRenderBuffer;
             if (temporary) {
                 // We use the global render buff pool because any canvas render buffer can be drawn to another one.
@@ -86,7 +88,8 @@ namespace egret.web {
                 let canvas:HTMLCanvasElement = document.createElement("canvas");
                 canvas.width = width;
                 canvas.height = height;
-                buffer = new CanvasRenderBuffer(canvas, this);
+                let context = <CanvasRenderingContext2D>canvas.getContext("2d", {alpha: transparent});
+                buffer = new CanvasRenderBuffer(canvas, context, this);
             }
             if (temporary) {
                 temporaryBuffers.push(buffer);
