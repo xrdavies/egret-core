@@ -66,6 +66,10 @@ module egret.native2 {
         }
 
         $play():void {
+            //
+            return;
+            //
+
             if (this.isStopped) {
                 egret.$error(1036);
                 return;
@@ -107,6 +111,10 @@ module egret.native2 {
          * @inheritDoc
          */
         public stop() {
+            //
+            return;
+            //
+
             if (!this.audio)
                 return;
 
@@ -128,6 +136,7 @@ module egret.native2 {
          * @inheritDoc
          */
         public get volume():number {
+            return 1;
             if (!this.audio)
                 return 1;
             return this.audio.volume;
@@ -137,6 +146,7 @@ module egret.native2 {
          * @inheritDoc
          */
         public set volume(value:number) {
+            return;
             if (this.isStopped) {
                 egret.$error(1036);
                 return;
@@ -152,6 +162,7 @@ module egret.native2 {
          * @inheritDoc
          */
         public get position():number {
+            return 0;
             if (!this.audio)
                 return 0;
             return this.audio.currentTime;

@@ -95,7 +95,8 @@ module egret.localStorage.native2 {
      *
      */
     function save() {
-        egret_native.saveRecord(filePath, JSON.stringify(localStorageData));
+        return;
+        // egret_native.saveRecord(filePath, JSON.stringify(localStorageData));
     }
 
     if (egret_native.isRecordExists(filePath)) {

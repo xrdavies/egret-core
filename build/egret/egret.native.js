@@ -1278,7 +1278,8 @@ var egret;
              *
              */
             function save() {
-                egret_native.saveRecord(filePath, JSON.stringify(localStorageData));
+                return;
+                // egret_native.saveRecord(filePath, JSON.stringify(localStorageData));
             }
             if (egret_native.isRecordExists(filePath)) {
                 var str = egret_native.loadRecord(filePath);
@@ -1650,6 +1651,17 @@ var egret;
              * @inheritDoc
              */
             p.load = function (url) {
+                //
+                var self = this;
+                self.loaded = true;
+                self.dispatchEventWith(egret.Event.COMPLETE);
+                return;
+                //
+                var self = this;
+                removeListeners();
+                self.loaded = true;
+                self.dispatchEventWith(egret.Event.COMPLETE);
+                return;
                 var self = this;
                 this.url = url;
                 if (DEBUG && !url) {
@@ -1857,6 +1869,9 @@ var egret;
             }
             var d = __define,c=NativeSoundChannel,p=c.prototype;
             p.$play = function () {
+                //
+                return;
+                //
                 if (this.isStopped) {
                     egret.$error(1036);
                     return;
@@ -1875,6 +1890,9 @@ var egret;
              * @inheritDoc
              */
             p.stop = function () {
+                //
+                return;
+                //
                 if (!this.audio)
                     return;
                 if (!this.isStopped) {
@@ -1893,6 +1911,7 @@ var egret;
                  * @inheritDoc
                  */
                 ,function () {
+                    return 1;
                     if (!this.audio)
                         return 1;
                     return this.audio.volume;
@@ -1901,6 +1920,7 @@ var egret;
                  * @inheritDoc
                  */
                 ,function (value) {
+                    return;
                     if (this.isStopped) {
                         egret.$error(1036);
                         return;
@@ -1916,6 +1936,7 @@ var egret;
                  * @inheritDoc
                  */
                 ,function () {
+                    return 0;
                     if (!this.audio)
                         return 0;
                     return this.audio.currentTime;

@@ -102,6 +102,23 @@ module egret.native2 {
          * @inheritDoc
          */
         public load(url:string):void {
+
+            //
+            var self = this;
+            self.loaded = true;
+            self.dispatchEventWith(egret.Event.COMPLETE);
+            return;
+            //
+
+            var self = this;
+            
+            removeListeners();
+
+            self.loaded = true;
+            self.dispatchEventWith(egret.Event.COMPLETE);
+
+            return;
+
             var self = this;
 
             this.url = url;
