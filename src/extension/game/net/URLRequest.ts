@@ -72,9 +72,9 @@ namespace egret {
          * An object contains data to be transmitted with the URL request.
          * This property is used in conjunction with the method property.  When the value of method is GET, the value of data is appended to the value of URLRequest.url, using HTTP query-string syntax.
          * When the method value is POST (or any value other than GET), the value of data is transmitted in the body of the HTTP request.
-         * The URLRequest API offers binary POST support and support for URL-encoded variables, as well as support for strings. The data object can be a ArrayBuffer, URLVariables, or String object.
+         * The URLRequest API offers binary POST support and support for URL-encoded variables, as well as support for strings. The data object can be an ArrayBuffer, URLVariables, or String object.
          * The way in which the data is used depends on the type of object used:
-         * If the object is a ArrayBuffer object, the binary data of the ArrayBuffer object is used as POST data. For GET, data of ArrayBuffer type is not supported.
+         * If the object is an ArrayBuffer object, the binary data of the ArrayBuffer object is used as POST data. For GET, data of ArrayBuffer type is not supported.
          * If the object is a URLVariables object and the method is POST, then the variables are encoded using x-www-form-urlencoded format and the resulting string is used as POST data.
          * If the object is a URLVariables object and the method is GET, the URLVariables object will define variables to be sent with the URLRequest object.
          * Otherwise, the object is converted into a string, and the string is used as the POST or GET data.

@@ -133,20 +133,6 @@ namespace egret.web {
         }
 
         /**
-         * Generates an Uint8ClampedArray from a rectangular region of pixel data. Writes four unsigned integers
-         * (R, G, B, A) for each pixel into the array.
-         * @param x The x coordinate of the upper left corner of the rectangle from which the pixel data will be extracted.
-         * @param y The y coordinate of the upper left corner of the rectangle from which the pixel data will be extracted.
-         * @param width The width of the rectangle from which the pixel data will be extracted. The default value is 1.
-         * @param height The height of the rectangle from which the pixel data will be extracted. The default value is 1.
-         * @returns An Uint8ClampedArray containing the pixel data for the given rectangle of the BitmapData.
-         */
-        public getPixels(x:number, y:number, width:number = 1, height:number = 1):Uint8ClampedArray {
-            let buffer = this.getRenderBuffer();
-            return buffer.getPixels(x, y, width, height);
-        }
-
-        /**
          * Frees memory that is used to store the BitmapData object. <br/>
          * When the dispose() method is called on an image, the width and height of the image are set to 0. All subsequent
          * calls to methods or properties of this BitmapData instance fail, and an exception is thrown. BitmapData.dispose()
@@ -195,12 +181,12 @@ namespace egret.web {
         }
 
         /**
-         * Compresses this BitmapData object using the format specified by the type parameter and returns a ArrayBuffer object.
+         * Compresses this BitmapData object using the format specified by the type parameter and returns an ArrayBuffer object.
          * @param type A string indicating the image format. The default type is "image/png".
          * @param quality A number between 0 and 1 indicating image quality if the requested type is "image/jpeg"
          * or "image/webp". If this argument is anything else, the default value for image quality is used. The default
          * value is 0.92 for "image/jpeg", and 0.8 for "image/webp". Other arguments are ignored.
-         * @returns A ArrayBuffer containing the encoded image.
+         * @returns An ArrayBuffer containing the encoded image.
          */
         public encode(type?:string, quality?:number):ArrayBuffer {
             return null;
@@ -216,6 +202,20 @@ namespace egret.web {
             let buffer = this.getRenderBuffer();
             color = +color >>> 0;
             buffer.clearRect(tempRect.setTo(rect.x, rect.y, rect.width, rect.height), color);
+        }
+
+        /**
+         * Generates an Uint8ClampedArray from a rectangular region of pixel data. Writes four unsigned integers
+         * (R, G, B, A) for each pixel into the array.
+         * @param x The x coordinate of the upper left corner of the rectangle from which the pixel data will be extracted.
+         * @param y The y coordinate of the upper left corner of the rectangle from which the pixel data will be extracted.
+         * @param width The width of the rectangle from which the pixel data will be extracted. The default value is 1.
+         * @param height The height of the rectangle from which the pixel data will be extracted. The default value is 1.
+         * @returns An Uint8ClampedArray containing the pixel data for the given rectangle of the BitmapData.
+         */
+        public getPixels(x:number, y:number, width:number = 1, height:number = 1):Uint8ClampedArray {
+            let buffer = this.getRenderBuffer();
+            return buffer.getPixels(x, y, width, height);
         }
 
         /**
