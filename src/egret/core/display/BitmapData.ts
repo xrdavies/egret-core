@@ -270,6 +270,31 @@ declare namespace egret {
 
         /**
          * @language zh_CN
+         * 将 Uint8ClampedArray 数组转换为一个矩形区域的像素数据。对于每个像素，将从 Uint8ClampedArray 数组中依次读取RGBA四个数值并
+         * 写入像素。如果字节数组在写入整个矩形之前结束，函数将返回。
+         * @param x 要被设置的图像数据矩形区域的左上角 x 坐标。
+         * @param y 要被设置的图像数据矩形区域的左上角 y 坐标。
+         * @param width 要被设置的图像数据矩形区域的宽度。 默认值为1.
+         * @param height 要被设置的图像数据矩形区域的高度。 默认值为1.
+         * @param inputArray 一个 Uint8ClampedArray 数组，由要在矩形区域中使用的未预乘透明度（multiplied alpha）的 RGBA 像素值组成。
+         */
+        /**
+         * Converts an Uint8ClampedArray into a rectangular region of pixel data. For each pixel, four unsigned integers
+         * are read from the Uint8ClampedArray as RGBA values. If the byte array ends before the full rectangle is written,
+         * the function returns.
+         * @param x The x coordinate of the upper left corner of the rectangle from which the pixel data will be set.
+         * @param y The y coordinate of the upper left corner of the rectangle from which the pixel data will be set.
+         * @param width The width of the rectangle from which the pixel data will be set.
+         * @param height The height of the rectangle from which the pixel data will be set.
+         * @param inputArray An Uint8ClampedArray object that consists of unmultiplied RGBA pixel values to be used in
+         * the rectangular region.
+         * @version Egret 3.5
+         * @platform Native
+         */
+        setPixels(x:number, y:number, width:number, height:number, inputArray:Uint8ClampedArray):void;
+
+        /**
+         * @language zh_CN
          * 返回一个包含图片内容的 data URI 。可以使用 type 参数指定图片类型，默认为 PNG 格式。
          * @param type 图片格式，默认为 "image/png"
          * @param quality 图片质量, 指定图片格式为 "image/jpeg" 或 "image/webp" 时有效。取值范围为 0 到 1 。如果超出取值范围，

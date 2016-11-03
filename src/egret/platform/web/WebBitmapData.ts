@@ -219,6 +219,21 @@ namespace egret.web {
         }
 
         /**
+         * Converts an Uint8ClampedArray into a rectangular region of pixel data. For each pixel, four unsigned integers
+         * are read from the Uint8ClampedArray as RGBA values. If the byte array ends before the full rectangle is written,
+         * the function returns.
+         * @param x The x coordinate of the upper left corner of the rectangle from which the pixel data will be set.
+         * @param y The y coordinate of the upper left corner of the rectangle from which the pixel data will be set.
+         * @param width The width of the rectangle from which the pixel data will be set.
+         * @param height The height of the rectangle from which the pixel data will be set.
+         * @param inputArray An Uint8ClampedArray object that consists of unmultiplied RGBA pixel values to be used in
+         * the rectangular region.
+         */
+        public setPixels(x:number, y:number, width:number, height:number, inputArray:Uint8ClampedArray):void {
+
+        }
+
+        /**
          * Returns a data URI containing a representation of the image in the format specified by the type parameter.
          * (defaults to PNG)
          * @param type A string indicating the image format. The default type is "image/png".
