@@ -2756,7 +2756,13 @@ var egret;
              */
             p.setGlobalShader = function (filter) {
                 native.$cmdManager.setContext(this.$nativeContext);
-                var s1 = native.$cmdManager.pushString(filter);
+                var s1;
+                if (filter) {
+                    s1 = native.$cmdManager.pushString(filter.$toJson());
+                }
+                else {
+                    s1 = native.$cmdManager.pushString("");
+                }
                 native.$cmdManager.setGlobalShader(s1);
             };
             return NativeCanvasRenderContext;
@@ -3575,6 +3581,14 @@ var egret;
                     res.data = res.pixelData;
                 }
                 return res;
+            };
+            /**
+             * @private
+             * 设置全局shader
+             * @param filter filter属性生成的json
+             */
+            p.setGlobalShader = function (filter) {
+                egret_native.Graphics.setGlobalShader(filter);
             };
             return OldNativeCanvasRenderContext;
         }(egret.HashObject));
@@ -6620,7 +6634,7 @@ var egret;
                     var promise = egret.PromiseObject.create();
                     promise.onSuccessFunc = function (getted_str) {
                         self._response = getted_str;
-                        egret.callLater(egret.Event.dispatchEvent, egret.Event, self, egret.Event.COMPLETE);
+                        egret.$callAsync(egret.Event.dispatchEvent, egret.Event, self, egret.Event.COMPLETE);
                     };
                     promise.onErrorFunc = function (error_code) {
                         egret.$warn(1019, error_code);
@@ -7153,6 +7167,8 @@ var egret;
          */
         function parse(text) {
             var xmlDocStr = egret_native.xmlStr2JsonStr(text);
+            //替换换行符
+            xmlDocStr = xmlDocStr.replace(/\n/g, "\\n");
             var xmlDoc = JSON.parse(xmlDocStr);
             return parseNode(xmlDoc, null);
         }
@@ -7168,7 +7184,7 @@ var egret;
             var nodeAttributes = node.attributes;
             var attributes = xml.attributes;
             for (var key in nodeAttributes) {
-                attributes[key] = nodeAttributes[key];
+                attributes[key] = xml["$" + key] = nodeAttributes[key];
             }
             var childNodes = node.children;
             var length = childNodes.length;
