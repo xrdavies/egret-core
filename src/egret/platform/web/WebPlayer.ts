@@ -91,6 +91,7 @@ namespace egret.web {
             sys.stage_instantiated_guard = false;
             let stage = new egret.Stage();
             sys.stage_instantiated_guard = true;
+            (<elf.Stage>stage.$handle).screen = this;
             stage.$scaleMode = option.scaleMode;
             stage.$resolutionMode = option.resolutionMode;
             stage.$contentWidth = option.contentWidth;
@@ -105,6 +106,9 @@ namespace egret.web {
 
             this.updateScreenSize();
             sys.systemTicker.addStage(stage);
+
+            let entryInstance = sys.getEntryInstance(option.entryClassName);
+            stage.addChild(entryInstance);
         }
 
         /**

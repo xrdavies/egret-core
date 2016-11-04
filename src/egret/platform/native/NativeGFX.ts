@@ -45,10 +45,10 @@ namespace egret.native {
     /**
      * Performs a rendering session. Draws all changed display objects to the screen.
      * @param triggeredByFrame Indicates whether this call is triggered at the end of a frame.
-     * @param jsCost The cost time of executing javascript, in million seconds.
+     * @param scriptCost The cost time of executing javascript, in million seconds.
      * @param syncCost The cost time of synchronizing display list, in million seconds.
      */
-    export declare function Render(triggeredByFrame:boolean, jsCost:number, syncCost:number):void;
+    export declare function Render(triggeredByFrame:boolean, scriptCost:number, syncCost:number):void;
 
     /**
      * Sends the commands to the backend to be executed.
@@ -61,4 +61,6 @@ namespace egret.native {
     sys.UpdateAndGet = function (buffer:NativeBuffer, output?:ArrayBuffer) {
         native.UpdateAndGet(buffer.arrayBuffer, buffer.length, buffer.stringTable, output);
     };
+    sys.DataBuffer = NativeBuffer;
+    sys.sharedBuffer = new NativeBuffer(4096); //4 kb
 }

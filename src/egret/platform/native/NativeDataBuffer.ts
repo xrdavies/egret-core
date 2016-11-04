@@ -26,23 +26,31 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * @internal
  */
-namespace elf {
+namespace egret.native {
     /**
      * @internal
      */
-    export class Stage extends Node {
-        public constructor(){
-            super();
-            this.type = NodeType.Stage;
-        }
+    export class NativeBuffer extends sys.DataBufferBase implements sys.DataBuffer{
 
-        public screen:Screen;
+        public writeHandle(handle:any):void {
+            let position = this.position;
+            let length = (<Uint32Array>handle).length;
+            if (this.byteLength < position + length) {
+                this.ensureCapacity(position + length);
+            }
+            this.uint32Array[position++] = (<Uint32Array>handle)[0];
+            if (length > 1) {
+                this.uint32Array[position++] = (<Uint32Array>handle)[1];
+            }
 
-        public render():number {
-            return 0;
+            this.position = position;
+            if (position > this._length) {
+                this._length = position;
+            }
         }
     }
 }

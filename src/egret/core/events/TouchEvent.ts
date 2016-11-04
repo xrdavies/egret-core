@@ -30,7 +30,7 @@
 namespace egret {
 
     let tempMatrix = new Matrix();
-    var localPoint:Point = new Point();
+    let localPoint:Point = new Point();
 
     /**
      * The TouchEvent class lets you handle events on devices that detect user contact with the device (such as a finger

@@ -34,7 +34,7 @@ namespace egret.sys {
     /**
      * @internal
      */
-    export interface Buffer {
+    export interface DataBuffer {
 
         readonly length:number;
         readonly bytesAvailable:number;
@@ -134,17 +134,17 @@ namespace egret.sys {
     /**
      * internal
      */
-    export let Buffer: {
+    export let DataBuffer: {
         /**
-         * Creates a Buffer instance.
+         * Creates a DataBuffer instance.
          */
-        new(initialSize?:number):Buffer;
+        new(initialSize?:number):DataBuffer;
     };
 
     /**
      * @internal
      */
-    export let sharedBuffer:Buffer;
+    export let sharedBuffer:DataBuffer;
 }
 
 
@@ -156,7 +156,7 @@ namespace egret.sys {
     /**
      * @internal
      */
-    export class BufferBase {
+    export class DataBufferBase {
 
         public constructor(initialSize:number = 128) {
             if (initialSize == 0) {

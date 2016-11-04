@@ -27,33 +27,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.native {
-    /**
-     * @internal
-     */
-    export class NativeBuffer extends sys.BufferBase implements sys.Buffer{
+namespace egret.web {
 
-        public writeHandle(handle:any):void {
-            let position = this.position;
-            let length = (<Uint32Array>handle).length;
-            if (this.byteLength < position + length) {
-                this.ensureCapacity(position + length);
-            }
-            this.uint32Array[position++] = (<Uint32Array>handle)[0];
-            if (length > 1) {
-                this.uint32Array[position++] = (<Uint32Array>handle)[1];
-            }
+    export class WebFPS {
 
-            this.position = position;
-            if (position > this._length) {
-                this._length = position;
-            }
+        public static setFrameRate(value:number):void {
+
+        }
+
+        public static updateFrame(triggeredByFrame:boolean, scriptCost:number, syncCost:number, renderCost:number):void {
+
         }
     }
 
-    sys.Buffer = NativeBuffer;
-    sys.sharedBuffer = new NativeBuffer(4096); //4 kb
+    elf.FPS = WebFPS;
+
 }

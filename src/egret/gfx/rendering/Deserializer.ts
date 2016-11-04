@@ -26,23 +26,19 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * @internal
  */
 namespace elf {
+
     /**
      * @internal
      */
-    export class Stage extends Node {
-        public constructor(){
-            super();
-            this.type = NodeType.Stage;
-        }
+    export class Deserializer {
 
-        public screen:Screen;
+        public static readUpdates(input:DataBuffer, output:ArrayBuffer):void {
 
-        public render():number {
-            return 0;
         }
     }
 }

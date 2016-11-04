@@ -31,4 +31,69 @@
  */
 namespace elf {
 
+    let stageList:Stage[] = [];
+
+    /**
+     * Creates a backend node, and returns the id of the node.
+     */
+    export function MakeNode(dp:egret.DisplayObject, nodeType:number):any {
+        let node:Node;
+        switch (nodeType) {
+            case NodeType.BITMAP:
+                node = new Bitmap();
+                break;
+            case NodeType.GRAPHICS:
+                node = new Graphics();
+                break;
+            case NodeType.TEXT_FIELD:
+                node = new TextField();
+                break;
+            default:
+                node = new Node();
+                break;
+        }
+        node.externalHandle = dp;
+        return node;
+    }
+
+    /**
+     * Creates a backend stage width the specified stage instance, and returns the id of the stage node.
+     */
+    export function MakeStage(stage:egret.Stage):any {
+        let node = new Stage();
+        node.externalHandle = stage;
+        stageList.push(node);
+        return node;
+    }
+
+    export function DestroyStage(handle:any):void {
+        let node = <Stage>handle;
+        node.externalHandle = null;
+        let index = stageList.indexOf(node);
+        if (index != -1) {
+            stageList.splice(index, 1);
+        }
+    }
+
+
+    /**
+     * Performs a rendering session. Draws all changed display objects to the screen.
+     * @param triggeredByFrame Indicates whether this call is triggered at the end of a frame.
+     * @param scriptCost The cost time of executing javascript, in million seconds.
+     * @param syncCost The cost time of synchronizing display list, in million seconds.
+     */
+    export function Render(triggeredByFrame:boolean, scriptCost:number, syncCost:number):void {
+        let renderCost = 0;
+        for(let stage of stageList){
+            renderCost += stage.render();
+        }
+        FPS.updateFrame(triggeredByFrame, scriptCost, syncCost, renderCost);
+    }
+
+    /**
+     * Sends the commands to the backend to be executed.
+     */
+    export function UpdateAndGet(buffer:DataBuffer, output?:ArrayBuffer):void {
+        Deserializer.readUpdates(buffer, output);
+    }
 }

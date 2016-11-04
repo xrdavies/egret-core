@@ -26,6 +26,7 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * @internal
  */
@@ -33,16 +34,27 @@ namespace elf {
     /**
      * @internal
      */
-    export class Stage extends Node {
-        public constructor(){
-            super();
-            this.type = NodeType.Stage;
+    export class DataBuffer extends egret.sys.DataBufferBase implements egret.sys.DataBuffer{
+
+        private handleTable:any[] = [];
+
+        public clear():void {
+            super.clear();
+            this.handleTable = [];
         }
 
-        public screen:Screen;
+        public writeHandle(handle:any):void {
+            this.writeInt(this.handleTable.length);
+            this.handleTable.push(handle);
+        }
 
-        public render():number {
-            return 0;
+        /**
+         * Reads a backend handle from the byte stream.
+         */
+        public readHandle():any {
+            let index = this.readInt();
+            return this.handleTable[index];
         }
     }
+
 }

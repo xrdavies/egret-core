@@ -90,7 +90,7 @@ namespace egret.sys {
      */
     export class Serializer {
 
-        public static writeDrawToBitmap(target:egret.BitmapData, buffer:Buffer, source:egret.DisplayObject|egret.BitmapData,
+        public static writeDrawToBitmap(target:egret.BitmapData, buffer:DataBuffer, source:egret.DisplayObject|egret.BitmapData,
                                         matrix?:egret.Matrix, alpha?:number, blendMode?:string,
                                         clipRect?:egret.Rectangle, smoothing?:boolean) {
             let isDisplayObject = source instanceof egret.DisplayObject;
@@ -122,7 +122,7 @@ namespace egret.sys {
             }
         }
 
-        public static writeUpdates(object:egret.DisplayObject, buffer:Buffer):void {
+        public static writeUpdates(object:egret.DisplayObject, buffer:DataBuffer):void {
             if (!object.$handle) {
                 object.$handle = sys.MakeNode(object, object.$nodeType);
             }
@@ -159,7 +159,7 @@ namespace egret.sys {
             }
         }
 
-        private static writeChildren(container:egret.DisplayObjectContainer, buffer:Buffer):void {
+        private static writeChildren(container:egret.DisplayObjectContainer, buffer:DataBuffer):void {
             buffer.writeInt(MessageTag.UpdateChildren);
             buffer.writeHandle(container.$handle);
             let children = container.$children;
@@ -194,7 +194,7 @@ namespace egret.sys {
             }
         }
 
-        private static writeStage(stage:egret.Stage, buffer:Buffer):void {
+        private static writeStage(stage:egret.Stage, buffer:DataBuffer):void {
             let bits = stage.$stageBits;
             if (bits == 0) {
                 return;
@@ -217,7 +217,7 @@ namespace egret.sys {
             stage.$stageBits = 0;
         }
 
-        private static writeDisplayObject(dp:egret.DisplayObject, buffer:Buffer):void {
+        private static writeDisplayObject(dp:egret.DisplayObject, buffer:DataBuffer):void {
             let bits = dp.$displayObjectBits;
             if (bits === 0) {
                 return;
@@ -276,7 +276,7 @@ namespace egret.sys {
             dp.$displayObjectBits = 0;
         }
 
-        private static writeBitmap(bitmap:egret.Bitmap, buffer:Buffer):void {
+        private static writeBitmap(bitmap:egret.Bitmap, buffer:DataBuffer):void {
             let bits = bitmap.$bitmapBits;
             if (bits === 0) {
                 return;
@@ -308,7 +308,7 @@ namespace egret.sys {
             bitmap.$bitmapBits = 0;
         }
 
-        private static writeGraphics(shape:egret.Shape, buffer:Buffer):void {
+        private static writeGraphics(shape:egret.Shape, buffer:DataBuffer):void {
             let graphics = shape.graphics;
             if (graphics.$commands.length == 0) {
                 return;
@@ -393,7 +393,7 @@ namespace egret.sys {
             args.length = 0;
         }
 
-        private static writeTextField(textField:egret.TextField, buffer:Buffer):void {
+        private static writeTextField(textField:egret.TextField, buffer:DataBuffer):void {
             let bits = textField.$textFieldBits;
             if (bits === 0) {
                 return;
@@ -470,7 +470,7 @@ namespace egret.sys {
             textField.$textFieldBits = 0;
         }
 
-        private static writeUintArray(colors:number[], buffer:Buffer):void {
+        private static writeUintArray(colors:number[], buffer:DataBuffer):void {
             buffer.writeInt(colors.length);
             let length = colors.length;
             for (let i = 0; i < length; i++) {
@@ -478,7 +478,7 @@ namespace egret.sys {
             }
         }
 
-        private static writeFloatArray(array:number[], buffer:Buffer):void {
+        private static writeFloatArray(array:number[], buffer:DataBuffer):void {
             buffer.writeInt(array.length);
             let length = array.length;
             for (let i = 0; i < length; i++) {
@@ -486,7 +486,7 @@ namespace egret.sys {
             }
         }
 
-        private static writeIntArray(array:number[], buffer:Buffer):void {
+        private static writeIntArray(array:number[], buffer:DataBuffer):void {
             buffer.writeInt(array.length);
             let length = array.length;
             for (let i = 0; i < length; i++) {
@@ -494,7 +494,7 @@ namespace egret.sys {
             }
         }
 
-        private static writeMatrix(matrix:egret.Matrix, buffer:Buffer):void {
+        private static writeMatrix(matrix:egret.Matrix, buffer:DataBuffer):void {
             if (matrix.b === 0 && matrix.c === 0) {
                 if (matrix.a === 1 && matrix.d === 1) {
                     buffer.writeInt(MatrixEncoding.TranslationOnly);
@@ -515,7 +515,7 @@ namespace egret.sys {
             }
         }
 
-        private static writeRectangle(rect:egret.Rectangle, buffer:Buffer):void {
+        private static writeRectangle(rect:egret.Rectangle, buffer:DataBuffer):void {
             buffer.write4Floats(rect.x, rect.y, rect.width, rect.height);
         }
 

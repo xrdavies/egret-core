@@ -33,39 +33,12 @@
  */
 namespace egret.web {
 
-    /**
-     * Creates a backend node, and returns the id of the node.
-     */
-    function MakeNode(dp:egret.DisplayObject, nodeType:number):number {
-        return 0;
-    }
+    sys.MakeNode = elf.MakeNode;
+    sys.MakeStage = elf.MakeStage;
+    sys.Render = elf.Render;
+    sys.UpdateAndGet = elf.UpdateAndGet;
+    sys.DataBuffer = elf.DataBuffer;
+    sys.sharedBuffer = new elf.DataBuffer(4096); //4 kb
 
-    /**
-     * Creates a backend stage width the specified stage instance, and returns the id of the stage node.
-     */
-    function MakeStage(stage:egret.Stage):number {
-        return 0;
-    }
 
-    /**
-     * Performs a rendering session. Draws all changed display objects to the screen.
-     * @param triggeredByFrame Indicates whether this call is triggered at the end of a frame.
-     * @param jsCost The cost time of executing javascript, in million seconds.
-     * @param syncCost The cost time of synchronizing display list, in million seconds.
-     */
-    function Render(triggeredByFrame:boolean, jsCost:number, syncCost:number):void {
-
-    }
-
-    /**
-     * Sends the commands to the backend to be executed.
-     */
-    function UpdateAndGet(buffer:WebBuffer, output?:ArrayBuffer):void {
-
-    }
-
-    sys.MakeNode = MakeNode;
-    sys.MakeStage = MakeStage;
-    sys.Render = Render;
-    sys.UpdateAndGet = UpdateAndGet;
 }

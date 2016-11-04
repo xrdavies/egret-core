@@ -30,32 +30,12 @@
 /**
  * @internal
  */
-namespace egret.web {
+declare namespace elf {
     /**
      * @internal
      */
-    export class WebBuffer extends sys.BufferBase implements sys.Buffer{
-
-        public handleTable:any[] = [];
-
-        public writeHandle(handle:any):void {
-            let position = this.position;
-            let length = (<Uint32Array>handle).length;
-            if (this.byteLength < position + length) {
-                this.ensureCapacity(position + length);
-            }
-            this.uint32Array[position++] = (<Uint32Array>handle)[0];
-            if (length > 1) {
-                this.uint32Array[position++] = (<Uint32Array>handle)[1];
-            }
-
-            this.position = position;
-            if (position > this._length) {
-                this._length = position;
-            }
-        }
+    export class FPS {
+        static setFrameRate(value:number):void;
+        static updateFrame(triggeredByFrame:boolean, scriptCost:number, syncCost:number, renderCost:number):void;
     }
-
-    sys.Buffer = WebBuffer;
-    sys.sharedBuffer = new WebBuffer(4096); //4 kb
 }

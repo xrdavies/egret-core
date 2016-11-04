@@ -237,7 +237,7 @@ namespace egret.sys {
             this.enterFrameCost = t4 - t3;
         }
 
-        private render(triggeredByFrame:boolean, jsCost:number):void {
+        private render(triggeredByFrame:boolean, scriptCost:number):void {
             let stageList = this.stageList;
             let length = stageList.length;
             if (length == 0) {
@@ -259,7 +259,7 @@ namespace egret.sys {
                 }
             }
             let t3 = egret.getTimer();
-            sys.Render(triggeredByFrame, jsCost + t2 - t, t3 - t2);
+            sys.Render(triggeredByFrame, scriptCost + t2 - t, t3 - t2);
             this.requestScreenUpdateFlag = false;
         }
 

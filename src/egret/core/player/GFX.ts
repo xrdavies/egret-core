@@ -34,24 +34,24 @@ declare namespace egret.sys {
         /**
          * Creates a backend node, and returns the id of the node.
          */
-        export function MakeNode(dp:egret.DisplayObject, nodeType:number):number;
+        export function MakeNode(dp:egret.DisplayObject, nodeType:number):any;
 
         /**
          * Creates a backend stage width the specified stage instance, and returns the id of the stage node.
          */
-        export function MakeStage(stage:egret.Stage):number;
+        export function MakeStage(stage:egret.Stage):any;
 
         /**
          * Performs a rendering session. Draws all changed display objects to the screen.
          * @param triggeredByFrame Indicates whether this call is triggered at the end of a frame.
-         * @param jsCost The cost time of executing javascript, in million seconds.
+         * @param scriptCost The cost time of executing javascript, in million seconds.
          * @param syncCost The cost time of synchronizing display list, in million seconds.
          */
-        export function Render(triggeredByFrame:boolean, jsCost:number, syncCost:number):void;
+        export function Render(triggeredByFrame:boolean, scriptCost:number, syncCost:number):void;
 
         /**
          * Sends the commands to the backend to be executed.
          */
-        export function UpdateAndGet(buffer:Buffer, output?:ArrayBuffer):void;
+        export function UpdateAndGet(buffer:DataBuffer, output?:ArrayBuffer):void;
 
 }
