@@ -716,6 +716,7 @@ module egret.native2 {
 
                 if (x != 0 || y != 0) {
                     transformDirty = true;
+                    buffer.saveTransform();
                     buffer.transform(1, 0, 0, 1, x, y);
                 }
 

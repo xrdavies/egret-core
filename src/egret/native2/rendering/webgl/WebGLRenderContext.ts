@@ -882,9 +882,9 @@ module egret.native2 {
                     }
                     shader.setTextColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
 
-                    if (data.stroke) {
-                        console.log("render stroke");
-                    }
+                    // if (data.stroke) {
+                    //     console.log("render stroke");
+                    // }
 
                     shader.setProjection(this.projectionX, this.projectionY);
                     this.shaderManager.activateShader(shader, this.vertSize * 4);
@@ -901,15 +901,15 @@ module egret.native2 {
 
         // lj
         private drawPushText = function (data, offset) {
-            console.log(data.count);
+            // console.log(data.count);
             var gl = this.context;
 
             var size = 0;
             for (var i = 0; i < data.texturesInfo.length; i++) {
-                console.log(" +++++++ " + i + " " + data.count + " " + data.texturesInfo[i] + " " + size);
-                var shader = this.shaderManager.fontShader;
-                shader.setTextColor((255 - i * 50) / 255.0, (50 + i * 50) / 255.0, 0.0, 1.0);
-                shader.syncUniforms();
+                // console.log(" +++++++ " + i + " " + data.count + " " + data.texturesInfo[i] + " " + size);
+                // var shader = this.shaderManager.fontShader;
+                // shader.setTextColor((255 - i * 50) / 255.0, (50 + i * 50) / 255.0, 0.0, 1.0);
+                // shader.syncUniforms();
                 egret_native.Label["bindTexture"](i);
                 // if (data.texturesInfo[0] == 12 && data.texturesInfo[1] == 7)
                 gl.drawElements(gl.TRIANGLES, data.texturesInfo[i] * 6, gl.UNSIGNED_SHORT, (offset + size) * 2);
