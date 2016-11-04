@@ -37,9 +37,9 @@ namespace egret.native {
         if (!(source instanceof egret.DisplayObject) && !(source instanceof egret.BitmapData)) {
             throw new Error("Parameter 0 is of the incorrect type. Should be type egret.DisplayObject|egret.BitmapData.");
         }
-        let buffer = sys.sharedBuffer;
-        sys.Serializer.writeDrawToBitmap(this, buffer, source, matrix, alpha, blendMode, clipRect, smoothing);
-        sys.UpdateAndGet(buffer);
+        let buffer = sharedBuffer;
+        Serializer.writeDrawToBitmap(this, buffer, source, matrix, alpha, blendMode, clipRect, smoothing);
+        UpdateAndGet(buffer.arrayBuffer, buffer.length, buffer.stringTable);
         buffer.clear();
     }
 

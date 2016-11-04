@@ -43,19 +43,6 @@ namespace egret.sys {
         TEXT_FIELD
     }
 
-    /**
-     * @internal
-     */
-    export const enum MessageTag {
-        EndOfFile = 0,
-        UpdateDisplayObject = 10,
-        UpdateChildren = 11,
-        UpdateStage = 12,
-        UpdateBitmap = 13,
-        UpdateGraphics = 14,
-        UpdateTextField = 15,
-        DrawToBitmap = 20
-    }
 
     /**
      * @internal
@@ -114,55 +101,6 @@ namespace egret.sys {
         DirtyMultiline = 1 << 19,
         DirtyPattern = 1 << 20,
         DirtySoftKeyboardType = 1 << 21
-    }
-
-    /**
-     * @internal
-     * Dictates how matrices are encoded.
-     */
-    export const enum MatrixEncoding {
-        TranslationOnly,
-        UniformScaleAndTranslationOnly,
-        ScaleAndTranslationOnly,
-        All
-    }
-
-    /**
-     * @internal
-     */
-    export interface StageDisplayRule {
-        /**
-         * Indicates the width of the stage content, in pixels.
-         */
-        stageWidth?:number;
-
-        /**
-         * Indicates the height of the stage content, in pixels.
-         */
-        stageHeight?:number;
-        /**
-         * Indicates the X coordinate in the destination screen at which to place the top-left corner of the stage.
-         */
-        displayX?:number;
-
-        /**
-         * Indicates the Y coordinate in the destination screen at which to place the top-left corner of the stage.
-         */
-        displayY?:number;
-
-        /**
-         * Indicates the display width in the destination screen, in pixels.
-         */
-        displayWidth?:number;
-        /**
-         * Indicates the display height in the destination screen, in pixels.
-         */
-        displayHeight?:number;
-        /**
-         * Specifies the effective pixel scaling factor of the stage. It is applied when drawing nodes to the stage.
-         */
-        contentScaleFactor?:number;
-
     }
 
     /**

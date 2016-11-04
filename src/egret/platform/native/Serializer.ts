@@ -30,19 +30,45 @@
 /**
  * @internal
  */
-namespace egret.sys {
+namespace egret.native {
 
     /**
      * @private
      */
-    function createEnumMap(list:string[]):Map<number> {
-        let map:Map<number> = {};
+    function createEnumMap(list:string[]):sys.Map<number> {
+        let map:sys.Map<number> = {};
         let length = list.length;
         for (let i = 0; i < length; i++) {
             map[list[i]] = i;
         }
         return map;
     }
+
+    /**
+     * @internal
+     */
+    const enum MessageTag {
+        EndOfFile = 0,
+        UpdateDisplayObject = 10,
+        UpdateChildren = 11,
+        UpdateStage = 12,
+        UpdateBitmap = 13,
+        UpdateGraphics = 14,
+        UpdateTextField = 15,
+        DrawToBitmap = 20
+    }
+
+    /**
+     * @internal
+     * Dictates how matrices are encoded.
+     */
+    const enum MatrixEncoding {
+        TranslationOnly,
+        UniformScaleAndTranslationOnly,
+        ScaleAndTranslationOnly,
+        All
+    }
+
 
     const blendModeMap = createEnumMap([
         "normal", "layer", "add", "erase", "darken", "difference", "hardlight", "lighten", "multiply", "overlay",
@@ -95,7 +121,7 @@ namespace egret.sys {
                                         clipRect?:egret.Rectangle, smoothing?:boolean) {
             let isDisplayObject = source instanceof egret.DisplayObject;
             if (isDisplayObject) {
-                sys.Serializer.writeUpdates(<egret.DisplayObject>source, buffer);
+                Serializer.writeUpdates(<egret.DisplayObject>source, buffer);
             }
             buffer.writeInt(MessageTag.DrawToBitmap);
             buffer.writeHandle(target.$handle);
@@ -139,16 +165,16 @@ namespace egret.sys {
                 object.$dirty = false;
                 Serializer.writeDisplayObject(object, buffer);
                 switch (object.$nodeType) {
-                    case NodeType.Stage:
+                    case sys.NodeType.Stage:
                         Serializer.writeStage(<egret.Stage><any>object, buffer);
                         break;
-                    case NodeType.BITMAP:
+                    case sys.NodeType.BITMAP:
                         Serializer.writeBitmap(<egret.Bitmap><any>object, buffer);
                         break;
-                    case NodeType.GRAPHICS:
+                    case sys.NodeType.GRAPHICS:
                         Serializer.writeGraphics(<egret.Shape><any>object, buffer);
                         break;
-                    case NodeType.TEXT_FIELD:
+                    case sys.NodeType.TEXT_FIELD:
                         Serializer.writeTextField(<egret.TextField><any>object, buffer);
                         break;
                 }
@@ -202,16 +228,16 @@ namespace egret.sys {
             buffer.writeInt(MessageTag.UpdateStage);
             buffer.writeHandle(stage.$handle);
             buffer.writeInt(bits);
-            if (bits & StageBits.DirtyColor) {
+            if (bits & sys.StageBits.DirtyColor) {
                 buffer.writeUnsignedInt(stage.$color);
             }
-            if (bits & StageBits.DirtyDisplayRule) {
+            if (bits & sys.StageBits.DirtyDisplayRule) {
                 let rule = stage.$displayRule;
                 buffer.write6Floats(rule.stageWidth, rule.stageHeight, rule.displayX,
                     rule.displayY, rule.displayWidth, rule.displayHeight);
                 buffer.writeFloat(rule.contentScaleFactor);
             }
-            if (bits & StageBits.DirtyFrameRate) {
+            if (bits & sys.StageBits.DirtyFrameRate) {
                 buffer.writeFloat(stage.frameRate);
             }
             stage.$stageBits = 0;
@@ -225,10 +251,10 @@ namespace egret.sys {
             buffer.writeInt(MessageTag.UpdateDisplayObject);
             buffer.writeHandle(dp.$handle);
             buffer.writeInt(bits);
-            if (bits & DisplayObjectBits.DirtyMatrix) {
+            if (bits & sys.DisplayObjectBits.DirtyMatrix) {
                 Serializer.writeMatrix(dp.getDisplayMatrix(), buffer);
             }
-            if (bits & DisplayObjectBits.DirtyScrollRect) {
+            if (bits & sys.DisplayObjectBits.DirtyScrollRect) {
                 if (dp.$scrollRect) {
                     buffer.writeBoolean(true);
                     Serializer.writeRectangle(dp.$scrollRect, buffer);
@@ -237,22 +263,22 @@ namespace egret.sys {
                     buffer.writeBoolean(false);
                 }
             }
-            if (bits & DisplayObjectBits.DirtyFilters) {
+            if (bits & sys.DisplayObjectBits.DirtyFilters) {
 
             }
-            if (bits & DisplayObjectBits.DirtyVisible) {
+            if (bits & sys.DisplayObjectBits.DirtyVisible) {
                 buffer.writeBoolean(dp.$visible);
             }
-            if (bits & DisplayObjectBits.DirtyCacheAsBitmap) {
+            if (bits & sys.DisplayObjectBits.DirtyCacheAsBitmap) {
                 buffer.writeBoolean(dp.$cacheAsBitmap);
             }
-            if (bits & DisplayObjectBits.DirtyAlpha) {
+            if (bits & sys.DisplayObjectBits.DirtyAlpha) {
                 buffer.writeFloat(dp.$alpha);
             }
-            if (bits & DisplayObjectBits.DirtyBlendMode) {
+            if (bits & sys.DisplayObjectBits.DirtyBlendMode) {
                 buffer.writeInt(blendModeMap[dp.$blendMode] || 0);
             }
-            if (bits & DisplayObjectBits.DirtyMask) {
+            if (bits & sys.DisplayObjectBits.DirtyMask) {
                 let mask = dp.$mask;
                 if (mask) {
                     if (!mask.$handle) {
@@ -264,7 +290,7 @@ namespace egret.sys {
                     buffer.writeInt(0);
                 }
             }
-            if (bits & DisplayObjectBits.DirtyMaskRect) {
+            if (bits & sys.DisplayObjectBits.DirtyMaskRect) {
                 if (dp.$maskRect) {
                     buffer.writeBoolean(true);
                     Serializer.writeRectangle(dp.$maskRect, buffer);
@@ -285,11 +311,11 @@ namespace egret.sys {
             buffer.writeHandle(bitmap.$handle);
             buffer.writeInt(bits);
 
-            if (bits & BitmapBits.DirtyBitmapData) {
+            if (bits & sys.BitmapBits.DirtyBitmapData) {
                 let bitmapData = bitmap.$bitmapData;
                 buffer.writeHandle(bitmapData ? bitmapData.$handle : 0)
             }
-            if (bits & BitmapBits.DirtyScale9Grid) {
+            if (bits & sys.BitmapBits.DirtyScale9Grid) {
                 if (bitmap.$scale9Grid) {
                     buffer.writeBoolean(true);
                     Serializer.writeRectangle(bitmap.$scale9Grid, buffer);
@@ -299,10 +325,10 @@ namespace egret.sys {
                 }
 
             }
-            if (bits & BitmapBits.DirtySmoothing) {
+            if (bits & sys.BitmapBits.DirtySmoothing) {
                 buffer.writeBoolean(bitmap.$smoothing);
             }
-            if (bits & BitmapBits.DirtyFillMode) {
+            if (bits & sys.BitmapBits.DirtyFillMode) {
                 buffer.writeInt(bitmapFillModeMap[bitmap.$fillMode] || 0);
             }
             bitmap.$bitmapBits = 0;
@@ -324,14 +350,14 @@ namespace egret.sys {
                 let command = commands[i];
                 buffer.writeInt(command);
                 switch (command) {
-                    case GraphicsCommand.CLEAR:
-                    case GraphicsCommand.END_FILL:
+                    case sys.GraphicsCommand.CLEAR:
+                    case sys.GraphicsCommand.END_FILL:
                         break;
-                    case GraphicsCommand.BEGIN_FILL:
+                    case sys.GraphicsCommand.BEGIN_FILL:
                         buffer.writeUnsignedInt(args[index++]);        // color
                         buffer.writeFloat(args[index++]);              // alpha
                         break;
-                    case GraphicsCommand.BEGIN_GRADIENT_FILL:
+                    case sys.GraphicsCommand.BEGIN_GRADIENT_FILL:
                         buffer.writeInt(gradientTypeMap[args[index++]]); // type
                         this.writeUintArray(args[index++], buffer);        // colors
                         this.writeFloatArray(args[index++], buffer);       // alphas
@@ -345,33 +371,33 @@ namespace egret.sys {
                             buffer.writeBoolean(false);
                         }
                         break;
-                    case GraphicsCommand.CUBIC_CURVE_TO:
+                    case sys.GraphicsCommand.CUBIC_CURVE_TO:
                         buffer.write6Floats(args[index++], args[index++], args[index++],
                             args[index++], args[index++], args[index++]);
                         break;
-                    case GraphicsCommand.CURVE_TO:
+                    case sys.GraphicsCommand.CURVE_TO:
                         buffer.write4Floats(args[index++], args[index++], args[index++], args[index++]);
                         break;
-                    case GraphicsCommand.DRAW_ARC:
+                    case sys.GraphicsCommand.DRAW_ARC:
                         buffer.write4Floats(args[index++], args[index++], args[index++], args[index++]);
                         buffer.writeFloat(args[index++]);
                         buffer.writeBoolean(args[index++]);
                         break;
-                    case GraphicsCommand.DRAW_CIRCLE:
+                    case sys.GraphicsCommand.DRAW_CIRCLE:
                         buffer.write2Floats(args[index++], args[index++]);
                         buffer.writeFloat(args[index++]);
                         break;
-                    case GraphicsCommand.DRAW_ELLIPSE:
+                    case sys.GraphicsCommand.DRAW_ELLIPSE:
                         buffer.write4Floats(args[index++], args[index++], args[index++], args[index++]);
                         break;
-                    case GraphicsCommand.DRAW_RECT:
+                    case sys.GraphicsCommand.DRAW_RECT:
                         buffer.write4Floats(args[index++], args[index++], args[index++], args[index++]);
                         break;
-                    case GraphicsCommand.DRAW_ROUND_RECT:
+                    case sys.GraphicsCommand.DRAW_ROUND_RECT:
                         buffer.write6Floats(args[index++], args[index++], args[index++],
                             args[index++], args[index++], args[index++]);
                         break;
-                    case GraphicsCommand.LINE_STYLE:
+                    case sys.GraphicsCommand.LINE_STYLE:
                         buffer.writeFloat(args[index++]);                      // thickness
                         buffer.writeUnsignedInt(args[index++]);                // color
                         buffer.writeFloat(args[index++]);                      // alpha
@@ -381,10 +407,10 @@ namespace egret.sys {
                         buffer.writeInt(jointStyleMap[args[index++]]);       // joints
                         buffer.writeFloat(args[index++]);                      // miterLimit
                         break;
-                    case GraphicsCommand.LINE_TO:
+                    case sys.GraphicsCommand.LINE_TO:
                         buffer.write2Floats(args[index++], args[index++]);
                         break;
-                    case GraphicsCommand.MOVE_TO:
+                    case sys.GraphicsCommand.MOVE_TO:
                         buffer.write2Floats(args[index++], args[index++]);
                         break;
                 }
@@ -401,70 +427,70 @@ namespace egret.sys {
             buffer.writeInt(MessageTag.UpdateTextField);
             buffer.writeHandle(textField.$handle);
             buffer.writeInt(bits);
-            if (bits & TextFieldBits.DirtyType) {
+            if (bits & sys.TextFieldBits.DirtyType) {
                 buffer.writeInt(textFieldTypeMap[textField.$type]);
             }
-            if (bits & TextFieldBits.DirtyFontFamily) {
+            if (bits & sys.TextFieldBits.DirtyFontFamily) {
                 buffer.writeString(textField.$fontFamily);
             }
-            if (bits & TextFieldBits.DirtySize) {
+            if (bits & sys.TextFieldBits.DirtySize) {
                 buffer.writeInt(textField.$size);
             }
-            if (bits & TextFieldBits.DirtyBold) {
+            if (bits & sys.TextFieldBits.DirtyBold) {
                 buffer.writeBoolean(textField.$bold);
             }
-            if (bits & TextFieldBits.DirtyItalic) {
+            if (bits & sys.TextFieldBits.DirtyItalic) {
                 buffer.writeBoolean(textField.$italic);
             }
-            if (bits & TextFieldBits.DirtyTextAlign) {
+            if (bits & sys.TextFieldBits.DirtyTextAlign) {
                 buffer.writeInt(horizontalAlignMap[textField.$textAlign]);
             }
-            if (bits & TextFieldBits.DirtyVerticalAlign) {
+            if (bits & sys.TextFieldBits.DirtyVerticalAlign) {
                 buffer.writeInt(verticalAlignMap[textField.$verticalAlign]);
             }
-            if (bits & TextFieldBits.DirtyLineSpacing) {
+            if (bits & sys.TextFieldBits.DirtyLineSpacing) {
                 buffer.writeInt(textField.$lineSpacing);
             }
-            if (bits & TextFieldBits.DirtyTextColor) {
+            if (bits & sys.TextFieldBits.DirtyTextColor) {
                 buffer.writeUnsignedInt(textField.$textColor);
             }
-            if (bits & TextFieldBits.DirtyWordWrap) {
+            if (bits & sys.TextFieldBits.DirtyWordWrap) {
                 buffer.writeBoolean(textField.$wordWrap);
             }
-            if (bits & TextFieldBits.DirtyStroke) {
+            if (bits & sys.TextFieldBits.DirtyStroke) {
                 buffer.writeFloat(textField.$stroke);
             }
-            if (bits & TextFieldBits.DirtyStrokeColor) {
+            if (bits & sys.TextFieldBits.DirtyStrokeColor) {
                 buffer.writeUnsignedInt(textField.$strokeColor);
             }
-            if (bits & TextFieldBits.DirtyBorder) {
+            if (bits & sys.TextFieldBits.DirtyBorder) {
                 buffer.writeBoolean(textField.$border);
             }
-            if (bits & TextFieldBits.DirtyBorderColor) {
+            if (bits & sys.TextFieldBits.DirtyBorderColor) {
                 buffer.writeUnsignedInt(textField.$borderColor);
             }
-            if (bits & TextFieldBits.DirtyBackground) {
+            if (bits & sys.TextFieldBits.DirtyBackground) {
                 buffer.writeBoolean(textField.$background);
             }
-            if (bits & TextFieldBits.DirtyBackgroundColor) {
+            if (bits & sys.TextFieldBits.DirtyBackgroundColor) {
                 buffer.writeUnsignedInt(textField.$backgroundColor);
             }
-            if (bits & TextFieldBits.DirtyText) {
+            if (bits & sys.TextFieldBits.DirtyText) {
                 buffer.writeString(textField.$text);
             }
-            if (bits & TextFieldBits.DirtyDisplayAsPassword) {
+            if (bits & sys.TextFieldBits.DirtyDisplayAsPassword) {
                 buffer.writeBoolean(textField.$displayAsPassword);
             }
-            if (bits & TextFieldBits.DirtyMaxChars) {
+            if (bits & sys.TextFieldBits.DirtyMaxChars) {
                 buffer.writeInt(textField.$maxChars);
             }
-            if (bits & TextFieldBits.DirtyMultiline) {
+            if (bits & sys.TextFieldBits.DirtyMultiline) {
                 buffer.writeBoolean(textField.$multiline);
             }
-            if (bits & TextFieldBits.DirtyPattern) {
+            if (bits & sys.TextFieldBits.DirtyPattern) {
                 buffer.writeString(textField.$pattern);
             }
-            if (bits & TextFieldBits.DirtySoftKeyboardType) {
+            if (bits & sys.TextFieldBits.DirtySoftKeyboardType) {
                 buffer.writeInt(softKeyboardTypeMap[textField.$softKeyboardType]);
             }
             textField.$textFieldBits = 0;

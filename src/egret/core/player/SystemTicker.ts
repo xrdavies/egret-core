@@ -249,14 +249,9 @@ namespace egret.sys {
                 this.requestRenderEventFlag = false;
             }
             let t2 = egret.getTimer();
-            let buffer = sys.sharedBuffer;
             for (let i = 0; i < length; i++) {
                 let stage = stageList[i];
-                sys.Serializer.writeUpdates(stage, buffer);
-                if (buffer.length > 0) {
-                    sys.UpdateAndGet(buffer);
-                    buffer.clear();
-                }
+                sys.SyncNode(stage);
             }
             let t3 = egret.getTimer();
             sys.Render(triggeredByFrame, scriptCost + t2 - t, t3 - t2);

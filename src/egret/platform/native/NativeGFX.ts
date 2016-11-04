@@ -54,13 +54,21 @@ namespace egret.native {
      * Sends the commands to the backend to be executed.
      */
     export declare function UpdateAndGet(input:ArrayBuffer, inputLength:number, stringTable:string[], output?:ArrayBuffer):void;
+    /**
+     * Synchronizes the display object with the backend node.
+     */
+    function SyncNode(displayObject:egret.DisplayObject):void {
+        let buffer = sharedBuffer;
+        Serializer.writeUpdates(displayObject, buffer);
+        if (buffer.length > 0) {
+            native.UpdateAndGet(buffer.arrayBuffer, buffer.length, buffer.stringTable);
+            buffer.clear();
+        }
+
+    }
 
     sys.MakeNode = native.MakeNode;
     sys.MakeStage = native.MakeStage;
     sys.Render = native.Render;
-    sys.UpdateAndGet = function (buffer:NativeBuffer, output?:ArrayBuffer) {
-        native.UpdateAndGet(buffer.arrayBuffer, buffer.length, buffer.stringTable, output);
-    };
-    sys.DataBuffer = NativeBuffer;
-    sys.sharedBuffer = new NativeBuffer(4096); //4 kb
+    sys.SyncNode = SyncNode;
 }

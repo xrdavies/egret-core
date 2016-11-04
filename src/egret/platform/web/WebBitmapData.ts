@@ -33,6 +33,12 @@
 namespace egret.web {
 
     let tempRect = new elf.Rectangle();
+    let tempMatrix = new elf.Matrix();
+
+    enum blendModeMap  {
+        "normal", "layer", "add", "erase", "darken", "difference", "hardlight", "lighten", "multiply", "overlay",
+        "screen", "colordodge", "colorburn", "softlight", "exclusion", "hue", "saturation", "color", "luminosity"
+    }
 
     /**
      * @internal
@@ -173,11 +179,13 @@ namespace egret.web {
             if (!(source instanceof egret.DisplayObject) && !(source instanceof egret.BitmapData)) {
                 throw new Error("Parameter 0 is of the incorrect type. Should be type egret.DisplayObject|egret.BitmapData.");
             }
-            this.getRenderBuffer();
-            let buffer = sys.sharedBuffer;
-            sys.Serializer.writeDrawToBitmap(this, buffer, source, matrix, alpha, blendMode, clipRect, smoothing);
-            sys.UpdateAndGet(buffer);
-            buffer.clear();
+            let buffer = this.getRenderBuffer();
+            if (source instanceof DisplayObject) {
+                sys.SyncNode(source);
+            }
+            tempMatrix.setTo(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
+            tempRect.setTo(clipRect.x, clipRect.y, clipRect.width, clipRect.height);
+            elf.DrawToBitmap(buffer, source.$handle, tempMatrix, alpha, blendModeMap[blendMode], tempRect, smoothing);
         }
 
         /**

@@ -36,9 +36,7 @@ namespace egret.web {
     sys.MakeNode = elf.MakeNode;
     sys.MakeStage = elf.MakeStage;
     sys.Render = elf.Render;
-    sys.UpdateAndGet = elf.UpdateAndGet;
-    sys.DataBuffer = elf.DataBuffer;
-    sys.sharedBuffer = new elf.DataBuffer(4096); //4 kb
+    sys.SyncNode = elf.SyncNode;
 
 
 }

@@ -42,16 +42,15 @@ declare namespace egret.sys {
         export function MakeStage(stage:egret.Stage):any;
 
         /**
+         * Synchronizes the display object with the backend node.
+         */
+        export function SyncNode(dp:egret.DisplayObject):void;
+
+        /**
          * Performs a rendering session. Draws all changed display objects to the screen.
          * @param triggeredByFrame Indicates whether this call is triggered at the end of a frame.
          * @param scriptCost The cost time of executing javascript, in million seconds.
          * @param syncCost The cost time of synchronizing display list, in million seconds.
          */
         export function Render(triggeredByFrame:boolean, scriptCost:number, syncCost:number):void;
-
-        /**
-         * Sends the commands to the backend to be executed.
-         */
-        export function UpdateAndGet(buffer:DataBuffer, output?:ArrayBuffer):void;
-
 }

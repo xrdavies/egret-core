@@ -30,31 +30,42 @@
 /**
  * @internal
  */
-namespace elf {
+namespace egret.sys {
     /**
      * @internal
      */
-    export class DataBuffer extends egret.sys.DataBufferBase implements egret.sys.DataBuffer{
-
-        private handleTable:any[] = [];
-
-        public clear():void {
-            super.clear();
-            this.handleTable = [];
-        }
-
-        public writeHandle(handle:any):void {
-            this.writeInt(this.handleTable.length);
-            this.handleTable.push(handle);
-        }
+    export interface StageDisplayRule {
+        /**
+         * Indicates the width of the stage content, in pixels.
+         */
+        stageWidth?:number;
 
         /**
-         * Reads a backend handle from the byte stream.
+         * Indicates the height of the stage content, in pixels.
          */
-        public readHandle():any {
-            let index = this.readInt();
-            return this.handleTable[index];
-        }
-    }
+        stageHeight?:number;
+        /**
+         * Indicates the X coordinate in the destination screen at which to place the top-left corner of the stage.
+         */
+        displayX?:number;
 
+        /**
+         * Indicates the Y coordinate in the destination screen at which to place the top-left corner of the stage.
+         */
+        displayY?:number;
+
+        /**
+         * Indicates the display width in the destination screen, in pixels.
+         */
+        displayWidth?:number;
+        /**
+         * Indicates the display height in the destination screen, in pixels.
+         */
+        displayHeight?:number;
+        /**
+         * Specifies the effective pixel scaling factor of the stage. It is applied when drawing nodes to the stage.
+         */
+        contentScaleFactor?:number;
+
+    }
 }

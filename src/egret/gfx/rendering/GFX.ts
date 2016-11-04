@@ -75,6 +75,12 @@ namespace elf {
         }
     }
 
+    /**
+     * Synchronizes the display object with the backend node.
+     */
+    export function SyncNode(dp:egret.DisplayObject):void {
+
+    }
 
     /**
      * Performs a rendering session. Draws all changed display objects to the screen.
@@ -84,16 +90,15 @@ namespace elf {
      */
     export function Render(triggeredByFrame:boolean, scriptCost:number, syncCost:number):void {
         let renderCost = 0;
-        for(let stage of stageList){
+        for (let stage of stageList) {
             renderCost += stage.render();
         }
         FPS.updateFrame(triggeredByFrame, scriptCost, syncCost, renderCost);
     }
 
-    /**
-     * Sends the commands to the backend to be executed.
-     */
-    export function UpdateAndGet(buffer:DataBuffer, output?:ArrayBuffer):void {
-        Deserializer.readUpdates(buffer, output);
+    export function DrawToBitmap(buffer:RenderBuffer, source:Node|BitmapData,
+                                 matrix?:Matrix, alpha?:number, blendMode?:number,
+                                 clipRect?:Rectangle, smoothing?:boolean):void {
+
     }
 }
