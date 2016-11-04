@@ -680,68 +680,97 @@ module egret.native2 {
          * @private
          */
         private renderText(node: sys.TextNode, buffer: WebGLRenderBuffer): void {
+            // lj
+            // console.log(" +++++++++++++++++++++++++++++++++++++++ - ");
+            // console.log("textAlign\t " + node["textAlign"]);
+            // console.log("width\t " + node["textFieldWidth"]);
+            // console.log("height\t " + node["textFieldHeight"]);
+            // console.log(" +++++++++++++++++++++++++++++++++++++++ = " + node.drawData.length);
 
-            // change xs
-                // skip text render
-                // TODO
-                return;
-            // change end
+            // context.textAlign = "left";
+            // context.textBaseline = "middle";
+            // context.lineJoin = "round"; //确保描边样式是圆角
+            var drawData = node.drawData;
+            var length = drawData.length;
+            var pos = 0;
+            while (pos < length) {
+                var x = drawData[pos++];
+                var y = drawData[pos++];
+                var text = drawData[pos++];
+                var format = drawData[pos++];
+                // context.font = getFontString(node, format);
+                var textColor = format.textColor == null ? node.textColor : format.textColor;
+                var strokeColor = format.strokeColor == null ? node.strokeColor : format.strokeColor;
+                var stroke = format.stroke == null ? node.stroke : format.stroke;
+                var size = format.size == null ? node.size : format.size;
+                // context.fillStyle = egret.toColorString(textColor);
+                // context.strokeStyle = egret.toColorString(strokeColor);
+                // if (stroke) {
+                    // context.lineWidth = stroke * 2;
+                    // context.strokeText(text, x, y);
+                // }
+                // context.fillText(text, x, y);
+                egret_native.Label.createLabel("", size, "", stroke);
 
-            var width = node.width - node.x;
-            var height = node.height - node.y;
-            if (node.drawData.length == 0) {
-                return;
-            }
+                var transformDirty = false;
 
-            if (!this.canvasRenderBuffer || !this.canvasRenderBuffer.context) {
-                this.canvasRenderer = new CanvasRenderer();
-                this.canvasRenderBuffer = new CanvasRenderBuffer(width, height);
-            }
-            else if (node.dirtyRender) {
-                this.canvasRenderBuffer.resize(width, height);
-            }
-
-            if (!this.canvasRenderBuffer.context) {
-                return;
-            }
-
-            if (node.x || node.y) {
-                if (node.dirtyRender) {
-                    this.canvasRenderBuffer.context.translate(-node.x, -node.y);
+                if (x != 0 || y != 0) {
+                    transformDirty = true;
+                    buffer.transform(1, 0, 0, 1, x, y);
                 }
-                buffer.transform(1, 0, 0, 1, node.x, node.y);
-            }
 
+                buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor);
 
-            if (node.dirtyRender) {
-                var surface = this.canvasRenderBuffer.surface;
-                this.canvasRenderer.renderText(node, this.canvasRenderBuffer.context);
-
-                // 拷贝canvas到texture
-                var texture = node.$texture;
-                if (!texture) {
-                    texture = buffer.context.createTexture(<BitmapData><any>surface);
-                    node.$texture = texture;
-                } else {
-                    // 重新拷贝新的图像
-                    buffer.context.updateTexture(texture, <BitmapData><any>surface);
+                if (transformDirty) {
+                    buffer.restoreTransform();
                 }
-                // 保存材质尺寸
-                node.$textureWidth = surface.width;
-                node.$textureHeight = surface.height;
             }
 
-            var textureWidth = node.$textureWidth;
-            var textureHeight = node.$textureHeight;
-            buffer.context.drawTexture(node.$texture, 0, 0, textureWidth, textureHeight, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
+            // egret_native.Label.createLabel("", node.size, "", node.stroke);
 
-            if (node.x || node.y) {
-                if (node.dirtyRender) {
-                    this.canvasRenderBuffer.context.translate(node.x, node.y);
-                }
-                buffer.transform(1, 0, 0, 1, -node.x, -node.y);
-            }
-            node.dirtyRender = false;
+            // var width = node.width - node.x;
+            // var height = node.height - node.y;
+
+            // var textFieldWidth = node["textFieldWidth"];
+            // var textFieldHeight = node["textFieldHeight"];
+
+            // var dx = 0;
+            // var dy = 0;
+            // var textSize = egret_native.Label.getTextSize(node["text"]);
+            // var textWidth = textSize[0];
+            // var textHeight = textSize[1];
+
+            // var transformDirty = false;
+
+            // if (node["textAlign"] == "right" && textFieldWidth) {
+            //     dx = textFieldWidth - textWidth;
+            // }
+            // else if (node["textAlign"] == "center" && textFieldWidth) {
+            //     dx =  (textFieldWidth - textWidth) / 2;
+            // }
+
+            // if (node["verticalAlign"] == "bottom" && textFieldHeight) {
+            //     dy = textFieldHeight - textHeight;
+            // }
+            // else if (node["verticalAlign"] == "middle" && textFieldHeight) {
+            //     dy = (textFieldHeight - textHeight) / 2;
+            // }
+
+            // if (dx != 0 || dy != 0) {
+            //     transformDirty = true;
+            //     console.log(dx + " " + dy);
+            //     buffer.transform(1, 0, 0, 1, dx, dy);
+            // }
+
+            // buffer.context.drawText(node["text"], node.size, 0, 0, node["textColor"], node.stroke, node.strokeColor);
+
+            // if (transformDirty) {
+            //     buffer.restoreTransform();
+            // }
+
+            // console.log(" +++++++++++++++++++++++++++++++++++++++ render text end ");
+            //-lj
+            
         }
 
         /**

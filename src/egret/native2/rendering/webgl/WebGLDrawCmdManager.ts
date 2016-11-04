@@ -108,6 +108,21 @@ module egret.native2 {
 
         }
 
+        // lj
+        public pushDrawText(texture, count, textColor, stroke, strokeColor, texturesInfo) {
+            var data = this.drawData[this.drawDataLen] || {};
+            data.type = 10;
+            data.texture = texture;
+            data.count = count;
+            data.textColor = textColor;
+            data.stroke = stroke;
+            data.strokeColor = strokeColor;
+            data.texturesInfo = texturesInfo;
+            this.drawData[this.drawDataLen] = data;
+            this.drawDataLen++;
+        }
+        //-lj
+
         /**
          * 压入pushMask指令
          */

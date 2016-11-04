@@ -54,7 +54,7 @@ module egret.native2 {
             matrix: {type: 'mat4', value: new Float32Array([1, 0, 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
-                0, 0, 0, 1]), dirty: true},
+                0, 0, 0, 1]), transpose: false, dirty: true},
             colorAdd: {type: '4f', value: {x: 0, y: 0, z: 0, w: 0}, dirty: true}
         };
 

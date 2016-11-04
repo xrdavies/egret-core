@@ -180,16 +180,17 @@ module egret.native2 {
                 egret.$error(1049);
             }
 
-            var audio = NativeSound.$pop(this.url);
-            if (audio == null) {
-                audio = new Audio(this.url);
-            }
-            else {
+            // var audio = NativeSound.$pop(this.url);
+            // if (audio == null) {
+                // audio = new Audio(this.url);
+            // }
+            // else {
                 //audio.load();
-            }
-            audio.autoplay = true;
+            // }
+            // audio.autoplay = true;
 
-            var channel = new NativeSoundChannel(audio);
+            // var channel = new NativeSoundChannel(audio);
+            var channel = new NativeSoundChannel(null);
             channel.$url = this.url;
             channel.$loops = loops;
             channel.$startTime = startTime;

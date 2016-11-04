@@ -465,6 +465,10 @@
           {
             "path": "native2/rendering/webgl/shaders/TextureShader.ts",
             "platform": "native"
+          },
+          {
+            "path": "native2/rendering/webgl/shaders/FontShader.ts",
+            "platform": "native"
           }
         ],
         "root": "src/egret",

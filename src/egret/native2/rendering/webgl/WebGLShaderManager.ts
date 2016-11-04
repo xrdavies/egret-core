@@ -50,6 +50,7 @@ module egret.native2 {
         public colorTransformShader:ColorTransformShader = null;
         public blurShader:BlurShader = null;
         public glowShader:GlowShader = null;
+        public fontShader:FontShader = null;
 
         public setContext(gl:any) {
             this.gl = gl;
@@ -58,11 +59,13 @@ module egret.native2 {
             this.colorTransformShader = new ColorTransformShader(gl);
             this.glowShader = new GlowShader(gl);
             this.blurShader = new BlurShader(gl);
+            this.fontShader = new FontShader(gl);
             this.primitiveShader.init();
             this.defaultShader.init();
             this.colorTransformShader.init();
             this.blurShader.init();
             this.glowShader.init();
+            this.fontShader.init();
         }
 
         public activateShader(shader, stride:number) {

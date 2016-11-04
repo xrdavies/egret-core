@@ -61,8 +61,8 @@ module egret.native2 {
          */
         constructor(audio:any) {
             super();
-            audio.addEventListener("ended", this.onPlayEnd);
-            this.audio = audio;
+            // audio.addEventListener("ended", this.onPlayEnd);
+            // this.audio = audio;
         }
 
         $play():void {

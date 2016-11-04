@@ -1710,14 +1710,16 @@ var egret;
                 if (DEBUG && this.loaded == false) {
                     egret.$error(1049);
                 }
-                var audio = NativeSound.$pop(this.url);
-                if (audio == null) {
-                    audio = new Audio(this.url);
-                }
-                else {
-                }
-                audio.autoplay = true;
-                var channel = new native2.NativeSoundChannel(audio);
+                // var audio = NativeSound.$pop(this.url);
+                // if (audio == null) {
+                // audio = new Audio(this.url);
+                // }
+                // else {
+                //audio.load();
+                // }
+                // audio.autoplay = true;
+                // var channel = new NativeSoundChannel(audio);
+                var channel = new native2.NativeSoundChannel(null);
                 channel.$url = this.url;
                 channel.$loops = loops;
                 channel.$startTime = startTime;
@@ -1864,8 +1866,8 @@ var egret;
                     //this.audio.load();
                     _this.$play();
                 };
-                audio.addEventListener("ended", this.onPlayEnd);
-                this.audio = audio;
+                // audio.addEventListener("ended", this.onPlayEnd);
+                // this.audio = audio;
             }
             var d = __define,c=NativeSoundChannel,p=c.prototype;
             p.$play = function () {
@@ -3040,10 +3042,9 @@ var egret;
          * @param italic 是否斜体
          */
         function measureText(text, fontFamily, fontSize, bold, italic) {
-            // var font:string = TextField.default_fontFamily;
-            // egret_native.Label.createLabel(font, fontSize, "", 0);
-            // return egret_native.Label.getTextSize(text)[0];
-            return 0;
+            var font = egret.TextField.default_fontFamily;
+            egret_native.Label.createLabel(font, fontSize, "", 0);
+            return egret_native.Label.getTextSize(text)[0];
         }
         egret.sys.measureText = measureText;
     })(native2 = egret.native2 || (egret.native2 = {}));
@@ -3400,6 +3401,20 @@ var egret;
                     this.drawData[this.drawDataLen - 1].count += count;
                 }
             };
+            // lj
+            p.pushDrawText = function (texture, count, textColor, stroke, strokeColor, texturesInfo) {
+                var data = this.drawData[this.drawDataLen] || {};
+                data.type = 10;
+                data.texture = texture;
+                data.count = count;
+                data.textColor = textColor;
+                data.stroke = stroke;
+                data.strokeColor = strokeColor;
+                data.texturesInfo = texturesInfo;
+                this.drawData[this.drawDataLen] = data;
+                this.drawDataLen++;
+            };
+            //-lj
             /**
              * 压入pushMask指令
              */
@@ -4076,6 +4091,28 @@ var egret;
                 this.shaderManager = null;
                 this.contextLost = false;
                 this.$scissorState = false;
+                // lj
+                this.drawPushText = function (data, offset) {
+                    console.log(data.count);
+                    var gl = this.context;
+                    var size = 0;
+                    for (var i = 0; i < data.texturesInfo.length; i++) {
+                        console.log(" +++++++ " + i + " " + data.count + " " + data.texturesInfo[i] + " " + size);
+                        var shader = this.shaderManager.fontShader;
+                        shader.setTextColor((255 - i * 50) / 255.0, (50 + i * 50) / 255.0, 0.0, 1.0);
+                        shader.syncUniforms();
+                        egret_native.Label["bindTexture"](i);
+                        // if (data.texturesInfo[0] == 12 && data.texturesInfo[1] == 7)
+                        gl.drawElements(gl.TRIANGLES, data.texturesInfo[i] * 6, gl.UNSIGNED_SHORT, (offset + size) * 2);
+                        size += data.texturesInfo[i] * 6;
+                    }
+                    // egret_native.Label.bindTexture();
+                    // var arr = this.vao.getVertices();
+                    // console.log(" +++++++ ");
+                    // var size = data.count * 3;
+                    // gl.drawElements(gl.TRIANGLES, size, gl.UNSIGNED_SHORT, offset * 2);
+                    return size;
+                };
                 this.vertSize = 5;
                 this.blurFilter = null;
                 this.surface = createCanvas(width, height);
@@ -4281,7 +4318,7 @@ var egret;
              */
             p.getPixels = function (x, y, width, height, pixels) {
                 var gl = this.context;
-                gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+                // gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
             };
             /**
              * 创建一个WebGLTexture
@@ -4455,6 +4492,28 @@ var egret;
                 this.drawCmdManager.pushDrawTexture(texture, count, this.$filter);
                 this.vao.cacheArrays(transform, alpha, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, textureWidth, textureHeight, meshUVs, meshVertices, meshIndices);
             };
+            // lj
+            p.drawText = function (text, size, x, y, textColor, stroke, strokeColor) {
+                var buffer = this.currentBuffer;
+                if (this.contextLost || !buffer) {
+                    return;
+                }
+                var textData = egret_native.Label["setupTextQuads"](text, text.length, x, y);
+                var t = new Float32Array(textData);
+                for (var i = 0; i < text.length; i++) {
+                }
+                var count = text.length * 2;
+                var transform = buffer.globalMatrix;
+                var alpha = buffer.globalAlpha;
+                var texture = {};
+                texture["isForLabel"] = true;
+                var texturesInfo = egret_native.Label["getTextureInfo"]();
+                var tex = new Int32Array(texturesInfo);
+                this.drawCmdManager.pushDrawText(texture, count, textColor, stroke, strokeColor, tex);
+                this.vao.cacheArraysForText(transform, alpha, t, text.length, size);
+                this.$drawWebGL();
+            };
+            //-lj
             /**
              * 绘制矩形（仅用于遮罩擦除等）
              */
@@ -4668,11 +4727,44 @@ var egret;
                             buffer.disableScissor();
                         }
                         break;
+                    // lj
+                    case 10 /* TEXT */:
+                        shader = this.shaderManager.fontShader;
+                        var tc = data.textColor;
+                        var r, g, b, a;
+                        if (tc > 16777215) {
+                            a = tc & 0xff;
+                            tc >>>= 8;
+                            b = tc & 0xff;
+                            tc >>>= 8;
+                            g = tc & 0xff;
+                            tc >>>= 8;
+                            r = tc & 0xff;
+                        }
+                        else {
+                            a = 255;
+                            b = tc & 0xff;
+                            tc >>>= 8;
+                            g = tc & 0xff;
+                            tc >>>= 8;
+                            r = tc & 0xff;
+                        }
+                        shader.setTextColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
+                        if (data.stroke) {
+                            console.log("render stroke");
+                        }
+                        shader.setProjection(this.projectionX, this.projectionY);
+                        this.shaderManager.activateShader(shader, this.vertSize * 4);
+                        shader.syncUniforms();
+                        offset += this.drawPushText(data, offset);
+                        break;
+                    //-lj
                     default:
                         break;
                 }
                 return offset;
             };
+            //-lj
             /**
              * 画texture
              **/
@@ -5614,59 +5706,80 @@ var egret;
              * @private
              */
             p.renderText = function (node, buffer) {
-                // change xs
-                // skip text render
-                // TODO
-                return;
-                // change end
-                var width = node.width - node.x;
-                var height = node.height - node.y;
-                if (node.drawData.length == 0) {
-                    return;
-                }
-                if (!this.canvasRenderBuffer || !this.canvasRenderBuffer.context) {
-                    this.canvasRenderer = new egret.CanvasRenderer();
-                    this.canvasRenderBuffer = new native2.CanvasRenderBuffer(width, height);
-                }
-                else if (node.dirtyRender) {
-                    this.canvasRenderBuffer.resize(width, height);
-                }
-                if (!this.canvasRenderBuffer.context) {
-                    return;
-                }
-                if (node.x || node.y) {
-                    if (node.dirtyRender) {
-                        this.canvasRenderBuffer.context.translate(-node.x, -node.y);
+                // lj
+                // console.log(" +++++++++++++++++++++++++++++++++++++++ - ");
+                // console.log("textAlign\t " + node["textAlign"]);
+                // console.log("width\t " + node["textFieldWidth"]);
+                // console.log("height\t " + node["textFieldHeight"]);
+                // console.log(" +++++++++++++++++++++++++++++++++++++++ = " + node.drawData.length);
+                // context.textAlign = "left";
+                // context.textBaseline = "middle";
+                // context.lineJoin = "round"; //确保描边样式是圆角
+                var drawData = node.drawData;
+                var length = drawData.length;
+                var pos = 0;
+                while (pos < length) {
+                    var x = drawData[pos++];
+                    var y = drawData[pos++];
+                    var text = drawData[pos++];
+                    var format = drawData[pos++];
+                    // context.font = getFontString(node, format);
+                    var textColor = format.textColor == null ? node.textColor : format.textColor;
+                    var strokeColor = format.strokeColor == null ? node.strokeColor : format.strokeColor;
+                    var stroke = format.stroke == null ? node.stroke : format.stroke;
+                    var size = format.size == null ? node.size : format.size;
+                    // context.fillStyle = egret.toColorString(textColor);
+                    // context.strokeStyle = egret.toColorString(strokeColor);
+                    // if (stroke) {
+                    // context.lineWidth = stroke * 2;
+                    // context.strokeText(text, x, y);
+                    // }
+                    // context.fillText(text, x, y);
+                    egret_native.Label.createLabel("", size, "", stroke);
+                    var transformDirty = false;
+                    if (x != 0 || y != 0) {
+                        transformDirty = true;
+                        buffer.transform(1, 0, 0, 1, x, y);
                     }
-                    buffer.transform(1, 0, 0, 1, node.x, node.y);
-                }
-                if (node.dirtyRender) {
-                    var surface = this.canvasRenderBuffer.surface;
-                    this.canvasRenderer.renderText(node, this.canvasRenderBuffer.context);
-                    // 拷贝canvas到texture
-                    var texture = node.$texture;
-                    if (!texture) {
-                        texture = buffer.context.createTexture(surface);
-                        node.$texture = texture;
+                    buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor);
+                    if (transformDirty) {
+                        buffer.restoreTransform();
                     }
-                    else {
-                        // 重新拷贝新的图像
-                        buffer.context.updateTexture(texture, surface);
-                    }
-                    // 保存材质尺寸
-                    node.$textureWidth = surface.width;
-                    node.$textureHeight = surface.height;
                 }
-                var textureWidth = node.$textureWidth;
-                var textureHeight = node.$textureHeight;
-                buffer.context.drawTexture(node.$texture, 0, 0, textureWidth, textureHeight, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
-                if (node.x || node.y) {
-                    if (node.dirtyRender) {
-                        this.canvasRenderBuffer.context.translate(node.x, node.y);
-                    }
-                    buffer.transform(1, 0, 0, 1, -node.x, -node.y);
-                }
-                node.dirtyRender = false;
+                // egret_native.Label.createLabel("", node.size, "", node.stroke);
+                // var width = node.width - node.x;
+                // var height = node.height - node.y;
+                // var textFieldWidth = node["textFieldWidth"];
+                // var textFieldHeight = node["textFieldHeight"];
+                // var dx = 0;
+                // var dy = 0;
+                // var textSize = egret_native.Label.getTextSize(node["text"]);
+                // var textWidth = textSize[0];
+                // var textHeight = textSize[1];
+                // var transformDirty = false;
+                // if (node["textAlign"] == "right" && textFieldWidth) {
+                //     dx = textFieldWidth - textWidth;
+                // }
+                // else if (node["textAlign"] == "center" && textFieldWidth) {
+                //     dx =  (textFieldWidth - textWidth) / 2;
+                // }
+                // if (node["verticalAlign"] == "bottom" && textFieldHeight) {
+                //     dy = textFieldHeight - textHeight;
+                // }
+                // else if (node["verticalAlign"] == "middle" && textFieldHeight) {
+                //     dy = (textFieldHeight - textHeight) / 2;
+                // }
+                // if (dx != 0 || dy != 0) {
+                //     transformDirty = true;
+                //     console.log(dx + " " + dy);
+                //     buffer.transform(1, 0, 0, 1, dx, dy);
+                // }
+                // buffer.context.drawText(node["text"], node.size, 0, 0, node["textColor"], node.stroke, node.strokeColor);
+                // if (transformDirty) {
+                //     buffer.restoreTransform();
+                // }
+                // console.log(" +++++++++++++++++++++++++++++++++++++++ render text end ");
+                //-lj
             };
             /**
              * @private
@@ -5812,6 +5925,7 @@ var egret;
                 this.colorTransformShader = null;
                 this.blurShader = null;
                 this.glowShader = null;
+                this.fontShader = null;
                 for (var i = 0; i < this.maxAttibs; i++) {
                     this.attribState[i] = false;
                 }
@@ -5825,11 +5939,13 @@ var egret;
                 this.colorTransformShader = new native2.ColorTransformShader(gl);
                 this.glowShader = new native2.GlowShader(gl);
                 this.blurShader = new native2.BlurShader(gl);
+                this.fontShader = new native2.FontShader(gl);
                 this.primitiveShader.init();
                 this.defaultShader.init();
                 this.colorTransformShader.init();
                 this.blurShader.init();
                 this.glowShader.init();
+                this.fontShader.init();
             };
             p.activateShader = function (shader, stride) {
                 if (this.currentShader != shader) {
@@ -6201,6 +6317,81 @@ var egret;
                     this.indexIndex += 6;
                 }
             };
+            // lj
+            p.cacheArraysForText = function (transform, alpha, arr, len, size) {
+                //计算出绘制矩阵，之后把矩阵还原回之前的
+                var locWorldTransform = transform;
+                var originalA = locWorldTransform.a;
+                var originalB = locWorldTransform.b;
+                var originalC = locWorldTransform.c;
+                var originalD = locWorldTransform.d;
+                var originalTx = locWorldTransform.tx;
+                var originalTy = locWorldTransform.ty;
+                var a = locWorldTransform.a;
+                var b = locWorldTransform.b;
+                var c = locWorldTransform.c;
+                var d = locWorldTransform.d;
+                var tx = locWorldTransform.tx - 2;
+                var ty = locWorldTransform.ty - 2;
+                locWorldTransform.a = originalA;
+                locWorldTransform.b = originalB;
+                locWorldTransform.c = originalC;
+                locWorldTransform.d = originalD;
+                locWorldTransform.tx = originalTx;
+                locWorldTransform.ty = originalTy;
+                var w = 0;
+                var h = 0;
+                for (var i = 0; i < len; i++) {
+                    var vertices = this.vertices;
+                    var index = this.vertexIndex * this.vertSize;
+                    var j = i * 16;
+                    // xy
+                    vertices[index++] = tx + arr[j++];
+                    vertices[index++] = ty + arr[j++];
+                    // uv
+                    vertices[index++] = arr[j++];
+                    vertices[index++] = arr[j++];
+                    // alpha
+                    vertices[index++] = alpha;
+                    // xy
+                    vertices[index++] = a * w + tx + arr[j++];
+                    vertices[index++] = b * w + ty + arr[j++];
+                    // uv
+                    vertices[index++] = arr[j++];
+                    vertices[index++] = arr[j++];
+                    // alpha
+                    vertices[index++] = alpha;
+                    // xy
+                    vertices[index++] = a * w + c * h + tx + arr[j++];
+                    vertices[index++] = d * h + b * w + ty + arr[j++];
+                    // uv
+                    vertices[index++] = arr[j++];
+                    vertices[index++] = arr[j++];
+                    // alpha
+                    vertices[index++] = alpha;
+                    // xy
+                    vertices[index++] = c * h + tx + arr[j++];
+                    vertices[index++] = d * h + ty + arr[j++];
+                    // uv
+                    vertices[index++] = arr[j++];
+                    vertices[index++] = arr[j++];
+                    // alpha
+                    vertices[index++] = alpha;
+                    // 缓存索引数组
+                    if (this.hasMesh) {
+                        var indicesForMesh = this.indicesForMesh;
+                        indicesForMesh[this.indexIndex + 0] = 0 + this.vertexIndex;
+                        indicesForMesh[this.indexIndex + 1] = 1 + this.vertexIndex;
+                        indicesForMesh[this.indexIndex + 2] = 2 + this.vertexIndex;
+                        indicesForMesh[this.indexIndex + 3] = 0 + this.vertexIndex;
+                        indicesForMesh[this.indexIndex + 4] = 2 + this.vertexIndex;
+                        indicesForMesh[this.indexIndex + 5] = 3 + this.vertexIndex;
+                    }
+                    this.vertexIndex += 4;
+                    this.indexIndex += 6;
+                }
+            };
+            //-lj
             p.clear = function () {
                 this.hasMesh = false;
                 this.vertexIndex = 0;
@@ -6591,7 +6782,7 @@ var egret;
                     matrix: { type: 'mat4', value: new Float32Array([1, 0, 0, 0,
                             0, 1, 0, 0,
                             0, 0, 1, 0,
-                            0, 0, 0, 1]), dirty: true },
+                            0, 0, 0, 1]), transpose: false, dirty: true },
                     colorAdd: { type: '4f', value: { x: 0, y: 0, z: 0, w: 0 }, dirty: true }
                 };
             }
@@ -6907,5 +7098,80 @@ var egret;
         }(native2.EgretShader));
         native2.PrimitiveShader = PrimitiveShader;
         egret.registerClass(PrimitiveShader,'egret.native2.PrimitiveShader');
+    })(native2 = egret.native2 || (egret.native2 = {}));
+})(egret || (egret = {}));
+//////////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (c) 2014-present, Egret Technology.
+//  All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Egret nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
+//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//////////////////////////////////////////////////////////////////////////////////////
+var egret;
+(function (egret) {
+    var native2;
+    (function (native2) {
+        /**
+         * @private
+         */
+        var FontShader = (function (_super) {
+            __extends(FontShader, _super);
+            function FontShader() {
+                _super.apply(this, arguments);
+                this.fragmentSrc = "precision lowp float;\n" +
+                    "varying vec2 vTextureCoord;\n" +
+                    "varying vec4 vColor;\n" +
+                    "uniform sampler2D uSampler;\n" +
+                    "uniform vec4 uTextColor;\n" +
+                    "void main(void) {\n" +
+                    "   vec4 sample = texture2D(uSampler, vTextureCoord);\n" +
+                    "   if (sample.a < 0.1)\n" +
+                    "   {\n" +
+                    "       gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0) * sample.r;\n" +
+                    "   }\n" +
+                    "   else gl_FragColor = vec4(uTextColor.rgb, sample.a) * vColor;" +
+                    "}";
+                this.uniforms = {
+                    projectionVector: { type: '2f', value: { x: 0, y: 0 }, dirty: true },
+                    uTextColor: { type: '4f', value: { x: 0, y: 0, z: 0, w: 0 }, dirty: true }
+                };
+            }
+            var d = __define,c=FontShader,p=c.prototype;
+            p.setTextColor = function (r, g, b, a) {
+                console.log(r + " " + g + " " + b + " " + a);
+                var uniform = this.uniforms.uTextColor;
+                if (r != uniform.value.x || g != uniform.value.y || b != uniform.value.z || a != uniform.value.w) {
+                    uniform.value.x = r;
+                    uniform.value.y = g;
+                    uniform.value.z = b;
+                    uniform.value.w = a;
+                    uniform.dirty = true;
+                }
+            };
+            return FontShader;
+        }(native2.EgretShader));
+        native2.FontShader = FontShader;
+        egret.registerClass(FontShader,'egret.native2.FontShader');
     })(native2 = egret.native2 || (egret.native2 = {}));
 })(egret || (egret = {}));

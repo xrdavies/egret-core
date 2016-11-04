@@ -250,6 +250,84 @@ module egret.native2 {
             }
         }
 
+        // lj
+        public cacheArraysForText(transform, alpha, arr, len, size) {
+            //计算出绘制矩阵，之后把矩阵还原回之前的
+            var locWorldTransform = transform;
+            var originalA = locWorldTransform.a;
+            var originalB = locWorldTransform.b;
+            var originalC = locWorldTransform.c;
+            var originalD = locWorldTransform.d;
+            var originalTx = locWorldTransform.tx;
+            var originalTy = locWorldTransform.ty;
+            var a = locWorldTransform.a;
+            var b = locWorldTransform.b;
+            var c = locWorldTransform.c;
+            var d = locWorldTransform.d;
+            var tx = locWorldTransform.tx - 2;
+            var ty = locWorldTransform.ty - 2;
+            locWorldTransform.a = originalA;
+            locWorldTransform.b = originalB;
+            locWorldTransform.c = originalC;
+            locWorldTransform.d = originalD;
+            locWorldTransform.tx = originalTx;
+            locWorldTransform.ty = originalTy;
+            var w = 0;
+            var h = 0;
+
+            for (var i = 0; i < len; i++) {
+                var vertices = this.vertices;
+                var index = this.vertexIndex * this.vertSize;
+                var j = i * 16;
+
+                // xy
+                vertices[index++] = tx + arr[j++];
+                vertices[index++] = ty + arr[j++];
+                // uv
+                vertices[index++] = arr[j++];
+                vertices[index++] = arr[j++];
+                // alpha
+                vertices[index++] = alpha;
+                // xy
+                vertices[index++] = a * w + tx + arr[j++];
+                vertices[index++] = b * w + ty + arr[j++];
+                // uv
+                vertices[index++] = arr[j++];
+                vertices[index++] = arr[j++];
+                // alpha
+                vertices[index++] = alpha;
+                // xy
+                vertices[index++] = a * w + c * h + tx + arr[j++];
+                vertices[index++] = d * h + b * w + ty + arr[j++];
+                // uv
+                vertices[index++] = arr[j++];
+                vertices[index++] = arr[j++];
+                // alpha
+                vertices[index++] = alpha;
+                // xy
+                vertices[index++] = c * h + tx + arr[j++];
+                vertices[index++] = d * h + ty + arr[j++];
+                // uv
+                vertices[index++] = arr[j++];
+                vertices[index++] = arr[j++];
+                // alpha
+                vertices[index++] = alpha;
+                // 缓存索引数组
+                if (this.hasMesh) {
+                    var indicesForMesh = this.indicesForMesh;
+                    indicesForMesh[this.indexIndex + 0] = 0 + this.vertexIndex;
+                    indicesForMesh[this.indexIndex + 1] = 1 + this.vertexIndex;
+                    indicesForMesh[this.indexIndex + 2] = 2 + this.vertexIndex;
+                    indicesForMesh[this.indexIndex + 3] = 0 + this.vertexIndex;
+                    indicesForMesh[this.indexIndex + 4] = 2 + this.vertexIndex;
+                    indicesForMesh[this.indexIndex + 5] = 3 + this.vertexIndex;
+                }
+                this.vertexIndex += 4;
+                this.indexIndex += 6;
+            }
+        }
+        //-lj
+
         public clear():void {
             this.hasMesh = false;
             this.vertexIndex = 0;
