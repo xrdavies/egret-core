@@ -40,9 +40,8 @@ namespace egret.sys {
         Stage,
         BITMAP,
         GRAPHICS,
-        TEXT_FIELD
+        TEXT
     }
-
 
     /**
      * @internal
@@ -122,5 +121,113 @@ namespace egret.sys {
         LINE_TO = 13,
         MOVE_TO = 14
     }
+
+    /**
+     * @internal
+     */
+    export const enum MessageTag {
+        EndOfFile = 0,
+        UpdateDisplayObject = 10,
+        UpdateChildren = 11,
+        UpdateStage = 12,
+        UpdateBitmap = 13,
+        UpdateGraphics = 14,
+        UpdateTextField = 15,
+        DrawToBitmap = 20
+    }
+
+    /**
+     * @internal
+     * Dictates how matrices are encoded.
+     */
+    export const enum MatrixEncoding {
+        TranslationOnly,
+        UniformScaleAndTranslationOnly,
+        ScaleAndTranslationOnly,
+        All
+    }
+
+    /**
+     * @private
+     */
+    function createEnumMap(list:string[]):sys.Map<number> {
+        let map:sys.Map<number> = {};
+        let length = list.length;
+        for (let i = 0; i < length; i++) {
+            map[list[i]] = i;
+        }
+        return map;
+    }
+
+    /**
+     * @internal
+     */
+    export const blendModeMap = createEnumMap([
+        "normal", "layer", "add", "erase", "darken", "difference", "hardlight", "lighten", "multiply", "overlay",
+        "screen", "colordodge", "colorburn", "softlight", "exclusion", "hue", "saturation", "color", "luminosity"
+    ]);
+
+    /**
+     * @internal
+     */
+    export const bitmapFillModeMap = createEnumMap([
+        "scale", "repeat", "clip"
+    ]);
+
+    /**
+     * @internal
+     */
+    export const gradientTypeMap = createEnumMap([
+        "linear", "radial"
+    ]);
+
+    /**
+     * @internal
+     */
+    export const lineScaleModeMap = createEnumMap([
+        "normal", "none", "horizontal", "vertical"
+    ]);
+
+    /**
+     * @internal
+     */
+    export const capsStyleMap = createEnumMap([
+        "round", "square", "none"
+    ]);
+
+    /**
+     * @internal
+     */
+    export const jointStyleMap = createEnumMap([
+        "round", "bevel", "miter"
+    ]);
+
+    /**
+     * @internal
+     */
+    export const textFieldTypeMap = createEnumMap([
+        "dynamic", "input"
+    ]);
+
+    /**
+     * @internal
+     */
+    export const horizontalAlignMap = createEnumMap([
+        "left", "right", "center"
+    ]);
+
+    /**
+     * @internal
+     */
+    export const verticalAlignMap = createEnumMap([
+        "top", "bottom", "middle"
+    ]);
+
+    /**
+     * @internal
+     */
+    export const softKeyboardTypeMap = createEnumMap([
+        "default", "contact", "email", "number", "punctuation", "url"
+    ]);
 
 }

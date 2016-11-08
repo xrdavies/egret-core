@@ -40,7 +40,7 @@ namespace egret {
          */
         public constructor() {
             super();
-            this.$nodeType = sys.NodeType.TEXT_FIELD;
+            this.$nodeType = sys.NodeType.TEXT;
         }
 
         /**

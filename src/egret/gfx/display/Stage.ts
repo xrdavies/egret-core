@@ -34,15 +34,52 @@ namespace elf {
      * @internal
      */
     export class Stage extends Node {
-        public constructor(){
+        public constructor() {
             super();
-            this.type = NodeType.Stage;
+            this.nodeType = egret.sys.NodeType.Stage;
+            this.displayList = new DisplayList(this);
+            this.displayList.stageHandle = this;
         }
 
-        public screen:Screen;
+        private screen:Screen;
+
+        public setScreen(value:Screen):void {
+            this.screen = value;
+            this.displayList.buffer = value.buffer;
+        }
+
+        public setColor(value:number):void {
+            this.screen.setColor(value);
+        }
+
+
+        public setDisplayRule(rule:egret.sys.StageDisplayRule):void {
+            this.stageBounds.set(0, 0, rule.stageWidth, rule.stageHeight);
+            this.displayList.dirtyTransform = true;
+            this.displayList.setClipRegion(this.stageBounds);
+            this.screen.applyDisplayRule(rule);
+        }
+
+        private stageBounds:Rectangle = new Rectangle();
+
+        public mergeRegions(bounds:Rectangle):void {
+            bounds.copyFrom(this.stageBounds);
+        }
 
         public render():number {
-            return 0;
+            let t = egret.getTimer();
+            let displayList = this.displayList;
+            let stageChanged = displayList.update(false);
+            this.dirtyTransform = false;
+            let t2 = egret.getTimer();
+            if (stageChanged) {
+                displayList.drawToBuffer();
+                let t3 = egret.getTimer();
+                this.screen.present();
+                let t4 = egret.getTimer();
+                return t4 - t;
+            }
+            return t2 - t;
         }
     }
 }

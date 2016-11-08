@@ -41,35 +41,35 @@ namespace egret.web {
         }
 
         protected renderNode(buffer:CanvasRenderBuffer, node:elf.Node):void {
-            let context = buffer.context;
-            switch (node.type) {
-                case elf.NodeType.BITMAP:
-                    this.renderBitmap(context, <elf.Bitmap>node);
+            switch (node.nodeType) {
+                case egret.sys.NodeType.BITMAP:
+                    this.renderBitmap(buffer, <elf.Bitmap>node);
                     break;
-                case elf.NodeType.GRAPHICS:
-                    this.renderGraphics(context, <elf.Graphics>node);
+                case egret.sys.NodeType.GRAPHICS:
+                    this.renderGraphics(buffer, <elf.Graphics>node);
                     break;
-                case elf.NodeType.TEXT_FIELD:
-                    this.renderTextFiled(context, <elf.TextField>node);
+                case egret.sys.NodeType.TEXT:
+                    this.renderTextFiled(buffer, <elf.Text>node);
                     break;
 
             }
         }
 
-        private renderBitmap(context:CanvasRenderingContext2D, node:elf.Bitmap):void {
+        private renderBitmap(buffer:CanvasRenderBuffer, node:elf.Bitmap):void {
+            let context = buffer.context;
             let bitmapData = <WebBitmapData>node.bitmapData;
             if (!bitmapData) {
                 return;
             }
-            node.setSmoothing(node.smoothing);
+            buffer.setSmoothing(node.smoothing);
             context.drawImage(bitmapData.source, 0, 0);
         }
 
-        private renderGraphics(context:CanvasRenderingContext2D, node:elf.Graphics):void {
+        private renderGraphics(buffer:CanvasRenderBuffer, node:elf.Graphics):void {
 
         }
 
-        private renderTextFiled(context:CanvasRenderingContext2D, node:elf.TextField):void {
+        private renderTextFiled(buffer:CanvasRenderBuffer, node:elf.Text):void {
 
         }
 

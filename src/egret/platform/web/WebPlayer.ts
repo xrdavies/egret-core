@@ -91,7 +91,7 @@ namespace egret.web {
             sys.stage_instantiated_guard = false;
             let stage = new egret.Stage();
             sys.stage_instantiated_guard = true;
-            (<elf.Stage>stage.$handle).screen = this;
+            (<elf.Stage>stage.$handle).setScreen(this);
             stage.$scaleMode = option.scaleMode;
             stage.$resolutionMode = option.resolutionMode;
             stage.$contentWidth = option.contentWidth;
@@ -175,9 +175,20 @@ namespace egret.web {
         }
 
         /**
+         * Sets the background color of the screen.
+         */
+        public setColor(color:number):void {
+            let r = (color >> 16) & 0xFF;
+            let g = (color >> 8) & 0xFF;
+            let b = color & 0xFF;
+            let style = this.container.style;
+            style.background = "rgb(" + r + "," + g + "," + b + ")";
+        }
+
+        /**
          * @internal
          */
-        public applyDisplayRule(rule:elf.StageDisplayRule):void {
+        public applyDisplayRule(rule:sys.StageDisplayRule):void {
             let displayWidth = rule.displayWidth;
             let displayHeight = rule.displayHeight;
             //宽高不是2的整数倍会导致图片绘制出现问题

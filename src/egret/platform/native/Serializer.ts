@@ -32,84 +32,17 @@
  */
 namespace egret.native {
 
-    /**
-     * @private
-     */
-    function createEnumMap(list:string[]):sys.Map<number> {
-        let map:sys.Map<number> = {};
-        let length = list.length;
-        for (let i = 0; i < length; i++) {
-            map[list[i]] = i;
-        }
-        return map;
-    }
+    import blendModeMap = egret.sys.blendModeMap;
+    import bitmapFillModeMap = egret.sys.bitmapFillModeMap;
+    import gradientTypeMap = egret.sys.gradientTypeMap;
+    import lineScaleModeMap = egret.sys.lineScaleModeMap;
+    import capsStyleMap = egret.sys.capsStyleMap;
+    import jointStyleMap = egret.sys.jointStyleMap;
+    import textFieldTypeMap = egret.sys.textFieldTypeMap;
+    import horizontalAlignMap = egret.sys.horizontalAlignMap;
+    import verticalAlignMap = egret.sys.verticalAlignMap;
+    import softKeyboardTypeMap = egret.sys.softKeyboardTypeMap;
 
-    /**
-     * @internal
-     */
-    const enum MessageTag {
-        EndOfFile = 0,
-        UpdateDisplayObject = 10,
-        UpdateChildren = 11,
-        UpdateStage = 12,
-        UpdateBitmap = 13,
-        UpdateGraphics = 14,
-        UpdateTextField = 15,
-        DrawToBitmap = 20
-    }
-
-    /**
-     * @internal
-     * Dictates how matrices are encoded.
-     */
-    const enum MatrixEncoding {
-        TranslationOnly,
-        UniformScaleAndTranslationOnly,
-        ScaleAndTranslationOnly,
-        All
-    }
-
-
-    const blendModeMap = createEnumMap([
-        "normal", "layer", "add", "erase", "darken", "difference", "hardlight", "lighten", "multiply", "overlay",
-        "screen", "colordodge", "colorburn", "softlight", "exclusion", "hue", "saturation", "color", "luminosity"
-    ]);
-
-    const bitmapFillModeMap = createEnumMap([
-        "scale", "repeat", "clip"
-    ]);
-
-    const gradientTypeMap = createEnumMap([
-        "linear", "radial"
-    ]);
-
-    const lineScaleModeMap = createEnumMap([
-        "normal", "none", "horizontal", "vertical"
-    ]);
-
-    const capsStyleMap = createEnumMap([
-        "round", "square", "none"
-    ]);
-
-    const jointStyleMap = createEnumMap([
-        "round", "bevel", "miter"
-    ]);
-
-    const textFieldTypeMap = createEnumMap([
-        "dynamic", "input"
-    ]);
-
-    const horizontalAlignMap = createEnumMap([
-        "left", "right", "center"
-    ]);
-
-    const verticalAlignMap = createEnumMap([
-        "top", "bottom", "middle"
-    ]);
-
-    const softKeyboardTypeMap = createEnumMap([
-        "default", "contact", "email", "number", "punctuation", "url"
-    ]);
 
     /**
      * @internal
@@ -123,7 +56,7 @@ namespace egret.native {
             if (isDisplayObject) {
                 Serializer.writeUpdates(<egret.DisplayObject>source, buffer);
             }
-            buffer.writeInt(MessageTag.DrawToBitmap);
+            buffer.writeInt(sys.MessageTag.DrawToBitmap);
             buffer.writeHandle(target.$handle);
             buffer.writeBoolean(isDisplayObject);
             buffer.writeHandle(source.$handle);
@@ -174,7 +107,7 @@ namespace egret.native {
                     case sys.NodeType.GRAPHICS:
                         Serializer.writeGraphics(<egret.Shape><any>object, buffer);
                         break;
-                    case sys.NodeType.TEXT_FIELD:
+                    case sys.NodeType.TEXT:
                         Serializer.writeTextField(<egret.TextField><any>object, buffer);
                         break;
                 }
@@ -186,12 +119,12 @@ namespace egret.native {
         }
 
         private static writeChildren(container:egret.DisplayObjectContainer, buffer:DataBuffer):void {
-            buffer.writeInt(MessageTag.UpdateChildren);
+            buffer.writeInt(sys.MessageTag.UpdateChildren);
             buffer.writeHandle(container.$handle);
             let children = container.$children;
             buffer.writeBoolean(container.$notEmpty);
             if (container.$notEmpty) {
-                let removedIDs = container.$removedIDs;
+                let removedIDs = container.$removedHandles;
                 let length = removedIDs.length;
                 buffer.writeInt(length);
                 for (let i = 0; i < length; i++) {
@@ -207,7 +140,7 @@ namespace egret.native {
                     buffer.writeHandle(child.$handle);
                 }
                 container.$addedIndices = [];
-                container.$removedIDs = [];
+                container.$removedHandles = [];
                 container.$notEmpty = (children.length > 0)
             }
             else {
@@ -225,7 +158,7 @@ namespace egret.native {
             if (bits == 0) {
                 return;
             }
-            buffer.writeInt(MessageTag.UpdateStage);
+            buffer.writeInt(sys.MessageTag.UpdateStage);
             buffer.writeHandle(stage.$handle);
             buffer.writeInt(bits);
             if (bits & sys.StageBits.DirtyColor) {
@@ -248,7 +181,7 @@ namespace egret.native {
             if (bits === 0) {
                 return;
             }
-            buffer.writeInt(MessageTag.UpdateDisplayObject);
+            buffer.writeInt(sys.MessageTag.UpdateDisplayObject);
             buffer.writeHandle(dp.$handle);
             buffer.writeInt(bits);
             if (bits & sys.DisplayObjectBits.DirtyMatrix) {
@@ -307,7 +240,7 @@ namespace egret.native {
             if (bits === 0) {
                 return;
             }
-            buffer.writeInt(MessageTag.UpdateBitmap);
+            buffer.writeInt(sys.MessageTag.UpdateBitmap);
             buffer.writeHandle(bitmap.$handle);
             buffer.writeInt(bits);
 
@@ -341,7 +274,7 @@ namespace egret.native {
             }
             let commands = graphics.$commands;
             let args = graphics.$arguments;
-            buffer.writeInt(MessageTag.UpdateGraphics);
+            buffer.writeInt(sys.MessageTag.UpdateGraphics);
             buffer.writeHandle(shape.$handle);
             let length = commands.length;
             buffer.writeInt(length);
@@ -424,7 +357,7 @@ namespace egret.native {
             if (bits === 0) {
                 return;
             }
-            buffer.writeInt(MessageTag.UpdateTextField);
+            buffer.writeInt(sys.MessageTag.UpdateTextField);
             buffer.writeHandle(textField.$handle);
             buffer.writeInt(bits);
             if (bits & sys.TextFieldBits.DirtyType) {
@@ -523,20 +456,20 @@ namespace egret.native {
         private static writeMatrix(matrix:egret.Matrix, buffer:DataBuffer):void {
             if (matrix.b === 0 && matrix.c === 0) {
                 if (matrix.a === 1 && matrix.d === 1) {
-                    buffer.writeInt(MatrixEncoding.TranslationOnly);
+                    buffer.writeInt(sys.MatrixEncoding.TranslationOnly);
                     buffer.write2Floats(matrix.tx, matrix.ty);
                 } else {
                     if (matrix.a === matrix.d) {
-                        buffer.writeInt(MatrixEncoding.UniformScaleAndTranslationOnly);
+                        buffer.writeInt(sys.MatrixEncoding.UniformScaleAndTranslationOnly);
                         buffer.writeFloat(matrix.a);
                     } else {
-                        buffer.writeInt(MatrixEncoding.ScaleAndTranslationOnly);
+                        buffer.writeInt(sys.MatrixEncoding.ScaleAndTranslationOnly);
                         buffer.write2Floats(matrix.a, matrix.d);
                     }
                     buffer.write2Floats(matrix.tx, matrix.ty);
                 }
             } else {
-                buffer.writeInt(MatrixEncoding.All);
+                buffer.writeInt(sys.MatrixEncoding.All);
                 buffer.write6Floats(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
             }
         }

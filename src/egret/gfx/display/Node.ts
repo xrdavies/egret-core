@@ -41,7 +41,7 @@ namespace elf {
      */
     export class Node {
 
-        public type:number = NodeType.Node;
+        public nodeType:number = egret.sys.NodeType.Node;
 
         public externalHandle:any;
         /**

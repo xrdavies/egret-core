@@ -107,6 +107,20 @@ namespace elf {
         }
 
         /**
+         * Determines whether the object specified in the toCompare parameter is equal to this Rectangle object.<br/>
+         * @param toCompare The rectangle to compare to this Rectangle object.
+         * @returns A value of true if the object has exactly the same values for the left, right, top, and bottom properties
+         * as this Rectangle object; otherwise false.
+         */
+        public equals(toCompare:Rectangle):boolean {
+            if (this === toCompare) {
+                return true;
+            }
+            return this.left === toCompare.left && this.top === toCompare.top
+                && this.right === toCompare.right && this.bottom === toCompare.bottom;
+        }
+
+        /**
          * Sets the members of Rectangle to the specified values
          * @param x The x coordinate of the top-left corner of the rectangle.
          * @param y The y coordinate of the top-left corner of the rectangle.

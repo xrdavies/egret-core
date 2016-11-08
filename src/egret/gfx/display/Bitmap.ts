@@ -37,7 +37,8 @@ namespace elf {
     export class Bitmap extends Node {
         public constructor() {
             super();
-            this.type = NodeType.BITMAP;
+            this.nodeType = egret.sys.NodeType.BITMAP;
+            this.region = new Rectangle();
         }
 
         /**

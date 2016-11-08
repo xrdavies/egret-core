@@ -138,9 +138,7 @@ namespace egret {
             }
             this.$dirtyChildren = true;
             this.$invalidate();
-            if (child.$dirtyDescendents || child.$dirty) {
-                this.$dirtyDescendents = true;
-            }
+            this.$dirtyDescendents = true;
             this._childAdded(child, index);
             return child;
         }
@@ -223,7 +221,7 @@ namespace egret {
             let index = this.$children.indexOf(child);
             if (index >= 0) {
                 if (this.$children.length == 1) {
-                    this.$removedIDs = [];
+                    this.$removedHandles = [];
                     this.$addedIndices = [];
                     this.$notEmpty = false;
                 }
@@ -246,7 +244,7 @@ namespace egret {
             index = +index | 0;
             if (index >= 0 && index < this.$children.length) {
                 if (this.$children.length == 1) {
-                    this.$removedIDs = [];
+                    this.$removedHandles = [];
                     this.$addedIndices = [];
                     this.$notEmpty = false;
                 }
@@ -391,7 +389,7 @@ namespace egret {
          * @see #removeChildAt()
          */
         public removeChildren():void {
-            this.$removedIDs = [];
+            this.$removedHandles = [];
             this.$addedIndices = [];
             this.$notEmpty = false;
             let children = this.$children;
@@ -403,7 +401,7 @@ namespace egret {
         /**
          * @internal
          */
-        $removedIDs:number[] = [];
+        $removedHandles:any[] = [];
         /**
          * @internal
          */
@@ -439,9 +437,9 @@ namespace egret {
 
         private _childRemoved(child:DisplayObject, index:number):void {
             if (this.$notEmpty) {
-                let id = child.$handle;
-                if (id && this.$removedIDs.indexOf(id) == -1) {
-                    this.$removedIDs.push(id);
+                let handle = child.$handle;
+                if (handle && this.$removedHandles.indexOf(handle) == -1) {
+                    this.$removedHandles.push(handle);
                 }
                 let list = this.$addedIndices;
 

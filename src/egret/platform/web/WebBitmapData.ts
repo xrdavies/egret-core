@@ -35,11 +35,6 @@ namespace egret.web {
     let tempRect = new elf.Rectangle();
     let tempMatrix = new elf.Matrix();
 
-    enum blendModeMap  {
-        "normal", "layer", "add", "erase", "darken", "difference", "hardlight", "lighten", "multiply", "overlay",
-        "screen", "colordodge", "colorburn", "softlight", "exclusion", "hue", "saturation", "color", "luminosity"
-    }
-
     /**
      * @internal
      */
@@ -60,7 +55,7 @@ namespace egret.web {
          * @param fillColor A 32-bit ARGB color value that you use to fill the bitmap image area. The default value is
          * 0x00000000 (transparent black).
          */
-        public constructor(width:number, height:number, transparent?:boolean, fillColor?:number) {
+        public constructor(width:number, height?:number, transparent?:boolean, fillColor?:number) {
             super();
             let source:HTMLImageElement|HTMLCanvasElement;
             if (arguments.length == 1 && <any>width instanceof HTMLImageElement) {
@@ -180,12 +175,17 @@ namespace egret.web {
                 throw new Error("Parameter 0 is of the incorrect type. Should be type egret.DisplayObject|egret.BitmapData.");
             }
             let buffer = this.getRenderBuffer();
-            if (source instanceof DisplayObject) {
-                sys.SyncNode(source);
-            }
             tempMatrix.setTo(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
             tempRect.setTo(clipRect.x, clipRect.y, clipRect.width, clipRect.height);
-            elf.DrawToBitmap(buffer, source.$handle, tempMatrix, alpha, blendModeMap[blendMode], tempRect, smoothing);
+            if (source instanceof DisplayObject) {
+                sys.SyncNode(source);
+                elf.systemRenderer.draw(buffer, source.$handle, tempMatrix, alpha,
+                    egret.sys.blendModeMap[blendMode], tempRect);
+            }
+            else {
+                elf.systemRenderer.drawBitmapData(buffer, source.$handle, tempMatrix, alpha,
+                    egret.sys.blendModeMap[blendMode], tempRect, smoothing);
+            }
         }
 
         /**

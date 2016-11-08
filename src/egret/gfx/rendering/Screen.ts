@@ -58,9 +58,14 @@ namespace elf {
         readonly buffer:RenderBuffer;
 
         /**
+         * Sets the background color of the screen.
+         */
+        setColor(value:number):void;
+
+        /**
          * Applies the stage display rule.
          */
-        applyDisplayRule(rule:StageDisplayRule):void;
+        applyDisplayRule(rule:egret.sys.StageDisplayRule):void;
 
         /**
          * Call to ensure all drawing to the render buffer has been applied to the easel. This method is usually called

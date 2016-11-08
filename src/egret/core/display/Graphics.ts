@@ -56,12 +56,12 @@ namespace egret {
         /**
          * @internal
          */
-        $commands = [];
+        $commands:number[] = [];
 
         /**
          * @internal
          */
-        $arguments = [];
+        $arguments:any[] = [];
 
         /**
          * Specify a simple single color fill that will be used for subsequent calls to other Graphics methods (for

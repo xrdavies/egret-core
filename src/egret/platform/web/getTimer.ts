@@ -26,18 +26,21 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * @internal
  */
-namespace elf {
-    /**
-     * @internal
-     */
-    export class TextField extends Node {
+namespace egret.web {
 
-        public constructor() {
-            super();
-            this.type = NodeType.TEXT_FIELD;
-        }
+    let START_TIME = Date.now();
+
+    /**
+     * Used to compute relative time.this method returns the number of milliseconds since the Egret framework was initialized
+     * @returns The number of milliseconds since the Egret framework was initialized
+     */
+    function getTimer():number {
+        return Date.now() - START_TIME;
     }
+
+    egret.getTimer = getTimer;
 }

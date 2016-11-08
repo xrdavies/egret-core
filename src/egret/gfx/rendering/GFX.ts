@@ -39,14 +39,14 @@ namespace elf {
     export function MakeNode(dp:egret.DisplayObject, nodeType:number):any {
         let node:Node;
         switch (nodeType) {
-            case NodeType.BITMAP:
+            case egret.sys.NodeType.BITMAP:
                 node = new Bitmap();
                 break;
-            case NodeType.GRAPHICS:
+            case egret.sys.NodeType.GRAPHICS:
                 node = new Graphics();
                 break;
-            case NodeType.TEXT_FIELD:
-                node = new TextField();
+            case egret.sys.NodeType.TEXT:
+                node = new Text();
                 break;
             default:
                 node = new Node();
@@ -79,7 +79,7 @@ namespace elf {
      * Synchronizes the display object with the backend node.
      */
     export function SyncNode(dp:egret.DisplayObject):void {
-
+        Synchronizer.readUpdates(dp);
     }
 
     /**
@@ -94,11 +94,5 @@ namespace elf {
             renderCost += stage.render();
         }
         FPS.updateFrame(triggeredByFrame, scriptCost, syncCost, renderCost);
-    }
-
-    export function DrawToBitmap(buffer:RenderBuffer, source:Node|BitmapData,
-                                 matrix?:Matrix, alpha?:number, blendMode?:number,
-                                 clipRect?:Rectangle, smoothing?:boolean):void {
-
     }
 }

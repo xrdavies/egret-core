@@ -47,7 +47,7 @@ namespace egret.web {
          * @param transparent Specifies whether the default render buffer contains an alpha channel.
          */
         public constructor(width:number, height:number, transparent:boolean) {
-            this.buffer = this.makeRenderBuffer(width, height, transparent);
+            this.buffer = this.makeRenderBuffer(width, height, false, transparent);
             this.canvas = this.buffer.canvas;
         }
 
