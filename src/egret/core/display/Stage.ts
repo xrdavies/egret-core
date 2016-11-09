@@ -219,7 +219,6 @@ namespace egret {
          * @internal
          */
         $updateScreenSize(screenWidth:number, screenHeight:number, pixelRatio:number):void {
-            console.log(screenWidth, screenHeight, pixelRatio);
             screenWidth = +screenWidth || 0;
             screenHeight = +screenHeight || 0;
             pixelRatio = +pixelRatio || 0;
