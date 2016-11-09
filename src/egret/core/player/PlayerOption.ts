@@ -44,8 +44,7 @@ interface PlayerOption {
      */
     scaleMode?:string;
     /**
-     * "device": 使用设备的物理分辨率作为舞台的尺寸和渲染分辨率（默认值）
-     * "standard": 使用设备的逻辑分辨率作为舞台的尺寸和渲染分辨率
+     * "standard": 使用设备的逻辑分辨率作为舞台的尺寸和渲染分辨率（默认值）
      * "high": 使用设备的逻辑分辨率作为舞台的尺寸，但使用高清分辨率来渲染
      */
     resolutionMode?:string;

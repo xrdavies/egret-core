@@ -118,7 +118,7 @@ namespace egret.web {
             let option:PlayerOption = {};
             option.entryClassName = container.getAttribute("data-entry-class");
             option.scaleMode = container.getAttribute("data-scale-mode") || "noScale";
-            option.resolutionMode = container.getAttribute("data-resolution-mode") || "device";
+            option.resolutionMode = container.getAttribute("data-resolution-mode") || "standard";
             option.frameRate = +container.getAttribute("data-frame-rate") || 30;
             option.contentWidth = +container.getAttribute("data-content-width") || 480;
             option.contentHeight = +container.getAttribute("data-content-height") || 800;
@@ -168,9 +168,9 @@ namespace egret.web {
             if (canvas['userTyping'])
                 return;
             let screenRect = this.container.getBoundingClientRect();
+            this.scaleFactor = window.devicePixelRatio;
             this.width = screenRect.width;
             this.height = screenRect.height;
-            this.scaleFactor = window.devicePixelRatio;
             this.stage.$updateScreenSize(this.width, this.height, this.scaleFactor);
         }
 

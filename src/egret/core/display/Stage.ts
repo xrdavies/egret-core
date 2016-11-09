@@ -158,10 +158,10 @@ namespace egret {
         /**
          * @internal
          */
-        $resolutionMode:string = "device";
+        $resolutionMode:string = "standard";
 
         /**
-         * Display Resolution for the stage ("standard", "high" or "device"), Default "device".
+         * Display Resolution for the stage ("standard" or "high"), Default "standard".
          */
         public get resolutionMode():string {
             return this.$resolutionMode;
@@ -219,6 +219,7 @@ namespace egret {
          * @internal
          */
         $updateScreenSize(screenWidth:number, screenHeight:number, pixelRatio:number):void {
+            console.log(screenWidth, screenHeight, pixelRatio);
             screenWidth = +screenWidth || 0;
             screenHeight = +screenHeight || 0;
             pixelRatio = +pixelRatio || 0;
@@ -244,25 +245,17 @@ namespace egret {
             let screenWidth = this._screenWidth;
             let screenHeight = this._screenHeight;
             let pixelRatio = this._devicePixelRatio;
-            let resolutionMode = this.$resolutionMode;
-            if (resolutionMode == "device") {
-                pixelRatio = 1;
-            }
-            else {
-                screenWidth /= pixelRatio;
-                screenHeight /= pixelRatio;
-            }
             let displaySize = sys.screenAdapter.calculateStageSize(this.$scaleMode, screenWidth, screenHeight,
                 this.$contentWidth, this.$contentHeight);
 
             let rule = this.$displayRule;
             rule.stageWidth = displaySize.stageWidth;
             rule.stageHeight = displaySize.stageHeight;
-            rule.displayX = pixelRatio * (screenWidth - displaySize.displayWidth) * 0.5;
-            rule.displayY = pixelRatio * (screenHeight - displaySize.displayHeight) * 0.5;
-            rule.displayWidth = pixelRatio * displaySize.displayWidth;
-            rule.displayHeight = pixelRatio * displaySize.displayHeight;
-            rule.contentScaleFactor = resolutionMode == "high" ? pixelRatio : 1;
+            rule.displayX = (screenWidth - displaySize.displayWidth) * 0.5;
+            rule.displayY = (screenHeight - displaySize.displayHeight) * 0.5;
+            rule.displayWidth = displaySize.displayWidth;
+            rule.displayHeight = displaySize.displayHeight;
+            rule.contentScaleFactor = this.$resolutionMode == "high" ? pixelRatio : 1;
 
             this.$stageBits |= sys.StageBits.DirtyDisplayRule;
             this.$invalidate();
