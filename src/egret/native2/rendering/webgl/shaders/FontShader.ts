@@ -40,22 +40,34 @@ module egret.native2 {
             "varying vec4 vColor;\n" +
             "uniform sampler2D uSampler;\n" +
             "uniform vec4 uTextColor;\n" +
+            "uniform vec4 uStrokeColor;\n" +
             "void main(void) {\n" +
             "   vec4 sample = texture2D(uSampler, vTextureCoord);\n" +
             "   if (sample.a < 0.1)\n" +
             "   {\n" +
-            "       gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0) * sample.r;\n" +
+            "       gl_FragColor = uStrokeColor * sample.r * vColor;\n" +
             "   }\n" +
             "   else gl_FragColor = vec4(uTextColor.rgb, sample.a) * vColor;" +
             "}";
         public uniforms = {
             projectionVector: { type: '2f', value: { x: 0, y: 0 }, dirty: true },
-            uTextColor: { type: '4f', value: { x: 0, y: 0, z: 0, w: 0 }, dirty: true }
+            uTextColor: { type: '4f', value: { x: 0, y: 0, z: 0, w: 0 }, dirty: true },
+            uStrokeColor: { type: '4f', value: { x: 0, y: 0, z: 0, w: 0 }, dirty: true },
         };
 
         public setTextColor(r, g, b, a) {
-            console.log(r + " " + g + " " + b + " " + a);
             var uniform = this.uniforms.uTextColor;
+            if (r != uniform.value.x || g != uniform.value.y || b != uniform.value.z || a != uniform.value.w) {
+                uniform.value.x = r;
+                uniform.value.y = g;
+                uniform.value.z = b;
+                uniform.value.w = a;
+                uniform.dirty = true;
+            }
+        }
+
+        public setStrokeColor(r, g, b, a) {
+            var uniform = this.uniforms.uStrokeColor;
             if (r != uniform.value.x || g != uniform.value.y || b != uniform.value.z || a != uniform.value.w) {
                 uniform.value.x = r;
                 uniform.value.y = g;

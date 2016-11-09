@@ -882,9 +882,22 @@ module egret.native2 {
                     }
                     shader.setTextColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
 
-                    // if (data.stroke) {
-                    //     console.log("render stroke");
-                    // }
+                    if (data.stroke) {
+                        var tc = data.strokeColor;
+                        var r, g, b, a;
+                        if (tc > 16777215) {
+                            a = tc & 0xff; tc >>>= 8;
+                            b = tc & 0xff; tc >>>= 8;
+                            g = tc & 0xff; tc >>>= 8;
+                            r = tc & 0xff;
+                        } else {
+                            a = 255;
+                            b = tc & 0xff; tc >>>= 8;
+                            g = tc & 0xff; tc >>>= 8;
+                            r = tc & 0xff;
+                        }
+                        shader.setStrokeColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
+                    }
 
                     shader.setProjection(this.projectionX, this.projectionY);
                     this.shaderManager.activateShader(shader, this.vertSize * 4);

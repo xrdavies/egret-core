@@ -4750,9 +4750,28 @@ var egret;
                             r = tc & 0xff;
                         }
                         shader.setTextColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
-                        // if (data.stroke) {
-                        //     console.log("render stroke");
-                        // }
+                        if (data.stroke) {
+                            var tc = data.strokeColor;
+                            var r, g, b, a;
+                            if (tc > 16777215) {
+                                a = tc & 0xff;
+                                tc >>>= 8;
+                                b = tc & 0xff;
+                                tc >>>= 8;
+                                g = tc & 0xff;
+                                tc >>>= 8;
+                                r = tc & 0xff;
+                            }
+                            else {
+                                a = 255;
+                                b = tc & 0xff;
+                                tc >>>= 8;
+                                g = tc & 0xff;
+                                tc >>>= 8;
+                                r = tc & 0xff;
+                            }
+                            shader.setStrokeColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
+                        }
                         shader.setProjection(this.projectionX, this.projectionY);
                         this.shaderManager.activateShader(shader, this.vertSize * 4);
                         shader.syncUniforms();
@@ -7145,23 +7164,34 @@ var egret;
                     "varying vec4 vColor;\n" +
                     "uniform sampler2D uSampler;\n" +
                     "uniform vec4 uTextColor;\n" +
+                    "uniform vec4 uStrokeColor;\n" +
                     "void main(void) {\n" +
                     "   vec4 sample = texture2D(uSampler, vTextureCoord);\n" +
                     "   if (sample.a < 0.1)\n" +
                     "   {\n" +
-                    "       gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0) * sample.r;\n" +
+                    "       gl_FragColor = uStrokeColor * sample.r * vColor;\n" +
                     "   }\n" +
                     "   else gl_FragColor = vec4(uTextColor.rgb, sample.a) * vColor;" +
                     "}";
                 this.uniforms = {
                     projectionVector: { type: '2f', value: { x: 0, y: 0 }, dirty: true },
-                    uTextColor: { type: '4f', value: { x: 0, y: 0, z: 0, w: 0 }, dirty: true }
+                    uTextColor: { type: '4f', value: { x: 0, y: 0, z: 0, w: 0 }, dirty: true },
+                    uStrokeColor: { type: '4f', value: { x: 0, y: 0, z: 0, w: 0 }, dirty: true },
                 };
             }
             var d = __define,c=FontShader,p=c.prototype;
             p.setTextColor = function (r, g, b, a) {
-                console.log(r + " " + g + " " + b + " " + a);
                 var uniform = this.uniforms.uTextColor;
+                if (r != uniform.value.x || g != uniform.value.y || b != uniform.value.z || a != uniform.value.w) {
+                    uniform.value.x = r;
+                    uniform.value.y = g;
+                    uniform.value.z = b;
+                    uniform.value.w = a;
+                    uniform.dirty = true;
+                }
+            };
+            p.setStrokeColor = function (r, g, b, a) {
+                var uniform = this.uniforms.uStrokeColor;
                 if (r != uniform.value.x || g != uniform.value.y || b != uniform.value.z || a != uniform.value.w) {
                     uniform.value.x = r;
                     uniform.value.y = g;
