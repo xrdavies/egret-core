@@ -93,6 +93,13 @@ namespace egret.web {
         }
 
         /**
+         * Loads image from binary data stored in a ArrayBuffer object.
+         */
+        public loadBytes(bytes:ArrayBuffer):void{
+
+        }
+
+        /**
          * @private
          */
         private loadImage(src:string):void {

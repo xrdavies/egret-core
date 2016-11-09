@@ -41,6 +41,15 @@ declare namespace egret.native {
      */
     function loadImageFromURL(url:string, callback:(data:egret.BitmapData)=>void, thisObject:any);
 
+    /**
+     * @internal
+     * load image from byte array.
+     * @param bytes The byte array of image to be loaded.
+     * @param callback The callback function that receive the loaded image data.
+     * @param thisObject The listener function's "this".
+     */
+    function loadImageFromBytes(bytes:ArrayBuffer, callback:(data:egret.BitmapData)=>void, thisObject:any);
+
 }
 
 /**
@@ -76,6 +85,17 @@ namespace egret.native {
         }
 
         /**
+         * Loads image from binary data stored in a ArrayBuffer object.
+         */
+        public loadBytes(bytes:ArrayBuffer):void {
+            this.currentURL = "";
+            if(bytes.byteLength==0){
+                throw new Error("The ArrayBuffer parameter in ImageLoader.loadBytes() must have length greater than 0.");
+            }
+            loadImageFromBytes(bytes, this.onLoadFinish, this);
+        }
+
+        /**
          * @private
          */
         private onLoadFinish(data:egret.BitmapData) {
@@ -84,7 +104,7 @@ namespace egret.native {
                 this.dispatchEventWith(egret.Event.COMPLETE);
             }
             else {
-                let errorText = "Stream Error. URL: " + this.currentURL;
+                let errorText = this.currentURL?"Stream Error. URL: " + this.currentURL:"Loaded file is an unknown type.";
                 ioErrorEvent.text = errorText;
                 if (this.hasEventListener(egret.IOErrorEvent.IO_ERROR)) {
                     this.dispatchEvent(ioErrorEvent);

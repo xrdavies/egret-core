@@ -50,6 +50,13 @@ namespace egret {
          */
         load(url:string):void;
 
+        /**
+         * Loads image from binary data stored in a ArrayBuffer object.
+         * @param bytes The binary data of the image to be loaded.
+         * @version Egret 3.5
+         * @platform Native
+         */
+        loadBytes(bytes:ArrayBuffer):void;
     }
 
 
