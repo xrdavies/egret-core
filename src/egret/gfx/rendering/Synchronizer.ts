@@ -136,8 +136,7 @@ namespace elf {
             }
             let node:Node = dp.$handle;
             if (bits & egret.sys.DisplayObjectBits.DirtyMatrix) {
-                let m = dp.getDisplayMatrix();
-                node.setMatrix(<elf.Matrix><any>m);
+                node.matrix.copyFrom(<elf.Matrix><any>dp.getDisplayMatrix());
             }
             if (bits & egret.sys.DisplayObjectBits.DirtyScrollRect) {
                 node.setScrollRect(<elf.Rectangle><any>dp.$scrollRect);
@@ -146,13 +145,13 @@ namespace elf {
 
             }
             if (bits & egret.sys.DisplayObjectBits.DirtyVisible) {
-                node.setVisible(dp.$visible);
+                node.visible = dp.$visible;
             }
             if (bits & egret.sys.DisplayObjectBits.DirtyCacheAsBitmap) {
                 node.setCacheAsBitmap(dp.$cacheAsBitmap);
             }
             if (bits & egret.sys.DisplayObjectBits.DirtyAlpha) {
-                node.setAlpha(dp.$alpha);
+                node.alpha = dp.$alpha;
             }
             if (bits & egret.sys.DisplayObjectBits.DirtyBlendMode) {
                 node.setBlendMode(blendModeMap[dp.$blendMode] || 0);
@@ -167,6 +166,7 @@ namespace elf {
             if (bits & egret.sys.DisplayObjectBits.DirtyMaskRect) {
                 node.setMaskRect(<elf.Rectangle><any>dp.$maskRect);
             }
+            node.invalidateTransform();
             dp.$displayObjectBits = 0;
         }
 
@@ -178,18 +178,18 @@ namespace elf {
             let node:Bitmap = bitmap.$handle;
             if (bits & egret.sys.BitmapBits.DirtyBitmapData) {
                 let bitmapData = bitmap.$bitmapData;
-                node.setBitmapData(bitmapData ? bitmapData.$handle : null);
+                node.bitmapData = bitmapData ? bitmapData.$handle : null;
             }
             if (bits & egret.sys.BitmapBits.DirtyScale9Grid) {
                 node.setScale9Grid(<elf.Rectangle><any>bitmap.$scale9Grid);
-
             }
             if (bits & egret.sys.BitmapBits.DirtySmoothing) {
-                node.setSmoothing(bitmap.$smoothing);
+                node.smoothing = bitmap.$smoothing;
             }
             if (bits & egret.sys.BitmapBits.DirtyFillMode) {
-                node.setFillMode(bitmapFillModeMap[bitmap.$fillMode] || 0);
+                node.fillMode = bitmapFillModeMap[bitmap.$fillMode] || 0;
             }
+            node.invalidateContent();
             bitmap.$bitmapBits = 0;
         }
 
@@ -264,6 +264,7 @@ namespace elf {
                         break;
                 }
             }
+            node.invalidateContent();
             graphics.$measureContentBounds(tempRect);
             node.graphicsBounds.setTo(tempRect.x, tempRect.y, tempRect.width, tempRect.height);
             commands.length = 0;
@@ -277,71 +278,72 @@ namespace elf {
             }
             let node:Text = textField.$handle;
             if (bits & egret.sys.TextFieldBits.DirtyType) {
-                node.setType(textFieldTypeMap[textField.$type] || 0);
+                node.type = textFieldTypeMap[textField.$type] || 0;
             }
             if (bits & egret.sys.TextFieldBits.DirtyFontFamily) {
-                node.setFontFamily(textField.$fontFamily);
+                node.fontFamily = textField.$fontFamily;
             }
             if (bits & egret.sys.TextFieldBits.DirtySize) {
-                node.setSize(textField.$size);
+                node.size = textField.$size;
             }
             if (bits & egret.sys.TextFieldBits.DirtyBold) {
-                node.setBold(textField.$bold);
+                node.bold = textField.$bold;
             }
             if (bits & egret.sys.TextFieldBits.DirtyItalic) {
-                node.setItalic(textField.$italic);
+                node.italic = textField.$italic;
             }
             if (bits & egret.sys.TextFieldBits.DirtyTextAlign) {
-                node.setTextAlign(horizontalAlignMap[textField.$textAlign] || 0);
+                node.textAlign = horizontalAlignMap[textField.$textAlign] || 0;
             }
             if (bits & egret.sys.TextFieldBits.DirtyVerticalAlign) {
-                node.setVerticalAlign(verticalAlignMap[textField.$verticalAlign] || 0);
+                node.verticalAlign = verticalAlignMap[textField.$verticalAlign] || 0;
             }
             if (bits & egret.sys.TextFieldBits.DirtyLineSpacing) {
-                node.setLineSpacing(textField.$lineSpacing);
+                node.lineSpacing = textField.$lineSpacing;
             }
             if (bits & egret.sys.TextFieldBits.DirtyTextColor) {
-                node.setTextColor(textField.$textColor);
+                node.textColor = textField.$textColor;
             }
             if (bits & egret.sys.TextFieldBits.DirtyWordWrap) {
-                node.setWordWrap(textField.$wordWrap);
+                node.wordWrap = textField.$wordWrap;
             }
             if (bits & egret.sys.TextFieldBits.DirtyStroke) {
-                node.setStroke(textField.$stroke);
+                node.stroke = textField.$stroke;
             }
             if (bits & egret.sys.TextFieldBits.DirtyStrokeColor) {
-                node.setStrokeColor(textField.$strokeColor);
+                node.strokeColor = textField.$strokeColor;
             }
             if (bits & egret.sys.TextFieldBits.DirtyBorder) {
-                node.setBorder(textField.$border);
+                node.border = textField.$border;
             }
             if (bits & egret.sys.TextFieldBits.DirtyBorderColor) {
-                node.setBorderColor(textField.$borderColor);
+                node.borderColor = textField.$borderColor;
             }
             if (bits & egret.sys.TextFieldBits.DirtyBackground) {
-                node.setBackground(textField.$background);
+                node.background = textField.$background;
             }
             if (bits & egret.sys.TextFieldBits.DirtyBackgroundColor) {
-                node.setBackgroundColor(textField.$backgroundColor);
+                node.backgroundColor = textField.$backgroundColor;
             }
             if (bits & egret.sys.TextFieldBits.DirtyText) {
-                node.setText(textField.$text);
+                node.text = textField.$text;
             }
             if (bits & egret.sys.TextFieldBits.DirtyDisplayAsPassword) {
-                node.setDisplayAsPassword(textField.$displayAsPassword);
+                node.displayAsPassword = textField.$displayAsPassword;
             }
             if (bits & egret.sys.TextFieldBits.DirtyMaxChars) {
-                node.setMaxChars(textField.$maxChars);
+                node.maxChars = textField.$maxChars;
             }
             if (bits & egret.sys.TextFieldBits.DirtyMultiline) {
-                node.setMultiline(textField.$multiline);
+                node.multiline = textField.$multiline;
             }
             if (bits & egret.sys.TextFieldBits.DirtyPattern) {
-                node.setPattern(textField.$pattern);
+                node.pattern = textField.$pattern;
             }
             if (bits & egret.sys.TextFieldBits.DirtySoftKeyboardType) {
-                node.setSoftKeyboardType(softKeyboardTypeMap[textField.$softKeyboardType] || 0);
+                node.softKeyboardType = softKeyboardTypeMap[textField.$softKeyboardType] || 0;
             }
+            node.invalidateContent();
             textField.$textFieldBits = 0;
         }
 

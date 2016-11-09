@@ -33,7 +33,6 @@
 namespace elf {
 
     let tempMatrix = new Matrix();
-    let tempBounds = new Rectangle();
     let rectanglePool:Rectangle[] = [];
 
     /**
@@ -49,20 +48,10 @@ namespace elf {
          */
         public matrix:Matrix = new Matrix();
 
-        public setMatrix(m:Matrix):void {
-            this.matrix.copyFrom(m);
-            this.invalidateTransform();
-        }
-
         /**
          * Whether or not the display node is visible.
          */
         public visible:boolean = true;
-
-        public setVisible(value:boolean):void {
-            this.visible = value;
-            this.invalidateTransform();
-        }
 
         /**
          * If set to true, runtime caches an internal bitmap representation of the display node. This caching can
@@ -114,11 +103,6 @@ namespace elf {
          */
         public alpha:number = 1;
 
-        public setAlpha(value:number):void {
-            this.alpha = value;
-            this.invalidateTransform();
-        }
-
         /**
          * The scroll rectangle bounds of the display node. The display node is cropped to the size defined by the rectangle,
          * and it scrolls within the rectangle when you change the x and y properties of the scrollRect object. A scrolled display
@@ -138,7 +122,6 @@ namespace elf {
             } else {
                 this.scrollRect = null;
             }
-            this.invalidateTransform();
         }
 
         /**
@@ -150,7 +133,6 @@ namespace elf {
         public setBlendMode(value:number):void {
             this.blendMode = value;
             this.updateCacheAsBitmap();
-            this.invalidateTransform();
         }
 
         public maskedObject:Node = null;
@@ -181,7 +163,6 @@ namespace elf {
                 value.maskedObject = this;
                 value.invalidateTransform();
             }
-            this.invalidateTransform();
         }
 
         /**
@@ -201,7 +182,6 @@ namespace elf {
             } else {
                 this.maskRect = null;
             }
-            this.invalidateTransform();
         }
 
         /**

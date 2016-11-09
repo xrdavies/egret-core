@@ -49,21 +49,11 @@ namespace elf {
          */
         public type:number = TextFieldType.DYNAMIC;
 
-        public setType(value:number):void {
-            this.type = value;
-            this.invalidateContent();
-        }
-
         /**
          * The name of the font to use, or a comma-separated list of font names.
          * @default "Arial"
          */
         public fontFamily:string = "Arial";
-
-        public setFontFamily(value:string):void {
-            this.fontFamily = value;
-            this.invalidateContent();
-        }
 
         /**
          * The size in pixels of text
@@ -71,21 +61,11 @@ namespace elf {
          */
         public size:number = 30;
 
-        public setSize(value:number):void {
-            this.size = value;
-            this.invalidateContent();
-        }
-
         /**
          * Specifies whether the text is boldface.
          * @default false
          */
         public bold:boolean = false;
-
-        public setBold(value:boolean):void {
-            this.bold = value;
-            this.invalidateContent();
-        }
 
         /**
          * Determines whether the text is italic font.
@@ -93,21 +73,11 @@ namespace elf {
          */
         public italic:boolean = false;
 
-        public setItalic(value:boolean):void {
-            this.italic = value;
-            this.invalidateContent();
-        }
-
         /**
          * Horizontal alignment of text.
          * @default：HorizontalAlign.LEFT
          */
         public textAlign:number = HorizontalAlign.LEFT;
-
-        public setTextAlign(value:number):void {
-            this.textAlign = value;
-            this.invalidateContent();
-        }
 
         /**
          * Vertical alignment of text.
@@ -115,32 +85,17 @@ namespace elf {
          */
         public verticalAlign:number = VerticalAlign.TOP;
 
-        public setVerticalAlign(value:number):void {
-            this.verticalAlign = value;
-            this.invalidateContent();
-        }
-
         /**
          * An integer representing the amount of vertical space between lines.
          * @default 0
          */
         public lineSpacing:number = 0;
 
-        public setLineSpacing(value:number):void {
-            this.lineSpacing = value;
-            this.invalidateContent();
-        }
-
         /**
          * Color of the text.
          * @default 0x000000
          */
         public textColor:number = 0x000000;
-
-        public setTextColor(value:number):void {
-            this.textColor = value;
-            this.invalidateContent();
-        }
 
         /**
          * A Boolean value that indicates whether the text field word wrap. If the value is true, then the text field by
@@ -149,21 +104,11 @@ namespace elf {
          */
         public wordWrap:boolean = false;
 
-        public setWordWrap(value:boolean):void {
-            this.wordWrap = value;
-            this.invalidateContent();
-        }
-
         /**
          * A string that is the current text in the text field. Lines are separated by the carriage return character
          * ('\r', ASCII 13).
          */
         public text:string = "";
-
-        public setText(value:string):void {
-            this.text = value;
-            this.invalidateContent();
-        }
 
         /**
          * Indicate the stroke width. 0 means no stroke.
@@ -171,21 +116,11 @@ namespace elf {
          */
         public stroke:number = 0;
 
-        public setStroke(value:number):void {
-            this.stroke = value;
-            this.invalidateContent();
-        }
-
         /**
          * The stroke color of the text.
          * @default 0x000000
          */
         public strokeColor:number = 0x000000;
-
-        public setStrokeColor(value:number):void {
-            this.strokeColor = value;
-            this.invalidateContent();
-        }
 
         /**
          * Specifies whether the text field has a border. If true, the text field has a border. If false, the text field
@@ -194,22 +129,12 @@ namespace elf {
          */
         public border:boolean = false;
 
-        public setBorder(value:boolean):void {
-            this.border = value;
-            this.invalidateContent();
-        }
-
         /**
          * The color of the text field border. This property can be retrieved or set, even if there currently is no
          * border, but the color is visible only if the text field has the border property set to true.
          * @default 0x000000
          */
         public borderColor:number = 0x000000;
-
-        public setBorderColor(value:number):void {
-            this.borderColor = value;
-            this.invalidateContent();
-        }
 
         /**
          * Specifies whether the text field has a background fill. If true, the text field has a background fill. If false,
@@ -219,22 +144,12 @@ namespace elf {
          */
         public background:boolean = false;
 
-        public setBackground(value:boolean):void {
-            this.background = value;
-            this.invalidateContent();
-        }
-
         /**
          * The color of the text field background. This property can be retrieved or set, even if there currently is no
          * background, but the color is visible only if the text field has the background property set to true.
          * @default 0xFFFFFF
          */
         public backgroundColor:number = 0xFFFFFF;
-
-        public setBackgroundColor(value:number):void {
-            this.backgroundColor = value;
-            this.invalidateContent();
-        }
 
         /**
          * Specify whether the text field is a password text field.
@@ -245,11 +160,6 @@ namespace elf {
          */
         public displayAsPassword:boolean = false;
 
-        public setDisplayAsPassword(value:boolean):void {
-            this.displayAsPassword = value;
-            this.invalidateContent();
-        }
-
         /**
          * The maximum number of characters that the text field can contain, as entered by a user. A script can insert
          * more text than maxChars allows; the maxChars property indicates only how much text a user can enter. If the
@@ -257,10 +167,6 @@ namespace elf {
          * @default 0
          */
         public maxChars:number = 0;
-
-        public setMaxChars(value:number):void {
-            this.maxChars = value;
-        }
 
         /**
          * Indicates whether field is a multiline text field. If the value is true, the text field is multiline; if the
@@ -272,10 +178,6 @@ namespace elf {
          */
         public multiline:boolean = false;
 
-        public setMultiline(value:boolean):void {
-            this.multiline = value;
-        }
-
         /**
          * A regular expression controls the set of characters that a user can enter into the text field. If the value of
          * the pattern property is null, you can enter any character. If the value of the pattern property is an empty
@@ -283,10 +185,6 @@ namespace elf {
          * The pattern is not surrounded by forward slashes.
          */
         public pattern:string = null;
-
-        public setPattern(value:string):void {
-            this.pattern = value;
-        }
 
         /**
          * Controls the appearance of the soft keyboard.<br/>
@@ -303,10 +201,6 @@ namespace elf {
          * @default SoftKeyboardType.DEFAULT
          */
         public softKeyboardType:number = SoftKeyboardType.DEFAULT;
-
-        public setSoftKeyboardType(value:number):void {
-            this.softKeyboardType = value;
-        }
 
         /**
          * The width of the text in pixels.

@@ -170,7 +170,6 @@ namespace elf {
             }
             this.lastX = x;
             this.lastY = y;
-            this.invalidateContent();
         }
 
         /**
@@ -193,7 +192,6 @@ namespace elf {
             let radiusY = ellipseHeight ? ellipseHeight * 0.5 : radiusX;
             this.lastX = x + width;
             this.lastY = y + height - radiusY;
-            this.invalidateContent();
         }
 
         /**
@@ -211,7 +209,6 @@ namespace elf {
             }
             this.lastX = x + radius;
             this.lastY = y;
-            this.invalidateContent();
         }
 
 
@@ -233,7 +230,6 @@ namespace elf {
             }
             this.lastX = x + width;
             this.lastY = y + height * 0.5;
-            this.invalidateContent();
         }
 
         /**
@@ -253,7 +249,6 @@ namespace elf {
             }
             this.lastX = x;
             this.lastY = y;
-            this.invalidateContent();
         }
 
         /**
@@ -273,7 +268,6 @@ namespace elf {
             }
             this.lastX = x;
             this.lastY = y;
-            this.invalidateContent();
         }
 
         /**
@@ -303,7 +297,6 @@ namespace elf {
             }
             this.lastX = anchorX;
             this.lastY = anchorY;
-            this.invalidateContent();
         }
 
         /**
@@ -333,7 +326,6 @@ namespace elf {
             }
             this.lastX = anchorX;
             this.lastY = anchorY;
-            this.invalidateContent();
         }
 
         /**
@@ -358,7 +350,6 @@ namespace elf {
             }
             this.lastX = x + Math.cos(endAngle) * radius;
             this.lastY = y + Math.sin(endAngle) * radius;
-            this.invalidateContent();
         }
 
         /**
@@ -368,7 +359,6 @@ namespace elf {
             this.pathList.length = 0;
             this.lastX = this.lastY = 0;
             this.fillPath = this.strokePath = null;
-            this.invalidateContent();
         }
 
         public graphicsBounds:Rectangle = new Rectangle();

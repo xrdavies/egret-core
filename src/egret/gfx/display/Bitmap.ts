@@ -46,20 +46,15 @@ namespace elf {
          */
         public bitmapData:BitmapData = null;
 
-        public setBitmapData(value:BitmapData):void {
-            this.bitmapData = value;
-            this.invalidateContent();
-        }
-
         /**
          * Whether or not the bitmap is smoothed when scaled.
          */
         public smoothing:boolean = true;
 
-        public setSmoothing(value:boolean):void {
-            this.smoothing = value;
-            this.invalidateContent();
-        }
+        /**
+         * Determines how the bitmap fills in the dimensions.
+         */
+        public fillMode:number = BitmapFillMode.SCALE;
 
         /**
          * The current scaling grid that is in effect. If set to null, the entire bitmap is scaled normally when any scale
@@ -68,19 +63,16 @@ namespace elf {
         public scale9Grid:Rectangle = null;
 
         public setScale9Grid(value:Rectangle):void {
-            this.scale9Grid = value;
-            this.invalidateContent();
+            if (value) {
+                if (!this.scale9Grid) {
+                    this.scale9Grid = new Rectangle();
+                }
+                this.scale9Grid.copyFrom(value);
+            } else {
+                this.scale9Grid = null;
+            }
         }
 
-        /**
-         * Determines how the bitmap fills in the dimensions.
-         */
-        public fillMode:number = BitmapFillMode.SCALE;
-
-        public setFillMode(value:number):void {
-            this.fillMode = value;
-            this.invalidateContent();
-        }
 
         protected measureContentBounds(bounds:Rectangle):void {
             let bitmapData = this.bitmapData;
