@@ -48,12 +48,13 @@ namespace egret {
         /**
          *  With this setting used as the scaleMode parameter of the lineStyle() method, the thickness of the line scales
          *  only horizontally.
+         *  Note: It is not supported in web platform.
          */
         public static readonly HORIZONTAL:string = "horizontal";
 
         /**
          * With this setting used as the scaleMode parameter of the lineStyle() method, the thickness of the line scales
-         * only vertically.
+         * Note: It is not supported in web platform.
          */
         public static readonly VERTICAL:string = "vertical";
     }

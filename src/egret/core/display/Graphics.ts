@@ -228,6 +228,7 @@ namespace egret {
             height = +height || 0;
             this.$commands.push(sys.GraphicsCommand.DRAW_ELLIPSE);
             this.$arguments.push(x, y, width, height);
+            this.extendBoundsByPoint(x, y);
             this.extendBoundsByPoint(x + width, y + height);
             this.updatePosition(x + width, y + height * 0.5);
         }
@@ -352,10 +353,10 @@ namespace egret {
             radius = +radius || 0;
             startAngle = +startAngle || 0;
             endAngle = +endAngle || 0;
-            this.$commands.push(sys.GraphicsCommand.DRAW_ARC);
-            this.$arguments.push(x, y, radius, startAngle, endAngle, anticlockwise);
             startAngle = clampAngle(startAngle);
             endAngle = clampAngle(endAngle);
+            this.$commands.push(sys.GraphicsCommand.DRAW_ARC);
+            this.$arguments.push(x, y, radius, startAngle, endAngle, anticlockwise);
             if (anticlockwise) {
                 this.arcBounds(x, y, radius, endAngle, startAngle);
             }

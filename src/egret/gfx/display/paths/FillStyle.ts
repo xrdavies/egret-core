@@ -34,12 +34,15 @@ namespace elf {
 
     /**
      * @internal
-     * The LineScaleMode class provides values for the scaleMode parameter in the Graphics.lineStyle() method.
      */
-    export const enum LineScaleMode{
-        NORMAL,
-        NONE,
-        HORIZONTAL, // Note: It is not supported in web platform.
-        VERTICAL  // Note: It is not supported in web platform.
+    export interface FillStyle extends PathStyle{
+        /**
+         * 填充颜色
+         */
+        fillColor:number;
+        /**
+         * 填充透明度
+         */
+        fillAlpha:number;
     }
 }

@@ -31,15 +31,39 @@
  * @internal
  */
 namespace elf {
-
     /**
      * @internal
-     * The LineScaleMode class provides values for the scaleMode parameter in the Graphics.lineStyle() method.
+     * 线条路径。
+     * 注意：当线条宽度（lineWidth）为1或3像素时，需要特殊处理，往右下角偏移0.5像素，以显示清晰锐利的线条
      */
-    export const enum LineScaleMode{
-        NORMAL,
-        NONE,
-        HORIZONTAL, // Note: It is not supported in web platform.
-        VERTICAL  // Note: It is not supported in web platform.
+    export interface StrokeStyle extends PathStyle{
+
+        /**
+         * 线条宽度。
+         * 注意：绘制时对1像素和3像素要特殊处理，整体向右下角偏移0.5像素，以显示清晰锐利的线条。
+         */
+        lineWidth:number;
+        /**
+         * 线条颜色
+         */
+        lineColor:number;
+        /**
+         * 线条透明度
+         */
+        lineAlpha:number;
+        /**
+         * 端点样式,"none":无端点,"round":圆头端点,"square":方头端点
+         */
+        caps:CapsStyle;
+        /**
+         * 联接点样式,"bevel":斜角连接,"miter":尖角连接,"round":圆角连接
+         */
+        joints:JointStyle;
+        /**
+         * 用于表示剪切斜接的极限值的数字。
+         */
+        miterLimit:number;
+
+        lineScaleMode:LineScaleMode;
     }
 }

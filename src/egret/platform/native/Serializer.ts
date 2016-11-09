@@ -68,7 +68,7 @@ namespace egret.native {
                 buffer.writeBoolean(false);
             }
             buffer.writeFloat(+alpha || 1);
-            buffer.writeInt(blendModeMap[blendMode] || 0);
+            buffer.writeInt(blendModeMap[blendMode]);
             if (clipRect) {
                 buffer.writeBoolean(true);
                 Serializer.writeRectangle(clipRect, buffer);
@@ -209,7 +209,7 @@ namespace egret.native {
                 buffer.writeFloat(dp.$alpha);
             }
             if (bits & sys.DisplayObjectBits.DirtyBlendMode) {
-                buffer.writeInt(blendModeMap[dp.$blendMode] || 0);
+                buffer.writeInt(blendModeMap[dp.$blendMode]);
             }
             if (bits & sys.DisplayObjectBits.DirtyMask) {
                 let mask = dp.$mask;
@@ -262,7 +262,7 @@ namespace egret.native {
                 buffer.writeBoolean(bitmap.$smoothing);
             }
             if (bits & sys.BitmapBits.DirtyFillMode) {
-                buffer.writeInt(bitmapFillModeMap[bitmap.$fillMode] || 0);
+                buffer.writeInt(bitmapFillModeMap[bitmap.$fillMode]);
             }
             bitmap.$bitmapBits = 0;
         }

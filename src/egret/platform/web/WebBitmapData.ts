@@ -32,8 +32,11 @@
  */
 namespace egret.web {
 
+    import blendModeMap = egret.sys.blendModeMap;
+
     let tempRect = new elf.Rectangle();
     let tempMatrix = new elf.Matrix();
+
 
     /**
      * @internal
@@ -175,16 +178,16 @@ namespace egret.web {
                 throw new Error("Parameter 0 is of the incorrect type. Should be type egret.DisplayObject|egret.BitmapData.");
             }
             let buffer = this.getRenderBuffer();
-            tempMatrix.setTo(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
-            tempRect.setTo(clipRect.x, clipRect.y, clipRect.width, clipRect.height);
+            let m = matrix ? tempMatrix.setTo(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty) : null;
+            let r = clipRect ? tempRect.setTo(clipRect.x, clipRect.y, clipRect.width, clipRect.height) : null;
             if (source instanceof DisplayObject) {
                 sys.SyncNode(source);
-                elf.systemRenderer.draw(buffer, source.$handle, tempMatrix, alpha,
-                    egret.sys.blendModeMap[blendMode], tempRect);
+                elf.systemRenderer.draw(buffer, source.$handle, m, alpha,
+                    blendModeMap[blendMode] || 0, r);
             }
             else {
-                elf.systemRenderer.drawBitmapData(buffer, source.$handle, tempMatrix, alpha,
-                    egret.sys.blendModeMap[blendMode], tempRect, smoothing);
+                elf.systemRenderer.drawBitmapData(buffer, source.$handle, m, alpha,
+                    blendModeMap[blendMode] || 0, r, smoothing);
             }
         }
 

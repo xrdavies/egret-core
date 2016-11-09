@@ -161,7 +161,6 @@ namespace elf {
             this.top = sourceRect.top;
             this.right = sourceRect.right;
             this.bottom = sourceRect.bottom;
-            this.validate();
             return this;
         }
 

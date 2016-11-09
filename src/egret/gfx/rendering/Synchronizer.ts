@@ -43,7 +43,7 @@ namespace elf {
     import verticalAlignMap = egret.sys.verticalAlignMap;
     import softKeyboardTypeMap = egret.sys.softKeyboardTypeMap;
 
-    let tempMatrix = new Matrix();
+    let tempRect = new egret.Rectangle();
 
     /**
      * @internal
@@ -214,12 +214,12 @@ namespace elf {
                         node.beginFill(args[index++], args[index++]);
                         break;
                     case egret.sys.GraphicsCommand.BEGIN_GRADIENT_FILL:
-                        let type = gradientTypeMap[args[index++]];
+                        let type = gradientTypeMap[args[index++]] || 0;
                         let colors = args[index++];
                         let alphas = args[index++];
                         let ratios = args[index++];
                         let m = args[index++];
-                        node.beginGradientFill(type, colors, alphas, ratios, tempMatrix.copyFrom(m));
+                        node.beginGradientFill(type, colors, alphas, ratios, <elf.Matrix><any>m);
                         break;
                     case egret.sys.GraphicsCommand.CUBIC_CURVE_TO:
                         node.cubicCurveTo(args[index++], args[index++], args[index++],
@@ -250,9 +250,9 @@ namespace elf {
                         let color = args[index++];
                         let alpha = args[index++];
                         let pixelHinting = args[index++];
-                        let scaleMode = lineScaleModeMap[args[index++]];
-                        let caps = capsStyleMap[args[index++]];
-                        let joints = jointStyleMap[args[index++]];
+                        let scaleMode = lineScaleModeMap[args[index++]] || 0;
+                        let caps = capsStyleMap[args[index++]] || 0;
+                        let joints = jointStyleMap[args[index++]] || 0;
                         let miterLimit = args[index++];
                         node.lineStyle(thickness, color, alpha, pixelHinting, scaleMode, caps, joints, miterLimit);
                         break;
@@ -264,6 +264,8 @@ namespace elf {
                         break;
                 }
             }
+            graphics.$measureContentBounds(tempRect);
+            node.graphicsBounds.setTo(tempRect.x, tempRect.y, tempRect.width, tempRect.height);
             commands.length = 0;
             args.length = 0;
         }
@@ -275,7 +277,7 @@ namespace elf {
             }
             let node:Text = textField.$handle;
             if (bits & egret.sys.TextFieldBits.DirtyType) {
-                node.setType(textFieldTypeMap[textField.$type]);
+                node.setType(textFieldTypeMap[textField.$type] || 0);
             }
             if (bits & egret.sys.TextFieldBits.DirtyFontFamily) {
                 node.setFontFamily(textField.$fontFamily);
@@ -290,10 +292,10 @@ namespace elf {
                 node.setItalic(textField.$italic);
             }
             if (bits & egret.sys.TextFieldBits.DirtyTextAlign) {
-                node.setTextAlign(horizontalAlignMap[textField.$textAlign]);
+                node.setTextAlign(horizontalAlignMap[textField.$textAlign] || 0);
             }
             if (bits & egret.sys.TextFieldBits.DirtyVerticalAlign) {
-                node.setVerticalAlign(verticalAlignMap[textField.$verticalAlign]);
+                node.setVerticalAlign(verticalAlignMap[textField.$verticalAlign] || 0);
             }
             if (bits & egret.sys.TextFieldBits.DirtyLineSpacing) {
                 node.setLineSpacing(textField.$lineSpacing);
@@ -338,7 +340,7 @@ namespace elf {
                 node.setPattern(textField.$pattern);
             }
             if (bits & egret.sys.TextFieldBits.DirtySoftKeyboardType) {
-                node.setSoftKeyboardType(softKeyboardTypeMap[textField.$softKeyboardType]);
+                node.setSoftKeyboardType(softKeyboardTypeMap[textField.$softKeyboardType] || 0);
             }
             textField.$textFieldBits = 0;
         }

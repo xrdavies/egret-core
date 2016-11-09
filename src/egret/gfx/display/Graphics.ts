@@ -42,6 +42,11 @@ namespace elf {
             this.region = new Rectangle();
         }
 
+        public pathList:Path2D[] = [];
+        private fillPath:Path2D = null;
+        private strokePath:Path2D = null;
+        private lastX:number = 0;
+        private lastY:number = 0;
 
         /**
          * Specify a simple single color fill that will be used for subsequent calls to other Graphics methods (for
@@ -50,7 +55,9 @@ namespace elf {
          * @param alpha Filled Alpha value
          */
         public beginFill(color:number, alpha:number = 1):void {
-
+            let style = <FillStyle>this.createFillPathAndStyle(PathStyleType.Fill);
+            style.fillColor = color;
+            style.fillAlpha = alpha;
         }
 
 
@@ -69,14 +76,44 @@ namespace elf {
          * method.
          */
         public beginGradientFill(type:number, colors:number[], alphas:number[], ratios:number[], matrix?:Matrix):void {
-
+            let style = <GradientFillStyle>this.createFillPathAndStyle(PathStyleType.GradientFill);
+            let colorCount = colors.length;
+            while (alphas.length < colorCount) {
+                alphas.push(1);
+            }
+            if (ratios.length < colorCount) {
+                ratios = [];
+                let gap = 255 / (colorCount - 1);
+                for (let i = 0; i < colorCount - 1; i++) {
+                    ratios.push(Math.round(i * gap))
+                }
+                ratios.push(255);
+            }
+            style.gradientType = type;
+            style.colors = colors;
+            style.alphas = alphas;
+            style.ratios = ratios;
+            let m = style.matrix = new Matrix();
+            if (matrix) {
+                m.a = matrix.a * 819.2;
+                m.b = matrix.b * 819.2;
+                m.c = matrix.c * 819.2;
+                m.d = matrix.d * 819.2;
+                m.tx = matrix.tx;
+                m.ty = matrix.ty;
+            }
+            else {
+                //默认值
+                m.a = 100;
+                m.d = 100;
+            }
         }
 
         /**
          * Apply fill to the lines and curves added after the previous calling to the beginFill() method.
          */
         public endFill():void {
-
+            this.fillPath = null;
         }
 
         /**
@@ -102,8 +139,19 @@ namespace elf {
          * @param miterLimit Indicates the limit number of cut miter. (default = 3)
          */
         public lineStyle(thickness:number = 0, color:number = 0, alpha:number = 1.0, pixelHinting?:boolean,
-                         scaleMode?:number, caps?:number, joints?:number, miterLimit:number = 3):void {
-
+                         scaleMode?:number, caps?:number, joints?:number, miterLimit?:number):void {
+            if (thickness <= 0) {
+                this.strokePath = null;
+                return;
+            }
+            let style = <StrokeStyle>this.createStrokePathAndStyle(PathStyleType.Stroke);
+            style.lineWidth = thickness;
+            style.lineColor = color;
+            style.lineAlpha = alpha;
+            style.lineScaleMode = scaleMode;
+            style.caps = caps;
+            style.joints = joints;
+            style.miterLimit = miterLimit;
         }
 
         /**
@@ -114,7 +162,15 @@ namespace elf {
          * @param height Height of the rectangle (in pixels).
          */
         public drawRect(x:number, y:number, width:number, height:number):void {
-
+            if (this.fillPath) {
+                this.fillPath.drawRect(x, y, width, height);
+            }
+            if (this.strokePath) {
+                this.strokePath.drawRect(x, y, width, height);
+            }
+            this.lastX = x;
+            this.lastY = y;
+            this.invalidateContent();
         }
 
         /**
@@ -127,7 +183,17 @@ namespace elf {
          * @param ellipseHeight Height used to draw an ellipse with rounded corners (in pixels). (Optional) If no value is specified, the default value matches the value of the ellipseWidth parameter.
          */
         public drawRoundRect(x:number, y:number, width:number, height:number, ellipseWidth:number, ellipseHeight?:number):void {
-
+            if (this.fillPath) {
+                this.fillPath.drawRoundRect(x, y, width, height, ellipseWidth, ellipseHeight);
+            }
+            if (this.strokePath) {
+                this.strokePath.drawRoundRect(x, y, width, height, ellipseWidth, ellipseHeight);
+            }
+            let radiusX = ellipseWidth * 0.5;
+            let radiusY = ellipseHeight ? ellipseHeight * 0.5 : radiusX;
+            this.lastX = x + width;
+            this.lastY = y + height - radiusY;
+            this.invalidateContent();
         }
 
         /**
@@ -137,7 +203,15 @@ namespace elf {
          * @param radius Radius of the circle (in pixels).
          */
         public drawCircle(x:number, y:number, radius:number):void {
-
+            if (this.fillPath) {
+                this.fillPath.drawCircle(x, y, radius);
+            }
+            if (this.strokePath) {
+                this.strokePath.drawCircle(x, y, radius);
+            }
+            this.lastX = x + radius;
+            this.lastY = y;
+            this.invalidateContent();
         }
 
 
@@ -151,7 +225,15 @@ namespace elf {
          * @param height Height of the rectangle (in pixels).
          */
         public drawEllipse(x:number, y:number, width:number, height:number):void {
-
+            if (this.fillPath) {
+                this.fillPath.drawEllipse(x, y, width, height);
+            }
+            if (this.strokePath) {
+                this.strokePath.drawEllipse(x, y, width, height);
+            }
+            this.lastX = x + width;
+            this.lastY = y + height * 0.5;
+            this.invalidateContent();
         }
 
         /**
@@ -163,7 +245,15 @@ namespace elf {
          * object (in pixels).
          */
         public moveTo(x:number, y:number):void {
-
+            if (this.fillPath) {
+                this.fillPath.moveTo(x, y);
+            }
+            if (this.strokePath) {
+                this.strokePath.moveTo(x, y);
+            }
+            this.lastX = x;
+            this.lastY = y;
+            this.invalidateContent();
         }
 
         /**
@@ -175,7 +265,15 @@ namespace elf {
          * object (in pixels).
          */
         public lineTo(x:number, y:number):void {
-
+            if (this.fillPath) {
+                this.fillPath.lineTo(x, y);
+            }
+            if (this.strokePath) {
+                this.strokePath.lineTo(x, y);
+            }
+            this.lastX = x;
+            this.lastY = y;
+            this.invalidateContent();
         }
 
         /**
@@ -197,7 +295,15 @@ namespace elf {
          * point of the parent display object.
          */
         public curveTo(controlX:number, controlY:number, anchorX:number, anchorY:number):void {
-
+            if (this.fillPath) {
+                this.fillPath.curveTo(controlX, controlY, anchorX, anchorY);
+            }
+            if (this.strokePath) {
+                this.strokePath.curveTo(controlX, controlY, anchorX, anchorY);
+            }
+            this.lastX = anchorX;
+            this.lastY = anchorY;
+            this.invalidateContent();
         }
 
         /**
@@ -219,7 +325,15 @@ namespace elf {
          */
         public cubicCurveTo(controlX1:number, controlY1:number, controlX2:number,
                             controlY2:number, anchorX:number, anchorY:number):void {
-
+            if (this.fillPath) {
+                this.fillPath.cubicCurveTo(controlX1, controlY1, controlX2, controlY2, anchorX, anchorY);
+            }
+            if (this.strokePath) {
+                this.strokePath.cubicCurveTo(controlX1, controlY1, controlX2, controlY2, anchorX, anchorY);
+            }
+            this.lastX = anchorX;
+            this.lastY = anchorY;
+            this.invalidateContent();
         }
 
         /**
@@ -236,14 +350,48 @@ namespace elf {
          * it is drawn clockwise.
          */
         public drawArc(x:number, y:number, radius:number, startAngle:number, endAngle:number, anticlockwise?:boolean):void {
-
+            if (this.fillPath) {
+                this.fillPath.drawArc(x, y, radius, startAngle, endAngle, anticlockwise);
+            }
+            if (this.strokePath) {
+                this.strokePath.drawArc(x, y, radius, startAngle, endAngle, anticlockwise);
+            }
+            this.lastX = x + Math.cos(endAngle) * radius;
+            this.lastY = y + Math.sin(endAngle) * radius;
+            this.invalidateContent();
         }
 
         /**
          * Clear graphics that are drawn to this Graphics object, and reset fill and line style settings.
          */
         public clear():void {
+            this.pathList.length = 0;
+            this.lastX = this.lastY = 0;
+            this.fillPath = this.strokePath = null;
+            this.invalidateContent();
+        }
 
+        public graphicsBounds:Rectangle = new Rectangle();
+
+        protected measureContentBounds(bounds:Rectangle):void {
+            bounds.copyFrom(this.graphicsBounds);
+        }
+
+        private createFillPathAndStyle(type:PathStyleType):PathStyle {
+            this.fillPath = new Path2D(this.lastX, this.lastY);
+            if (this.strokePath) {
+                let index = this.pathList.indexOf(this.strokePath);
+                this.pathList.splice(index, 0, this.fillPath);
+            } else {
+                this.pathList.push(this.fillPath);
+            }
+            return this.fillPath.style = {type: type};
+        }
+
+        private createStrokePathAndStyle(type:PathStyleType):PathStyle {
+            this.strokePath = new Path2D(this.lastX, this.lastY);
+            this.pathList.push(this.strokePath);
+            return this.strokePath.style = {type: type};
         }
     }
 }
