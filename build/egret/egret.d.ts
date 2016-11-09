@@ -6775,7 +6775,7 @@ declare namespace egret {
          * @version Egret 2.4
          * @platform Web,Native
          */
-        addCallback(functionName: string, listener: (value) => void): void;
+        addCallback(functionName: string, listener: (value: string) => void): void;
     };
 }
 declare namespace egret {
@@ -14286,6 +14286,29 @@ declare namespace egret {
          */
         private stringToCodePoints(string);
     }
+}
+declare namespace egret {
+    /**
+     * @private
+     */
+    let fontMapping: {};
+    /**
+     * @language en_US
+     * Register font mapping.
+     * @param fontFamily The font family name to register.
+     * @param value The font value.
+     * @version Egret 3.2.3
+     * @platform Native
+     */
+    /**
+     * @language zh_CN
+     * 注册字体映射
+     * @param fontFamily 要注册的字体名称
+     * @param value 注册的字体值
+     * @version Egret 3.2.3
+     * @platform Native
+     */
+    function registerFontMapping(fontFamily: string, value: string): void;
 }
 declare namespace egret {
     /**

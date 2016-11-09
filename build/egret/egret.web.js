@@ -3821,11 +3821,12 @@ var egret;
                 var player = new web.WebPlayer(container, options);
                 container["egret-player"] = player;
                 //webgl模式关闭脏矩形
-                if (options.renderMode == "webgl") {
+                if (egret.Capabilities.$renderMode == "webgl") {
                     player.stage.dirtyRegionPolicy = egret.DirtyRegionPolicy.OFF;
-                    egret.sys.DisplayList.prototype.setDirtyRegionPolicy = function () {
-                    };
                 }
+            }
+            if (egret.Capabilities.$renderMode == "webgl") {
+                egret.sys.DisplayList.prototype.setDirtyRegionPolicy = function () { };
             }
         }
         /**
@@ -7348,7 +7349,7 @@ var egret;
             WebGLRenderContext.initBlendMode = function () {
                 WebGLRenderContext.blendModesForGL = {};
                 WebGLRenderContext.blendModesForGL["source-over"] = [1, 771];
-                WebGLRenderContext.blendModesForGL["lighter"] = [1, 772];
+                WebGLRenderContext.blendModesForGL["lighter"] = [1, 1];
                 WebGLRenderContext.blendModesForGL["lighter-in"] = [770, 771];
                 WebGLRenderContext.blendModesForGL["destination-out"] = [0, 771];
                 WebGLRenderContext.blendModesForGL["destination-in"] = [0, 770];
