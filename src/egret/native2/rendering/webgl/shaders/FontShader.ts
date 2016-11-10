@@ -43,12 +43,16 @@ module egret.native2 {
             "uniform vec4 uStrokeColor;\n" +
             "void main(void) {\n" +
             "   vec4 sample = texture2D(uSampler, vTextureCoord);\n" +
-            "   if (sample.a < 0.1)\n" +
-            "   {\n" +
-            "       gl_FragColor = uStrokeColor * sample.r * vColor;\n" +
+            "   float fontAlpha = sample.a;\n" +
+            "   float outlineAlpha = sample.r;\n" +
+            "   if (fontAlpha + outlineAlpha > 0.0){\n" +
+            "       vec4 color = uTextColor * fontAlpha + uStrokeColor * outlineAlpha;\n" +
+            "       gl_FragColor = vColor * vec4(color.rgb, max(fontAlpha, outlineAlpha));\n" +
             "   }\n" +
-            "   else gl_FragColor = vec4(uTextColor.rgb, sample.a) * vColor;" +
-            "}";
+            "   else {" +
+            "       discard;" +
+            "   }" +
+            "}\n";
         public uniforms = {
             projectionVector: { type: '2f', value: { x: 0, y: 0 }, dirty: true },
             uTextColor: { type: '4f', value: { x: 0, y: 0, z: 0, w: 0 }, dirty: true },
