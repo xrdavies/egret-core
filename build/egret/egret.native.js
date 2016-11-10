@@ -4365,6 +4365,10 @@ var egret;
                         bitmapData.webGLTexture = this.createTextureFromCompressedData(bitmapData.source.pvrtcData, bitmapData.width, bitmapData.height, bitmapData.source.mipmapsCount, bitmapData.source.format);
                     }
                     if (bitmapData.$deleteSource && bitmapData.webGLTexture) {
+                        //native
+                        if (bitmapData.source && bitmapData.source.dispose) {
+                            bitmapData.source.dispose();
+                        }
                         bitmapData.source = null;
                     }
                 }
