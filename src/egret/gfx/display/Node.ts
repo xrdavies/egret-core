@@ -480,11 +480,12 @@ namespace elf {
 
                     let clipRect = child.scrollRect ? child.scrollRect : child.maskRect;
                     if (clipRect) {
+                        let tempRect = rectanglePool.pop() || new Rectangle();
+                        clipRect = tempRect.copyFrom(clipRect);
                         let childRenderMatrix = childDisplayList ?
                             childDisplayList.renderMatrix : child.renderMatrix;
                         childRenderMatrix.transformBounds(clipRect);
                         if (clipRegion) {
-                            clipRect = clipRect.clone();
                             clipRect.intersect(clipRegion);
                         }
                         if (childDisplayList) {
@@ -492,6 +493,7 @@ namespace elf {
                         } else {
                             child.update(childDirtyTransform, clipRect);
                         }
+                        rectanglePool.push(tempRect);
                     } else {
                         if (childDisplayList) {
                             childDisplayList.update(childDirtyTransform, clipRegion);
