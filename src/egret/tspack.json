@@ -6,7 +6,7 @@
     "skipDefaultLibCheck": true,
     "stripInternal": true,
     "outDir": "../../built/egret/",
-    "accessorOptimization": false,
+    "accessorOptimization": true,
     "emitReflection": true,
     "reorderFiles": true,
     "defines": {
