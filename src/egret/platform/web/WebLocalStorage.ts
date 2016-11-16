@@ -26,47 +26,54 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * @internal
- */
-namespace egret.sys {
+namespace egret.localStorage.web {
     /**
      * @internal
+     * 
+     * @param key 
+     * @returns 
      */
-    export let hashCount:number = 1;
-}
-
-namespace egret {
-
+    function getItem(key:string):string {
+        return window.localStorage.getItem(key);
+    }
 
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * @internal
+     * 
+     * @param key 
+     * @param value 
+     * @returns 
      */
-    export class HashObject {
-
-        /**
-         * Initializes a HashObject
-         */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
+    function setItem(key:string, value:string):boolean {
+        try{
+            window.localStorage.setItem(key, value);
+            return true;
         }
-
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
-
+        catch(e){
+            egret.$warn(1047, key, value);
+            return false;
+        }
     }
 
     /**
      * @internal
+     * 
+     * @param key 
      */
-    export interface AsyncCallback {
-
-        onSuccess: (data:any) => any;
-
-        onFail: (error:number,data:any) => any;
-
+    function removeItem(key:string):void {
+        window.localStorage.removeItem(key);
     }
+
+    /**
+     * @internal
+     * 
+     */
+    function clear():void {
+        window.localStorage.clear();
+    }
+
+    localStorage.getItem = getItem;
+    localStorage.setItem = setItem;
+    localStorage.removeItem = removeItem;
+    localStorage.clear = clear;
 }

@@ -85,6 +85,11 @@ namespace egret.web {
          */
         public stage:Stage;
 
+        /**
+         * @internal
+         */
+        public webTouchHandler:WebTouchHandler;
+
 
         private init(container:HTMLDivElement, canvas:HTMLCanvasElement):void {
             let option = this.readOption(container);
@@ -99,16 +104,21 @@ namespace egret.web {
             stage.frameRate = option.frameRate;
             this.attachCanvas(container, canvas);
 
+            let webTouch = new WebTouchHandler(stage, canvas);
+
             this.playerOption = option;
             this.container = container;
             this.canvas = canvas;
             this.stage = stage;
+            this.webTouchHandler = webTouch;
 
             this.updateScreenSize();
             sys.systemTicker.addStage(stage);
 
             let entryInstance = sys.getEntryInstance(option.entryClassName);
             stage.addChild(entryInstance);
+
+            webTouch.updateMaxTouches();
         }
 
         /**
@@ -171,6 +181,8 @@ namespace egret.web {
             this.scaleFactor = window.devicePixelRatio;
             this.width = screenRect.width;
             this.height = screenRect.height;
+            Capabilities.$boundingClientWidth = this.width;
+            Capabilities.$boundingClientHeight = this.height;
             this.stage.$updateScreenSize(this.width, this.height, this.scaleFactor);
         }
 
@@ -205,6 +217,9 @@ namespace egret.web {
             canvas.style.height = displayHeight + "px";
             canvas.style.top = rule.displayX + "px";
             canvas.style.left = rule.displayY + "px";
+            let scalex = displayWidth / rule.stageWidth,
+                scaley = displayHeight / rule.stageHeight;
+            this.webTouchHandler.updateScaleMode(scalex, scaley, 0);            
         }
 
         /**

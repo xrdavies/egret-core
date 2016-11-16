@@ -54,7 +54,7 @@ declare namespace egret {
      * @version Egret 2.4
      * @platform Web,Native
      */
-    class BitmapData {
+    class BitmapData{
         /**
          * @language zh_CN
          * 创建一个具有指定的宽度和高度的 BitmapData 对象。如果为 fillColor 参数指定一个值，则位图中的每个像素都将设置为该颜色。<br/>
@@ -84,7 +84,7 @@ declare namespace egret {
          * @version Egret 3.5
          * @platform Web,Native
          */
-        constructor(width:number, height:number, transparent?:boolean, fillColor?:number);
+        constructor(width:number, height?:number, transparent?:boolean, fillColor?:number);
 
         /**
          * @internal

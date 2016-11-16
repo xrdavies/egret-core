@@ -26,47 +26,44 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
+namespace egret.native {
+    let callBackDic = {};
 
-/**
- * @internal
- */
-namespace egret.sys {
     /**
      * @internal
      */
-    export let hashCount:number = 1;
-}
+    export class NativeExternalInterface implements ExternalInterface {
 
-namespace egret {
-
-
-    /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
-     */
-    export class HashObject {
-
-        /**
-         * Initializes a HashObject
-         */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
+        static call(functionName:string, value:string):void {
+            //todo
+            // let data:any = {};
+            // data.functionName = functionName;
+            // data.value = value;
+            // egret_native.sendInfoToPlugin(JSON.stringify(data));
         }
 
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
-
+        static addCallback(functionName:string, listener:(value)=>void):void {
+            callBackDic[functionName] = listener;
+        }
     }
 
     /**
      * @internal
+     * @param info
      */
-    export interface AsyncCallback {
-
-        onSuccess: (data:any) => any;
-
-        onFail: (error:number,data:any) => any;
-
+    function onReceivedPluginInfo(info:string):void {
+        let data = JSON.parse(info);
+        let functionName = data.functionName;
+        let listener = callBackDic[functionName];
+        if (listener) {
+            let value = data.value;
+            listener.call(null, value);
+        }
+        else {
+            egret.$warn(1004, functionName);
+        }
     }
+
+    ExternalInterface = NativeExternalInterface;
+    // egret_native.receivedPluginInfo = onReceivedPluginInfo;
 }

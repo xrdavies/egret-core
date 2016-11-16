@@ -97,7 +97,12 @@ namespace egret.web {
                 return;
             }
             buffer.setSmoothing(node.smoothing);
-            context.drawImage(bitmapData.source, 0, 0);
+            let data = node.drawData;
+            let length = data.length;
+            let pos = 0;
+            while (pos < length) {
+                context.drawImage(bitmapData.source, data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++]);
+            }
         }
 
         public renderGraphics(buffer:CanvasRenderBuffer, node:elf.Graphics, forHitTest?:boolean):void {

@@ -27,46 +27,26 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.sys {
+namespace egret.web {
     /**
      * @internal
      */
-    export let hashCount:number = 1;
-}
-
-namespace egret {
-
-
-    /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
-     */
-    export class HashObject {
-
+    export class WebExternalInterface implements ExternalInterface {
         /**
-         * Initializes a HashObject
+         * @internal
+         * @param functionName
+         * @param value
          */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
+        static call(functionName:string, value:string):void {
         }
 
         /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
+         * @internal
+         * @param functionName
+         * @param listener
          */
-        public readonly hashCode:number;
-
+        static addCallback(functionName:string, listener:(value)=>void):void {
+        }
     }
-
-    /**
-     * @internal
-     */
-    export interface AsyncCallback {
-
-        onSuccess: (data:any) => any;
-
-        onFail: (error:number,data:any) => any;
-
-    }
+    ExternalInterface = WebExternalInterface;
 }

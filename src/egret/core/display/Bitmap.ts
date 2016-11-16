@@ -65,10 +65,15 @@ namespace egret {
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public constructor(value?:BitmapData) {
+        public constructor(value?:BitmapData|Texture) {
             super();
             this.$nodeType = sys.NodeType.BITMAP;
-            this.bitmapData = value;
+            if(value instanceof Texture) {
+                this.texture = value;
+            }
+            else {
+                this.bitmapData = value;
+            }
         }
 
         /**
@@ -80,6 +85,11 @@ namespace egret {
          * @internal
          */
         $bitmapData:BitmapData;
+
+        /**
+         * @internal
+         */
+        $texture:Texture;
 
         /**
          * @language zh_CN
@@ -104,6 +114,36 @@ namespace egret {
                 return;
             }
             this.$bitmapData = value;
+            this.$texture = null;
+            this.$bitmapBits |= sys.BitmapBits.DirtyBitmapData;
+            this.$invalidateContentBounds();
+        }
+
+        /**
+         * @language zh_CN
+         * 被引用的 Texture 对象。
+         * 如果传入构造函数的类型为 BitmapData 或者最后设置的为 bitmapData，则此值返回 null。
+         */
+        /**
+         * The Texture object being referenced.
+         * If you pass the constructor of type BitmapData or last set for bitmapData, this value returns null.
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        public get texture(): Texture {
+            return this.$texture;
+        }
+
+        public set texture(value: Texture) {
+            this.setTexture(value);
+        }
+
+        protected setTexture(value:Texture):void {
+            if (value == this.$texture) {
+                return;
+            }
+            this.$texture = value;
+            this.$bitmapData = null;
             this.$bitmapBits |= sys.BitmapBits.DirtyBitmapData;
             this.$invalidateContentBounds();
         }
@@ -114,8 +154,8 @@ namespace egret {
         $smoothing:boolean = true;
 
         /**
-         * @language en_US
-         * Whether or not the bitmap is smoothed when scaled.
+         * @language zh_CN
+         * 控制在缩放时是否对位图进行平滑处理。
          */
         /**
          * Whether or not the bitmap is smoothed when scaled.
@@ -307,9 +347,15 @@ namespace egret {
          */
         $measureContentBounds(bounds:Rectangle):void {
             let bitmapData = this.$bitmapData;
+            let texture = this.$texture;
             if (bitmapData) {
                 let width = isNaN(this.explicitWidth) ? bitmapData.width : this.explicitWidth;
                 let height = isNaN(this.explicitHeight) ? bitmapData.height : this.explicitHeight;
+                bounds.setTo(0, 0, width, height);
+            }
+            else if(texture) {
+                let width = isNaN(this.explicitWidth) ? texture.textureWidth : this.explicitWidth;
+                let height = isNaN(this.explicitHeight) ? texture.textureHeight : this.explicitHeight;
                 bounds.setTo(0, 0, width, height);
             }
             else {

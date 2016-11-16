@@ -26,47 +26,95 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
+namespace egret.localStorage.native {
+    let filePath:string = "LocalStorage.local";
 
-/**
- * @internal
- */
-namespace egret.sys {
+    let localStorageData = {};
+
     /**
      * @internal
+     *
+     * @param key
+     * @returns
      */
-    export let hashCount:number = 1;
-}
-
-namespace egret {
-
+    function getItem(key:string):string {
+        return localStorageData[key];
+    }
 
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * @internal
+     *
+     * @param key
+     * @param value
+     * @returns
      */
-    export class HashObject {
-
-        /**
-         * Initializes a HashObject
-         */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
+    function setItem(key:string, value:string):boolean {
+        if(value === undefined) {
+            value = "undefined";
         }
-
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
-
+        else if(value === null) {
+            value = "null";
+        }
+        else {
+            value = value.toString();
+        }
+        localStorageData[key] = value;
+        try {
+            save();
+            return true;
+        }
+        catch (e) {
+            egret.$warn(1018, key, value);
+            return false;
+        }
     }
 
     /**
      * @internal
+     *
+     * @param key
      */
-    export interface AsyncCallback {
-
-        onSuccess: (data:any) => any;
-
-        onFail: (error:number,data:any) => any;
-
+    function removeItem(key:string):void {
+        delete localStorageData[key];
+        save();
     }
+
+    /**
+     * @internal
+     *
+     */
+    function clear():void {
+        for (let key in localStorageData) {
+            delete localStorageData[key];
+        }
+        save();
+    }
+
+    /**
+     * @internal
+     *
+     */
+    function save() {
+        // egret_native.saveRecord(filePath, JSON.stringify(localStorageData));
+    }
+
+    //todo
+
+    // if (egret_native.isRecordExists(filePath)) {
+    //     let str:string = egret_native.loadRecord(filePath);
+
+    //     try {
+    //         localStorageData = JSON.parse(str);
+    //     } catch (e) {
+    //         localStorageData = {};
+    //     }
+    // }
+    // else {
+        localStorageData = {};
+    // }
+
+    localStorage.getItem = getItem;
+    localStorage.setItem = setItem;
+    localStorage.removeItem = removeItem;
+    localStorage.clear = clear;
 }

@@ -27,46 +27,42 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.sys {
-    /**
-     * @internal
-     */
-    export let hashCount:number = 1;
-}
-
 namespace egret {
 
-
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * @language zh_CN
+     * HttpRequestMethod 类提供了一些值，这些值可指定在将数据发送到服务器时，
+     * HttpRequest 对象应使用 POST 方法还是 GET 方法。
      */
-    export class HashObject {
+    /**
+     * The HttpMethod class provides values that specify whether the HttpRequest object should use the POST method
+     * or the GET method when sending data to a server.
+     * @see egret.HttpRequest
+     * @version Egret 2.4
+     * @platform Web,Native
+     */
+    export class HttpMethod {
 
         /**
-         * Initializes a HashObject
+         * @language zh_CN
+         * 表示 HttpRequest 对象是一个 GET。
          */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
+        /**
+         * Specifies that the HttpRequest object is a GET.
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        public static GET:string = "GET";
 
         /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
+         * @language zh_CN
+         * 表示 HttpRequest 对象是一个 POST。
          */
-        public readonly hashCode:number;
-
-    }
-
-    /**
-     * @internal
-     */
-    export interface AsyncCallback {
-
-        onSuccess: (data:any) => any;
-
-        onFail: (error:number,data:any) => any;
-
+        /**
+         * Specifies that the HttpRequest object is a POST.
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        public static POST:string = "POST";
     }
 }

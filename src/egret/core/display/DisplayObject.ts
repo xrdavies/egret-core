@@ -1332,5 +1332,43 @@ namespace egret {
             this.dispatchEventFlow(event, list, targetIndex);
             return !event.$isDefaultPrevented;
         }
+
+        protected invertConcatenatedMatrix = new Matrix();
+
+        /**
+         * @internal
+         */
+        public $hitTest(stageX: number, stageY: number): DisplayObject {
+            if (!this.$visible || this._scaleX == 0 || this._scaleY == 0) {
+                return null;
+            }
+            this.$getConcatenatedMatrix(this.invertConcatenatedMatrix);
+            this.invertConcatenatedMatrix.invert();
+            let m = this.invertConcatenatedMatrix;
+            if (m.a == 0 && m.b == 0 && m.c == 0 && m.d == 0) {//防止父类影响子类
+                return null;
+            }
+            if (this.dirtyContentBounds) {
+                this.$measureContentBounds(this.contentBounds);
+                this.dirtyContentBounds = false;
+            }
+            let bounds = this.contentBounds;
+            let localX = m.a * stageX + m.c * stageY + m.tx;
+            let localY = m.b * stageX + m.d * stageY + m.ty;
+            if (bounds.contains(localX, localY)) {
+                if (!this.$children) {//容器已经检查过scrollRect和mask，避免重复对遮罩进行碰撞。
+
+                    let rect = this.$scrollRect ? this.$scrollRect : this.$maskRect;
+                    if (rect && !rect.contains(localX, localY)) {
+                        return null;
+                    }
+                    if (this.$mask && !this.$mask.$hitTest(stageX, stageY)) {
+                        return null;
+                    }
+                }
+                return this;
+            }
+            return null;
+        }
     }
 }

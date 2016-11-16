@@ -27,46 +27,53 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.sys {
+namespace egret {
     /**
      * @internal
+     * @version Egret 2.4
+     * @platform Web,Native
      */
-    export let hashCount:number = 1;
-}
-
-namespace egret {
-
-
-    /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
-     */
-    export class HashObject {
-
+    export class Filter extends HashObject {
         /**
-         * Initializes a HashObject
+         * @version Egret 2.4
+         * @platform Web,Native
          */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
+        public type:string = null;
+        
+        private $targets:DisplayObject[] = [];
+        
+        public $addTarget(target:DisplayObject):void {
+            let length:number = this.$targets.length;
+            for(let i:number = 0 ; i < length ; i++) {
+                if(this.$targets[i].hashCode == target.hashCode) {
+                    return;
+                }
+            }
+            this.$targets.push(target);
+        }
+        
+        public $removeTarget(target:DisplayObject):void {
+            let length:number = this.$targets.length;
+            for(let i:number = 0 ; i < length ; i++) {
+                if(this.$targets[i].hashCode == target.hashCode) {
+                    this.$targets.splice(i, 1);
+                    return;
+                }
+            }
+        }
+        
+        protected invalidate():void {
+            let length:number = this.$targets.length;
+            for(let i:number = 0 ; i < length ; i++) {
+                this.$targets[i].$invalidateContentBounds();
+            }
         }
 
         /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
+         * @internal
          */
-        public readonly hashCode:number;
-
-    }
-
-    /**
-     * @internal
-     */
-    export interface AsyncCallback {
-
-        onSuccess: (data:any) => any;
-
-        onFail: (error:number,data:any) => any;
-
+        public $toJson():string {
+            return '';
+        }
     }
 }

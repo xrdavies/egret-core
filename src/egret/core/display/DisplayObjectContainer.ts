@@ -501,7 +501,10 @@ namespace egret {
             }
         }
 
-        private _touchChildren:boolean = true;
+        /**
+         * @internal
+         */
+        public $touchChildren:boolean = true;
 
         /**
          * Determines whether or not the children of the object are touch, or user input device, enabled. If an object is
@@ -515,11 +518,58 @@ namespace egret {
          * No event is dispatched by setting this property. You must use the addEventListener() method to create interactive functionality.
          */
         public get touchChildren():boolean {
-            return this._touchChildren;
+            return this.$touchChildren;
         }
 
         public set touchChildren(value:boolean) {
-            this._touchChildren = value;
+            this.$touchChildren = value;
+        }
+
+        public $hitTest(stageX: number, stageY: number): DisplayObject {
+            if (!this.visible) {
+                return null;
+            }
+            if (this.mask && !this.mask.$hitTest(stageX, stageY)) {
+                return null;
+            }
+            this.$getConcatenatedMatrix(this.invertConcatenatedMatrix);
+            this.invertConcatenatedMatrix.invert();
+            let m = this.invertConcatenatedMatrix;
+            let localX = m.a * stageX + m.c * stageY + m.tx;
+            let localY = m.b * stageX + m.d * stageY + m.ty;
+            let rect = this.scrollRect ? this.scrollRect : this.maskRect;
+            if (rect && !rect.contains(localX, localY)) {
+                return null;
+            }
+            let children = this.$children;
+            let found = false;
+            let target:DisplayObject = null;
+            for (let i = children.length - 1; i >= 0; i--) {
+                let child = children[i];
+                if (child.$maskedObject) {
+                    continue;
+                }
+                target = child.$hitTest(stageX, stageY);
+                if (target) {
+                    found = true;
+                    if (target.touchEnabled) {
+                        break;
+                    }
+                    else {
+                        target = null;
+                    }
+                }
+            }
+            if (target) {
+                if (this.touchChildren) {
+                    return target;
+                }
+                return this;
+            }
+            if (found) {
+                return this;
+            }
+            return super.$hitTest(localX, localY);
         }
     }
 }

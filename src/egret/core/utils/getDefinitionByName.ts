@@ -31,7 +31,7 @@
 namespace egret {
 
     /**
-     * @private
+     * @internal
      */
     let getDefinitionByNameCache = {};
 

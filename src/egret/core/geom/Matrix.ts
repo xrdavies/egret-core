@@ -157,30 +157,38 @@ namespace egret {
          * undo the transformation performed when applying the original matrix.
          */
         public invert():void {
-            if (this.b == 0 && this.c == 0) {
-                if (this.a == 0 || this.d == 0) {
-                    this.tx = this.ty = 0;
+            let a = this.a;
+            let b  = this.b;
+            let c  = this.c;
+            let d = this.d;
+            let tx = this.tx;
+            let ty = this.ty;
+            if (b == 0 && c == 0) {
+                this.b = this.c = 0;
+                if(a==0||d==0){
+                    this.a = this.d = this.tx = this.ty = 0;
                 }
-                else {
-                    this.a = 1 / this.a;
-                    this.d = 1 / this.d;
-                    this.tx = -this.a * this.tx;
-                    this.ty = -this.d * this.ty;
+                else{
+                    a = this.a = 1 / a;
+                    d = this.d = 1 / d;
+                    this.tx = -a * tx;
+                    this.ty = -d * ty;
                 }
+
                 return;
             }
-            let determinant = this.a * this.d - this.b * this.c;
+            let determinant = a * d - b * c;
             if (determinant == 0) {
                 this.identity();
                 return;
             }
             determinant = 1 / determinant;
-            this.a = this.d * determinant;
-            this.b = -this.b * determinant;
-            this.c = -this.c * determinant;
-            this.d = this.a * determinant;
-            this.tx = -(this.a * this.tx + this.c * this.ty);
-            this.ty = -(this.b * this.tx + this.d * this.ty);
+            let k = this.a =  d * determinant;
+            b = this.b = -b * determinant;
+            c = this.c = -c * determinant;
+            d = this.d =  a * determinant;
+            this.tx = -(k * tx + c * ty);
+            this.ty = -(b * tx + d * ty);
         }
 
 

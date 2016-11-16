@@ -177,8 +177,17 @@ namespace elf {
             }
             let node:Bitmap = bitmap.$handle;
             if (bits & egret.sys.BitmapBits.DirtyBitmapData) {
-                let bitmapData = bitmap.$bitmapData;
+                let bitmapData = bitmap.$bitmapData || bitmap.$texture.$bitmapData;
                 node.bitmapData = bitmapData ? bitmapData.$handle : null;
+                node.drawData.length = 0;
+                if(bitmap.$bitmapData) {
+                    node.drawImage(0,0,bitmapData.width,bitmapData.height,0,0,bitmapData.width,bitmapData.height,bitmapData.width,bitmapData.height);
+                }
+                else {
+                    var texture = bitmap.$texture;
+                    node.drawImage(texture._bitmapX,texture._bitmapY,texture._bitmapWidth,texture._bitmapHeight,
+                    texture._offsetX,texture._offsetY,texture.textureWidth,texture.textureHeight,texture.textureWidth,texture.textureHeight);
+                }
             }
             if (bits & egret.sys.BitmapBits.DirtyScale9Grid) {
                 node.setScale9Grid(<elf.Rectangle><any>bitmap.$scale9Grid);

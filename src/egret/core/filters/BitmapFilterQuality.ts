@@ -27,46 +27,47 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.sys {
-    /**
-     * @internal
-     */
-    export let hashCount:number = 1;
-}
 
 namespace egret {
-
-
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * @language zh_CN
+     * BitmapFilterQuality 类中包含的值用于设置 BitmapFilter 对象的呈现品质。
      */
-    export class HashObject {
-
-        /**
-         * Initializes a HashObject
-         */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
-
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
-
-    }
-
     /**
-     * @internal
+     * The BitmapFilterQuality class contains values to set the rendering quality of a BitmapFilter object.
+     * @version Egret 2.4
+     * @platform Web,Native
      */
-    export interface AsyncCallback {
-
-        onSuccess: (data:any) => any;
-
-        onFail: (error:number,data:any) => any;
-
+    export const enum BitmapFilterQuality {
+        /**
+         * @language zh_CN
+         * 定义低品质滤镜设置。
+         */
+        /**
+         * Defines the low quality filter setting.
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        LOW = 1,
+        /**
+         * @language zh_CN
+         * 定义中品质滤镜设置。
+         */
+        /**
+         * Defines the medium quality filter setting.
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        MEDIUM = 2,
+        /**
+         * @language zh_CN
+         * 定义高品质滤镜设置。
+         */
+        /**
+         * Defines the high quality filter setting.
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        HIGH = 3
     }
 }

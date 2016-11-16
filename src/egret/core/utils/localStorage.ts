@@ -28,45 +28,63 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * @internal
+ * @version Egret 2.4
+ * @platform Web,Native
+ * @includeExample egret/localStorage/localStorage.ts
  */
-namespace egret.sys {
-    /**
-     * @internal
-     */
-    export let hashCount:number = 1;
-}
-
-namespace egret {
-
+namespace egret.localStorage {
 
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * @language zh_CN
+     * 读取数据
+     * @param key 要读取的键名称
      */
-    export class HashObject {
-
-        /**
-         * Initializes a HashObject
-         */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
-
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
-
-    }
+    /**
+     * Read data
+     * @param key Name of the key to be read
+     * @version Egret 2.4
+     * @platform Web,Native
+     */
+    export let getItem: (key: string) => string;
 
     /**
-     * @internal
+     * @language zh_CN
+     * 保存数据
+     * @param key 要保存的键名称
+     * @param value 要保存的值
+     * @returns 数据保存是否成功
      */
-    export interface AsyncCallback {
+    /**
+     * Save data
+     * @param key Name of the key to be saved
+     * @param value Value to be saved
+     * @returns Whether data is saved successfully
+     * @version Egret 2.4
+     * @platform Web,Native
+     */
+    export let setItem: (key: string, value: string) => boolean;
 
-        onSuccess: (data:any) => any;
+    /**
+     * @language zh_CN
+     * 删除数据
+     * @param key 要删除的键名称
+     */
+    /**
+     * Delete data
+     * @param key Name of the key to be deleted
+     * @version Egret 2.4
+     * @platform Web,Native
+     */
+    export let removeItem: (key: string) => void;
 
-        onFail: (error:number,data:any) => any;
-
-    }
+    /**
+     * @language zh_CN
+     * 将所有数据清空
+     */
+    /**
+     * Clear all data
+     * @version Egret 2.4
+     * @platform Web,Native
+     */
+    export let clear: () => void;
 }

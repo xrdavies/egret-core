@@ -27,46 +27,67 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.sys {
+namespace egret {
+
     /**
      * @internal
      */
-    export let hashCount:number = 1;
-}
-
-namespace egret {
-
+    export let $callLaterFunctionList:any[] = [];
+    /**
+     * @internal
+     */
+    export let $callLaterThisList:any[] = [];
+    /**
+     * @internal
+     */
+    export let $callLaterArgsList:any[] = [];
 
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * @language zh_CN
+     * 延迟函数到屏幕重绘前执行。
+     * @param method 要延迟执行的函数
+     * @param thisObject 回调函数的this引用
+     * @param ...args 函数参数列表
      */
-    export class HashObject {
-
-        /**
-         * Initializes a HashObject
-         */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
-
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
-
+    /**
+     * Delay the function to run unless screen is redrawn.
+     * @param method The function to be delayed to run
+     * @param thisObject this reference of callback function
+     * @param ...args Function parameter list
+     * @version Egret 2.4
+     * @platform Web,Native
+     * @includeExample egret/utils/callLater.ts
+     */
+    export function callLater(method:Function,thisObject:any,...args):void
+    {
+        $callLaterFunctionList.push(method);
+        $callLaterThisList.push(thisObject);
+        $callLaterArgsList.push(args);
     }
 
     /**
      * @internal
      */
-    export interface AsyncCallback {
-
-        onSuccess: (data:any) => any;
-
-        onFail: (error:number,data:any) => any;
-
+    export let $callAsyncFunctionList:any[] = [];
+    /**
+     * @internal
+     */
+    export let $callAsyncThisList:any[] = [];
+    /**
+     * @internal
+     */
+    export let $callAsyncArgsList:any[] = [];
+    /**
+     * 异步调用函数
+     * @param method {Function} 要异步调用的函数
+     * @param thisObject {any} 函数的this引用
+     * @param ...args {any} 函数参数列表
+     * @internal
+     */
+    export function $callAsync(method:Function,thisObject:any,...args):void
+    {
+        $callAsyncFunctionList.push(method);
+        $callAsyncThisList.push(thisObject);
+        $callAsyncArgsList.push(args);
     }
 }

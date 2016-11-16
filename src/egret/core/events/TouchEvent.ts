@@ -151,7 +151,7 @@ namespace egret {
         private targetChanged:boolean = true;
 
         /**
-         * @private
+         * @internal
          */
         private getLocalXY():void {
             this.targetChanged = false;
@@ -186,5 +186,46 @@ namespace egret {
          * Whether the touch is pressed (true) or not pressed (false).
          */
         public touchDown:boolean = false;
+
+        /**
+         * @language zh_CN
+         * 使用指定的EventDispatcher对象来抛出Event事件对象。抛出的对象将会缓存在对象池上，供下次循环复用。
+         * @param target 派发事件目标
+         * @param type 事件的类型，可以作为 Event.type 访问。
+         * @param bubbles 确定 Event 对象是否参与事件流的冒泡阶段。默认值为 false。
+         * @param cancelable 确定是否可以取消 Event 对象。默认值为 false。
+         * @param stageX 事件发生点在全局舞台坐标系中的水平坐标
+         * @param stageY 事件发生点在全局舞台坐标系中的垂直坐标
+         * @param touchPointID 分配给触摸点的唯一标识号
+         */
+        /**
+         * uses a specified target to dispatchEvent an event. Using this method can reduce the number of
+         * reallocate event objects, which allows you to get better code execution performance.
+         * @param target the event target
+         * @param type  The type of the event, accessible as Event.type.
+         * @param bubbles  Determines whether the Event object participates in the bubbling stage of the event flow. The default value is false.
+         * @param cancelable Determines whether the Event object can be canceled. The default values is false.
+         * @param stageX The horizontal coordinate at which the event occurred in global Stage coordinates.
+         * @param stageY The vertical coordinate at which the event occurred in global Stage coordinates.
+         * @param touchPointID A unique identification number (as an int) assigned to the touch point.
+         *
+         * @see egret.Event.create()
+         * @see egret.Event.release()
+         *
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        public static dispatchTouchEvent(target:IEventDispatcher, type:string, bubbles?:boolean, cancelable?:boolean,
+                                         stageX?:number, stageY?:number, touchPointID?:number, touchDown:boolean = false):boolean {
+            if (!bubbles && !target.hasEventListener(type)) {
+                return true;
+            }
+            let event:TouchEvent = Event.create(TouchEvent, type, bubbles, cancelable);
+            event.$initTo(stageX, stageY, touchPointID);
+            event.touchDown = touchDown;
+            let result = target.dispatchEvent(event);
+            Event.release(event);
+            return result;
+        }
     }
 }

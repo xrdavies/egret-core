@@ -27,46 +27,44 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.sys {
-    /**
-     * @internal
-     */
-    export let hashCount:number = 1;
-}
-
 namespace egret {
-
-
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * @language zh_CN
+     * h5与native交互。
+     * @see http://edn.egret.com/cn/article/index/id/714 Egret 与 Native 通信基本技巧
      */
-    export class HashObject {
-
-        /**
-         * Initializes a HashObject
-         */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
-
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
+    /**
+     * h5 and native interaction.
+     * @see http://edn.egret.com/cn/article/index/id/714 Egret basic skills to communicate with Native
+     * @version Egret 2.4
+     * @platform Web,Native
+     * @includeExample egret/external/ExternalInterface.ts
+     */
+    export interface ExternalInterface {
 
     }
 
-    /**
-     * @internal
-     */
-    export interface AsyncCallback {
+    export let ExternalInterface: {
+        /**
+         * @language zh_CN
+         * 调用 functionName，并将value传入到native中。
+         */
+        /**
+         * Call functionName, and the value passed to the native.
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        call(functionName:string, value:string):void;
 
-        onSuccess: (data:any) => any;
-
-        onFail: (error:number,data:any) => any;
-
-    }
+        /**
+         * @language zh_CN
+         * 监听 functionName 回调，需要在native中有调用 functionName 这个字段，而不是 此类的call。
+         */
+        /**
+         * FunctionName callback listener, you need to have to call functionName this field in native rather than such a call.
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        addCallback(functionName:string, listener:(value)=>void):void
+    };
 }

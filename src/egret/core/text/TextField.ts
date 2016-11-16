@@ -886,5 +886,23 @@ namespace egret {
         public setFocus():void {
 
         }
+
+        /**
+         * @language zh_CN
+         * 设置富文本
+         * @see http://edn.egret.com/cn/index.php/article/index/id/146
+         */
+        /**
+         * Set rich text
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        public set textFlow(textArr:any) {
+            //todo
+        }
+
+        public get textFlow():any {
+            return null;
+        }
     }
 }

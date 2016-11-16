@@ -87,6 +87,9 @@ namespace egret.web {
             options = {};
         }
 
+        Html5Capatibility._audioType = options.audioType;
+        Html5Capatibility.$init();
+        
         let ticker = sys.systemTicker;
         startTicker(ticker);
         if (options.screenAdapter) {

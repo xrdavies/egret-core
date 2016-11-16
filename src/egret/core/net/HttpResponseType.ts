@@ -27,46 +27,41 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.sys {
-    /**
-     * @internal
-     */
-    export let hashCount:number = 1;
-}
-
 namespace egret {
 
-
     /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
+     * @language zh_CN
+     * URLLoaderDataFormat 类提供了一些用于指定如何接收已下载数据的值。
      */
-    export class HashObject {
+    /**
+     * The HttpResponseType class provides values that specify how downloaded data is received.
+     * @see egret.HttpRequest
+     * @version Egret 2.4
+     * @platform Web,Native
+     */
+    export class HttpResponseType{
 
         /**
-         * Initializes a HashObject
+         * @language zh_CN
+         * 返回字符串。HttpRequest.responseType属性的默认值。
          */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
+        /**
+         * Specifies that downloaded data is received as text. This is the default value of HttpRequest.responseType
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        public static TEXT:string = "text";
 
         /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
+         * @language zh_CN
+         * 返回二进制的ArrayBuffer对象。
          */
-        public readonly hashCode:number;
-
-    }
-
-    /**
-     * @internal
-     */
-    export interface AsyncCallback {
-
-        onSuccess: (data:any) => any;
-
-        onFail: (error:number,data:any) => any;
+        /**
+         * Specifies that downloaded data is received as raw binary data.
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        public static ARRAY_BUFFER:string = "arraybuffer";
 
     }
 }

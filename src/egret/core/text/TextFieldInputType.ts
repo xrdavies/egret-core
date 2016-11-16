@@ -1,3 +1,4 @@
+
 //////////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (c) 2014-present, Egret Technology.
@@ -27,46 +28,50 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * @internal
- */
-namespace egret.sys {
-    /**
-     * @internal
-     */
-    export let hashCount:number = 1;
-}
-
 namespace egret {
 
+	/**
+     * @language zh_CN
+     * TextFieldInputType 类是在设置 TextField 类的 inputType 属性时使用的常数值的枚举。
+	 */
+	/**
+     * TextFieldInputType class is an enumeration of constant value used in setting the inputType property of the TextField class.
+     * @version Egret 3.1.2
+     * @platform Web,Native
+	 */
+    export class TextFieldInputType {
 
-    /**
-     * The HashObject class contains the hashCode property, which is a unique number for identifying this instance.
-     */
-    export class HashObject {
+		/**
+         * @language zh_CN
+         * 默认 input 类型
+		 */
+		/**
+         * The default
+         * @version Egret 3.1.2
+         * @platform Web,Native
+		 */
+        public static TEXT:string = "text";
 
+		/**
+         * @language zh_CN
+         * 电话号码 input 类型
+		 */
+		/**
+         * Telephone Number Inputs
+         * @version Egret 3.1.2
+         * @platform Web,Native
+		 */
+        public static TEL:string = "tel";
+        
+		/**
+         * @language zh_CN
+         * password 类型
+		 */
         /**
-         * Initializes a HashObject
-         */
-        public constructor() {
-            this.hashCode = sys.hashCount++;
-        }
-
-        /**
-         * Indicates the hash code of the instance, which is a unique number for identifying this instance.
-         */
-        public readonly hashCode:number;
-
-    }
-
-    /**
-     * @internal
-     */
-    export interface AsyncCallback {
-
-        onSuccess: (data:any) => any;
-
-        onFail: (error:number,data:any) => any;
-
+         * Password Inputs
+         * @version Egret 3.1.2
+         * @platform Web,Native
+		 */
+        public static PASSWORD:string = "password";
     }
 }
