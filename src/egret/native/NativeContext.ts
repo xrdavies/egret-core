@@ -347,6 +347,26 @@ declare module egret_native {
 
         function listUpdate(root, promise);
     }
+
+    module Skia {
+        function getTextSize(text:string, fontSize:number):Array<number>;
+
+        function createCanvas(w:number, h:number, offsetX:number, offsetY:number):void;
+
+        function setTextSize(size:number):void;
+
+        function setColor(color:number):void;
+
+        function drawText(text:string, x:number, y:number):void;
+
+        function getRenderTexture():number;
+
+        function bindTexture(textureHandle:number):void;
+
+        function setStrokeWidth(width:number):void;
+
+        function pushDrawData(type:number, cmds:Array<any>, datas:Array<any>, cmdLength:number, dataLength:number):void;
+    }
     /**
      * @private
      */

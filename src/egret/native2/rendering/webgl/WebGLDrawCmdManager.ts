@@ -123,6 +123,15 @@ module egret.native2 {
         }
         //-lj
 
+        public pushDrawGraphics(texture, count:number) {
+            var data = this.drawData[this.drawDataLen] || {};
+            data.type = 11;
+            data.texture = texture;
+            data.count = count;
+            this.drawData[this.drawDataLen] = data;
+            this.drawDataLen++;
+        }
+
         /**
          * 压入pushMask指令
          */

@@ -623,6 +623,20 @@ module egret.native2 {
         }
         //-lj
 
+        public drawGraphics(textureHandle:number, canvasW:number, canvasH:number, width:number, height:number, alpha:number) {
+            var buffer = this.currentBuffer;
+            if (this.contextLost || !buffer) {
+                return;
+            }
+            var texture = {};
+            texture["isForGraphics"] = true;
+            texture["textureHandle"] = textureHandle;
+            var transform = buffer.globalMatrix;
+            var count = 2;
+            this.drawCmdManager.pushDrawGraphics(texture, 2);
+            this.vao.cacheArraysForGraphics(transform, canvasW, canvasH, width, height, alpha);
+        }
+
         /**
          * 绘制矩形（仅用于遮罩擦除等）
          */
@@ -910,6 +924,14 @@ module egret.native2 {
                     offset += this.drawPushText(data, offset);
                     break;
                     //-lj
+                case 11:
+                    var shader:any = this.shaderManager.defaultShader;
+
+                    shader.setProjection(this.projectionX, this.projectionY);
+                    this.shaderManager.activateShader(shader, this.vertSize * 4);
+                    shader.syncUniforms();
+                    offset += this.drawPushGraphics(data, offset);
+                    break;
                 default:
                     break;
             }
@@ -942,6 +964,21 @@ module egret.native2 {
             return size;
         }
         //-lj
+
+        private drawPushGraphics = function (data, offset) {
+            var gl = this.context;
+            var size = 0;
+
+            // egret_native.Label["bindTexture"](i);
+
+            // gl.bindTexture(gl.TEXTURE_2D, data.texture.textureHandle);
+            egret_native.Skia.bindTexture(data.texture.textureHandle);
+            // console.log(" >>>>>>> " + data.texture.textureHandle);
+            gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, (offset + size) * 2);
+            size += 6;
+
+            return size;
+        }
 
         /**
          * 画texture
