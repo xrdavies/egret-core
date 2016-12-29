@@ -71,22 +71,22 @@ module egret.native {
         private _bindEvent():void {
             var that = this;
             var socket = this.socket;
-            socket.onOpen = function () {
+            socket.onopen = function () {
                 if (that.onConnect) {
                     that.onConnect.call(that.thisObject);
                 }
             };
-            socket.onClose = function () {
+            socket.onclose = function () {
                 if (that.onClose) {
                     that.onClose.call(that.thisObject);
                 }
             };
-            socket.onError = function (errorCode:number) {
+            socket.onerror = function (errorCode:number) {
                 if (that.onError) {
                     that.onError.call(that.thisObject);
                 }
             };
-            socket.onMessage = function (message) {
+            socket.onmessage = function (message) {
                 if (that.onSocketData) {
                     that.onSocketData.call(that.thisObject, message);
                 }
