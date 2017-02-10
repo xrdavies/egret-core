@@ -3043,7 +3043,8 @@ var egret;
          */
         function measureText(text, fontFamily, fontSize, bold, italic) {
             var font = egret.TextField.default_fontFamily;
-            return egret_native.Skia.getTextSize(text, fontSize)[0];
+            egret_native.Label.createLabel(font, fontSize, "", 0);
+            return egret_native.Label.getTextSize(text)[0];
         }
         egret.sys.measureText = measureText;
     })(native2 = egret.native2 || (egret.native2 = {}));
@@ -3414,14 +3415,6 @@ var egret;
                 this.drawDataLen++;
             };
             //-lj
-            p.pushDrawGraphics = function (texture, count) {
-                var data = this.drawData[this.drawDataLen] || {};
-                data.type = 11;
-                data.texture = texture;
-                data.count = count;
-                this.drawData[this.drawDataLen] = data;
-                this.drawDataLen++;
-            };
             /**
              * 压入pushMask指令
              */
@@ -4120,18 +4113,6 @@ var egret;
                     // gl.drawElements(gl.TRIANGLES, size, gl.UNSIGNED_SHORT, offset * 2);
                     return size;
                 };
-                //-lj
-                this.drawPushGraphics = function (data, offset) {
-                    var gl = this.context;
-                    var size = 0;
-                    // egret_native.Label["bindTexture"](i);
-                    // gl.bindTexture(gl.TEXTURE_2D, data.texture.textureHandle);
-                    egret_native.Skia.bindTexture(data.texture.textureHandle);
-                    // console.log(" >>>>>>> " + data.texture.textureHandle);
-                    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, (offset + size) * 2);
-                    size += 6;
-                    return size;
-                };
                 this.vertSize = 5;
                 this.blurFilter = null;
                 this.surface = createCanvas(width, height);
@@ -4537,19 +4518,6 @@ var egret;
                 this.$drawWebGL();
             };
             //-lj
-            p.drawGraphics = function (textureHandle, canvasW, canvasH, width, height, alpha) {
-                var buffer = this.currentBuffer;
-                if (this.contextLost || !buffer) {
-                    return;
-                }
-                var texture = {};
-                texture["isForGraphics"] = true;
-                texture["textureHandle"] = textureHandle;
-                var transform = buffer.globalMatrix;
-                var count = 2;
-                this.drawCmdManager.pushDrawGraphics(texture, 2);
-                this.vao.cacheArraysForGraphics(transform, canvasW, canvasH, width, height, alpha);
-            };
             /**
              * 绘制矩形（仅用于遮罩擦除等）
              */
@@ -4814,18 +4782,12 @@ var egret;
                         offset += this.drawPushText(data, offset);
                         break;
                     //-lj
-                    case 11:
-                        var shader = this.shaderManager.defaultShader;
-                        shader.setProjection(this.projectionX, this.projectionY);
-                        this.shaderManager.activateShader(shader, this.vertSize * 4);
-                        shader.syncUniforms();
-                        offset += this.drawPushGraphics(data, offset);
-                        break;
                     default:
                         break;
                 }
                 return offset;
             };
+            //-lj
             /**
              * 画texture
              **/
@@ -5776,15 +5738,6 @@ var egret;
                 // context.textAlign = "left";
                 // context.textBaseline = "middle";
                 // context.lineJoin = "round"; //确保描边样式是圆角
-                var canvasW = 2;
-                var canvasH = 2;
-                while (canvasW < node.width) {
-                    canvasW *= 2;
-                }
-                while (canvasH < node.height) {
-                    canvasH *= 2;
-                }
-                egret_native.Skia.createCanvas(canvasW, canvasH, node.x, node.y);
                 var drawData = node.drawData;
                 var length = drawData.length;
                 var pos = 0;
@@ -5804,16 +5757,19 @@ var egret;
                     // context.lineWidth = stroke * 2;
                     // context.strokeText(text, x, y);
                     // }
-                    egret_native.Skia.setTextSize(size);
-                    var color = textColor;
-                    if (color < 0x1000000) {
-                        color |= (0xff000000);
+                    // context.fillText(text, x, y);
+                    egret_native.Label.createLabel("", size, "", stroke);
+                    var transformDirty = false;
+                    if (x != 0 || y != 0) {
+                        transformDirty = true;
+                        buffer.saveTransform();
+                        buffer.transform(1, 0, 0, 1, x, y);
                     }
-                    egret_native.Skia.setColor(color);
-                    egret_native.Skia.drawText(text, x, y + size / 2);
+                    buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor);
+                    if (transformDirty) {
+                        buffer.restoreTransform();
+                    }
                 }
-                var t = egret_native.Skia.getRenderTexture();
-                buffer.context.drawGraphics(t, canvasW, canvasH, node.width, node.height, node.renderAlpha);
                 // egret_native.Label.createLabel("", node.size, "", node.stroke);
                 // var width = node.width - node.x;
                 // var height = node.height - node.y;
@@ -5853,45 +5809,6 @@ var egret;
              * @private
              */
             p.renderGraphics = function (node, buffer, forHitTest) {
-                var canvasW = 2;
-                var canvasH = 2;
-                while (canvasW < node.width) {
-                    canvasW *= 2;
-                }
-                while (canvasH < node.height) {
-                    canvasH *= 2;
-                }
-                egret_native.Skia.createCanvas(canvasW, canvasH, node.x, node.y);
-                var drawData = node.drawData;
-                // egret_native.Skia.setColor(0xff00ffff);
-                for (var i = 0; i < drawData.length; i++) {
-                    var color = 0;
-                    // console.log(">>>>>>>>" + color);
-                    if (drawData[i].fillColor) {
-                        color = drawData[i].fillColor;
-                        if (color < 0x1000000) {
-                            color |= (0xff000000);
-                        }
-                        egret_native.Skia.setColor(color);
-                    }
-                    else if (drawData[i].lineColor) {
-                        color = drawData[i].lineColor;
-                        if (color < 0x1000000) {
-                            color |= 0x88000000;
-                        }
-                        egret_native.Skia.setColor(color);
-                        egret_native.Skia.setStrokeWidth(drawData[i].lineWidth);
-                    }
-                    else {
-                        egret_native.Skia.setColor(0);
-                    }
-                    // console.log(">>>>>>>>" + color);
-                    egret_native.Skia.pushDrawData(drawData[i].type, drawData[i].$commands, drawData[i].$data, drawData[i].commandPosition, drawData[i].dataPosition);
-                }
-                // egret_native.Skia.setColor(0xff0000ff);
-                // egret_native.Skia.drawRect(0, 0, 50, 50);
-                var t = egret_native.Skia.getRenderTexture();
-                buffer.context.drawGraphics(t, canvasW, canvasH, node.width, node.height, node.renderAlpha);
                 // change xs
                 // skip graphics render
                 // TODO
@@ -6499,77 +6416,6 @@ var egret;
                 }
             };
             //-lj
-            p.cacheArraysForGraphics = function (transform, cw, ch, w, h, alpha) {
-                var locWorldTransform = transform;
-                var originalA = locWorldTransform.a;
-                var originalB = locWorldTransform.b;
-                var originalC = locWorldTransform.c;
-                var originalD = locWorldTransform.d;
-                var originalTx = locWorldTransform.tx;
-                var originalTy = locWorldTransform.ty;
-                var a = locWorldTransform.a;
-                var b = locWorldTransform.b;
-                var c = locWorldTransform.c;
-                var d = locWorldTransform.d;
-                var tx = locWorldTransform.tx;
-                var ty = locWorldTransform.ty;
-                locWorldTransform.a = originalA;
-                locWorldTransform.b = originalB;
-                locWorldTransform.c = originalC;
-                locWorldTransform.d = originalD;
-                locWorldTransform.tx = originalTx;
-                locWorldTransform.ty = originalTy;
-                var uvW = w / cw;
-                var uvH = h / ch;
-                var uvX = 0;
-                var uvY = 0;
-                var vertices = this.vertices;
-                var index = this.vertexIndex * this.vertSize;
-                // xy
-                vertices[index++] = tx;
-                vertices[index++] = ty;
-                // uv
-                vertices[index++] = uvX;
-                vertices[index++] = uvY;
-                // alpha
-                vertices[index++] = alpha;
-                // xy
-                vertices[index++] = a * w + tx;
-                vertices[index++] = b * w + ty;
-                // uv
-                vertices[index++] = uvX + uvW;
-                vertices[index++] = uvY;
-                // alpha
-                vertices[index++] = alpha;
-                // xy
-                vertices[index++] = a * w + c * h + tx;
-                vertices[index++] = d * h + b * w + ty;
-                // uv
-                vertices[index++] = uvX + uvW;
-                vertices[index++] = uvY + uvH;
-                // alpha
-                vertices[index++] = alpha;
-                // xy
-                vertices[index++] = c * h + tx;
-                vertices[index++] = d * h + ty;
-                // uv
-                vertices[index++] = uvX;
-                vertices[index++] = uvY + uvH;
-                // alpha
-                vertices[index++] = alpha;
-                // 缓存索引数组
-                if (this.hasMesh) {
-                    var indicesForMesh = this.indicesForMesh;
-                    indicesForMesh[this.indexIndex + 0] = 0 + this.vertexIndex;
-                    indicesForMesh[this.indexIndex + 1] = 1 + this.vertexIndex;
-                    indicesForMesh[this.indexIndex + 2] = 2 + this.vertexIndex;
-                    indicesForMesh[this.indexIndex + 3] = 0 + this.vertexIndex;
-                    indicesForMesh[this.indexIndex + 4] = 2 + this.vertexIndex;
-                    indicesForMesh[this.indexIndex + 5] = 3 + this.vertexIndex;
-                }
-                this.vertexIndex += 4;
-                this.indexIndex += 6;
-            };
             p.clear = function () {
                 this.hasMesh = false;
                 this.vertexIndex = 0;

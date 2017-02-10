@@ -39,8 +39,8 @@ module egret.native2 {
      */
     function measureText(text:string, fontFamily:string, fontSize:number, bold:boolean, italic:boolean):number {
         var font:string = TextField.default_fontFamily;
-        
-        return egret_native.Skia.getTextSize(text, fontSize)[0];
+        egret_native.Label.createLabel(font, fontSize, "", 0);
+        return egret_native.Label.getTextSize(text)[0];
     }
 
     sys.measureText = measureText;

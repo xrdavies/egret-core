@@ -690,17 +690,6 @@ module egret.native2 {
             // context.textAlign = "left";
             // context.textBaseline = "middle";
             // context.lineJoin = "round"; //确保描边样式是圆角
-
-            var canvasW = 2;
-            var canvasH = 2;
-            while (canvasW < node.width) {
-                canvasW *= 2;
-            }
-            while (canvasH < node.height) {
-                canvasH *= 2;
-            }
-            egret_native.Skia.createCanvas(canvasW, canvasH, node.x, node.y);
-
             var drawData = node.drawData;
             var length = drawData.length;
             var pos = 0;
@@ -720,36 +709,23 @@ module egret.native2 {
                     // context.lineWidth = stroke * 2;
                     // context.strokeText(text, x, y);
                 // }
-
-                egret_native.Skia.setTextSize(size);
-                var color = textColor;
-                if (color < 0x1000000)
-                {
-                    color |= (0xff000000);
-                }
-                egret_native.Skia.setColor(color);
-                egret_native.Skia.drawText(text, x, y + size / 2);
-
                 // context.fillText(text, x, y);
-                // egret_native.Label.createLabel("", size, "", stroke);
+                egret_native.Label.createLabel("", size, "", stroke);
 
-                // var transformDirty = false;
+                var transformDirty = false;
 
-                // if (x != 0 || y != 0) {
-                //     transformDirty = true;
-                //     buffer.saveTransform();
-                //     buffer.transform(1, 0, 0, 1, x, y);
-                // }
+                if (x != 0 || y != 0) {
+                    transformDirty = true;
+                    buffer.saveTransform();
+                    buffer.transform(1, 0, 0, 1, x, y);
+                }
 
-                // buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor);
+                buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor);
 
-                // if (transformDirty) {
-                //     buffer.restoreTransform();
-                // }
+                if (transformDirty) {
+                    buffer.restoreTransform();
+                }
             }
-
-            var t = egret_native.Skia.getRenderTexture();
-            buffer.context.drawGraphics(t, canvasW, canvasH, node.width, node.height, node.renderAlpha);
 
             // egret_native.Label.createLabel("", node.size, "", node.stroke);
 
@@ -802,51 +778,6 @@ module egret.native2 {
          * @private
          */
         private renderGraphics(node: sys.GraphicsNode, buffer: WebGLRenderBuffer, forHitTest?: boolean): void {
-
-            var canvasW = 2;
-            var canvasH = 2;
-            while (canvasW < node.width) {
-                canvasW *= 2;
-            }
-            while (canvasH < node.height) {
-                canvasH *= 2;
-            }
-            egret_native.Skia.createCanvas(canvasW, canvasH, node.x, node.y);
-
-            var drawData = node.drawData;
-            // egret_native.Skia.setColor(0xff00ffff);
-            for (var i = 0; i < drawData.length; i++) {
-                var color = 0
-                // console.log(">>>>>>>>" + color);
-                if (drawData[i].fillColor) {
-                    color = drawData[i].fillColor;
-                    if (color < 0x1000000)
-                    {
-                        color |= (0xff000000);
-                    }
-                    egret_native.Skia.setColor(color);
-                }
-                else if (drawData[i].lineColor) {
-                    color = drawData[i].lineColor;
-                    if (color < 0x1000000)
-                    {
-                        color |= 0x88000000;
-                    }
-                    egret_native.Skia.setColor(color);
-                    egret_native.Skia.setStrokeWidth(drawData[i].lineWidth);
-                }
-                else {
-                    egret_native.Skia.setColor(0);
-                }
-                // console.log(">>>>>>>>" + color);
-                egret_native.Skia.pushDrawData(drawData[i].type, drawData[i].$commands, drawData[i].$data,
-                    drawData[i].commandPosition, drawData[i].dataPosition);
-            }
-
-            // egret_native.Skia.setColor(0xff0000ff);
-            // egret_native.Skia.drawRect(0, 0, 50, 50);
-            var t = egret_native.Skia.getRenderTexture();
-            buffer.context.drawGraphics(t, canvasW, canvasH, node.width, node.height, node.renderAlpha);
 
             // change xs
                 // skip graphics render
