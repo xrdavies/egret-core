@@ -272,173 +272,43 @@ var egret;
     var native2;
     (function (native2) {
         /**
-         * @classdesc
-         * @implements egret.StageText
-         * @private
-         * @version Egret 2.4
-         * @platform Web,Native
+         * 测量文本在指定样式下的宽度。
+         * @param text 要测量的文本内容。
+         * @param fontFamily 字体名称
+         * @param fontSize 字体大小
+         * @param bold 是否粗体
+         * @param italic 是否斜体
          */
-        var NativeStageText = (function (_super) {
-            __extends(NativeStageText, _super);
-            /**
-             * @version Egret 2.4
-             * @platform Web,Native
-             */
-            function NativeStageText() {
-                var _this = _super.call(this) || this;
-                /**
-                 * @private
-                 */
-                _this.textValue = "";
-                /**
-                 * @private
-                 */
-                _this.colorValue = 0xffffff;
-                /**
-                 * @private
-                 */
-                _this.isFinishDown = false;
-                _this.textValue = "";
-                return _this;
+        function measureText(text, fontFamily, fontSize, bold, italic) {
+            var font;
+            var arr;
+            if (fontFamily.indexOf(", ") != -1) {
+                arr = fontFamily.split(", ");
             }
-            /**
-             * @private
-             *
-             * @returns
-             */
-            NativeStageText.prototype.$getText = function () {
-                if (!this.textValue) {
-                    this.textValue = "";
+            else if (fontFamily.indexOf(",") != -1) {
+                arr = fontFamily.split(",");
+            }
+            if (arr) {
+                var length_1 = arr.length;
+                for (var i = 0; i < length_1; i++) {
+                    var fontFamily_1 = arr[i];
+                    //暂时先不考虑带有引号的情况
+                    if (egret.fontMapping[fontFamily_1]) {
+                        font = egret.fontMapping[fontFamily_1];
+                        break;
+                    }
                 }
-                return this.textValue;
-            };
-            /**
-             * @private
-             *
-             * @param value
-             */
-            NativeStageText.prototype.$setText = function (value) {
-                this.textValue = value;
-                return true;
-            };
-            NativeStageText.prototype.$setColor = function (value) {
-                this.colorValue = value;
-                return true;
-            };
-            /**
-             * @private
-             *
-             */
-            NativeStageText.prototype.$onBlur = function () {
-            };
-            //全屏键盘
-            NativeStageText.prototype.showScreenKeyboard = function () {
-                var self = this;
-                self.dispatchEvent(new egret.Event("focus"));
-                egret.Event.dispatchEvent(self, "focus", false, { "showing": true });
-                egret_native.EGT_TextInput = function (appendText) {
-                    if (self.$textfield.multiline) {
-                        self.textValue = appendText;
-                        self.dispatchEvent(new egret.Event("updateText"));
-                        if (self.isFinishDown) {
-                            self.isFinishDown = false;
-                            self.dispatchEvent(new egret.Event("blur"));
-                        }
-                    }
-                    else {
-                        self.textValue = appendText.replace(/[\n|\r]/, "");
-                        //关闭软键盘
-                        egret_native.TextInputOp.setKeybordOpen(false);
-                        self.dispatchEvent(new egret.Event("updateText"));
-                        self.dispatchEvent(new egret.Event("blur"));
-                    }
-                };
-                //点击完成
-                egret_native.EGT_keyboardFinish = function () {
-                    if (self.$textfield.multiline) {
-                        self.isFinishDown = true;
-                    }
-                };
-            };
-            /**
-             * @private
-             *
-             */
-            NativeStageText.prototype.$show = function () {
-                var self = this;
-                var textfield = this.$textfield;
-                var values = textfield.$TextField;
-                egret_native.TextInputOp.setKeybordOpen(false);
-                egret_native.EGT_getTextEditerContentText = function () {
-                    return self.$getText();
-                };
-                egret_native.EGT_keyboardDidShow = function () {
-                    //if (egret_native.TextInputOp.isFullScreenKeyBoard()) {//横屏
-                    //}
-                    self.showScreenKeyboard();
-                    egret_native.EGT_keyboardDidShow = function () {
-                    };
-                    if (egret_native.TextInputOp.updateConfig) {
-                        egret_native.TextInputOp.updateConfig(JSON.stringify({
-                            "font_color": values[2 /* textColor */]
-                        }));
-                    }
-                };
-                egret_native.EGT_keyboardDidHide = function () {
-                };
-                egret_native.EGT_deleteBackward = function () {
-                };
-                var inputType = values[37 /* inputType */];
-                var inputMode = values[30 /* multiline */] ? 0 : 6;
-                var inputFlag = -1; //textfield.displayAsPassword ? 0 : -1;
-                if (inputType == egret.TextFieldInputType.PASSWORD) {
-                    inputFlag = 0;
-                }
-                else if (inputType == egret.TextFieldInputType.TEL) {
-                    inputMode = 3;
-                }
-                var returnType = 1;
-                var maxLength = values[21 /* maxChars */] <= 0 ? -1 : values[21 /* maxChars */];
-                var node = textfield.$getRenderNode();
-                var point = this.$textfield.localToGlobal(0, 0);
-                egret_native.TextInputOp.setKeybordOpen(true, JSON.stringify({
-                    "inputMode": inputMode,
-                    "inputFlag": inputFlag,
-                    "returnType": returnType,
-                    "maxLength": maxLength,
-                    "x": point.x,
-                    "y": point.y,
-                    "width": textfield.width,
-                    "height": textfield.height,
-                    "font_size": values[0 /* fontSize */],
-                    "font_color": values[2 /* textColor */],
-                    "textAlign": values[9 /* textAlign */],
-                    "verticalAlign": values[10 /* verticalAlign */]
-                }));
-            };
-            /**
-             * @private
-             *
-             */
-            NativeStageText.prototype.$hide = function () {
-                egret_native.TextInputOp.setKeybordOpen(false);
-                this.dispatchEvent(new egret.Event("blur"));
-            };
-            NativeStageText.prototype.$resetStageText = function () {
-            };
-            NativeStageText.prototype.$addToStage = function () {
-            };
-            NativeStageText.prototype.$removeFromStage = function () {
-            };
-            NativeStageText.prototype.$setTextField = function (value) {
-                this.$textfield = value;
-                return true;
-            };
-            return NativeStageText;
-        }(egret.EventDispatcher));
-        native2.NativeStageText = NativeStageText;
-        __reflect(NativeStageText.prototype, "egret.native2.NativeStageText", ["egret.StageText"]);
-        egret.StageText = NativeStageText;
+            }
+            else {
+                font = egret.fontMapping[fontFamily];
+            }
+            if (!font) {
+                font = "/system/fonts/DroidSansFallback.ttf";
+            }
+            egret_native.Label.createLabel(font, fontSize, "", 0);
+            return egret_native.Label.getTextSize(text)[0];
+        }
+        egret.sys.measureText = measureText;
     })(native2 = egret.native2 || (egret.native2 = {}));
 })(egret || (egret = {}));
 //////////////////////////////////////////////////////////////////////////////////////
@@ -2950,6 +2820,208 @@ var egret;
     var native2;
     (function (native2) {
         /**
+         * @classdesc
+         * @implements egret.StageText
+         * @private
+         * @version Egret 2.4
+         * @platform Web,Native
+         */
+        var NativeStageText = (function (_super) {
+            __extends(NativeStageText, _super);
+            /**
+             * @version Egret 2.4
+             * @platform Web,Native
+             */
+            function NativeStageText() {
+                var _this = _super.call(this) || this;
+                /**
+                 * @private
+                 */
+                _this.textValue = "";
+                /**
+                 * @private
+                 */
+                _this.colorValue = 0xffffff;
+                /**
+                 * @private
+                 */
+                _this.isFinishDown = false;
+                _this.textValue = "";
+                return _this;
+            }
+            /**
+             * @private
+             *
+             * @returns
+             */
+            NativeStageText.prototype.$getText = function () {
+                if (!this.textValue) {
+                    this.textValue = "";
+                }
+                return this.textValue;
+            };
+            /**
+             * @private
+             *
+             * @param value
+             */
+            NativeStageText.prototype.$setText = function (value) {
+                this.textValue = value;
+                return true;
+            };
+            NativeStageText.prototype.$setColor = function (value) {
+                this.colorValue = value;
+                return true;
+            };
+            /**
+             * @private
+             *
+             */
+            NativeStageText.prototype.$onBlur = function () {
+            };
+            //全屏键盘
+            NativeStageText.prototype.showScreenKeyboard = function () {
+                var self = this;
+                self.dispatchEvent(new egret.Event("focus"));
+                egret.Event.dispatchEvent(self, "focus", false, { "showing": true });
+                egret_native.EGT_TextInput = function (appendText) {
+                    if (self.$textfield.multiline) {
+                        self.textValue = appendText;
+                        self.dispatchEvent(new egret.Event("updateText"));
+                        if (self.isFinishDown) {
+                            self.isFinishDown = false;
+                            self.dispatchEvent(new egret.Event("blur"));
+                        }
+                    }
+                    else {
+                        self.textValue = appendText.replace(/[\n|\r]/, "");
+                        //关闭软键盘
+                        egret_native.TextInputOp.setKeybordOpen(false);
+                        self.dispatchEvent(new egret.Event("updateText"));
+                        self.dispatchEvent(new egret.Event("blur"));
+                    }
+                };
+                //点击完成
+                egret_native.EGT_keyboardFinish = function () {
+                    if (self.$textfield.multiline) {
+                        self.isFinishDown = true;
+                    }
+                };
+            };
+            /**
+             * @private
+             *
+             */
+            NativeStageText.prototype.$show = function () {
+                var self = this;
+                var textfield = this.$textfield;
+                var values = textfield.$TextField;
+                egret_native.TextInputOp.setKeybordOpen(false);
+                egret_native.EGT_getTextEditerContentText = function () {
+                    return self.$getText();
+                };
+                egret_native.EGT_keyboardDidShow = function () {
+                    //if (egret_native.TextInputOp.isFullScreenKeyBoard()) {//横屏
+                    //}
+                    self.showScreenKeyboard();
+                    egret_native.EGT_keyboardDidShow = function () {
+                    };
+                    if (egret_native.TextInputOp.updateConfig) {
+                        egret_native.TextInputOp.updateConfig(JSON.stringify({
+                            "font_color": values[2 /* textColor */]
+                        }));
+                    }
+                };
+                egret_native.EGT_keyboardDidHide = function () {
+                };
+                egret_native.EGT_deleteBackward = function () {
+                };
+                var inputType = values[37 /* inputType */];
+                var inputMode = values[30 /* multiline */] ? 0 : 6;
+                var inputFlag = -1; //textfield.displayAsPassword ? 0 : -1;
+                if (inputType == egret.TextFieldInputType.PASSWORD) {
+                    inputFlag = 0;
+                }
+                else if (inputType == egret.TextFieldInputType.TEL) {
+                    inputMode = 3;
+                }
+                var returnType = 1;
+                var maxLength = values[21 /* maxChars */] <= 0 ? -1 : values[21 /* maxChars */];
+                var node = textfield.$getRenderNode();
+                var point = this.$textfield.localToGlobal(0, 0);
+                egret_native.TextInputOp.setKeybordOpen(true, JSON.stringify({
+                    "inputMode": inputMode,
+                    "inputFlag": inputFlag,
+                    "returnType": returnType,
+                    "maxLength": maxLength,
+                    "x": point.x,
+                    "y": point.y,
+                    "width": textfield.width,
+                    "height": textfield.height,
+                    "font_size": values[0 /* fontSize */],
+                    "font_color": values[2 /* textColor */],
+                    "textAlign": values[9 /* textAlign */],
+                    "verticalAlign": values[10 /* verticalAlign */]
+                }));
+            };
+            /**
+             * @private
+             *
+             */
+            NativeStageText.prototype.$hide = function () {
+                egret_native.TextInputOp.setKeybordOpen(false);
+                this.dispatchEvent(new egret.Event("blur"));
+            };
+            NativeStageText.prototype.$resetStageText = function () {
+            };
+            NativeStageText.prototype.$addToStage = function () {
+            };
+            NativeStageText.prototype.$removeFromStage = function () {
+            };
+            NativeStageText.prototype.$setTextField = function (value) {
+                this.$textfield = value;
+                return true;
+            };
+            return NativeStageText;
+        }(egret.EventDispatcher));
+        native2.NativeStageText = NativeStageText;
+        __reflect(NativeStageText.prototype, "egret.native2.NativeStageText", ["egret.StageText"]);
+        egret.StageText = NativeStageText;
+    })(native2 = egret.native2 || (egret.native2 = {}));
+})(egret || (egret = {}));
+//////////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (c) 2014-present, Egret Technology.
+//  All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Egret nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
+//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//////////////////////////////////////////////////////////////////////////////////////
+var egret;
+(function (egret) {
+    var native2;
+    (function (native2) {
+        /**
          * @private
          */
         var NativeFps = (function (_super) {
@@ -3100,47 +3172,18 @@ var egret;
 (function (egret) {
     var native2;
     (function (native2) {
-        /**
-         * 测量文本在指定样式下的宽度。
-         * @param text 要测量的文本内容。
-         * @param fontFamily 字体名称
-         * @param fontSize 字体大小
-         * @param bold 是否粗体
-         * @param italic 是否斜体
-         */
-        function measureText(text, fontFamily, fontSize, bold, italic) {
-            var font;
-            var arr;
-            if (fontFamily.indexOf(", ") != -1) {
-                arr = fontFamily.split(", ");
+        if (true) {
+            function setLogLevel(logType) {
+                egret_native.loglevel(logType);
             }
-            else if (fontFamily.indexOf(",") != -1) {
-                arr = fontFamily.split(",");
-            }
-            if (arr) {
-                var length_1 = arr.length;
-                for (var i = 0; i < length_1; i++) {
-                    var fontFamily_1 = arr[i];
-                    //暂时先不考虑带有引号的情况
-                    if (egret.fontMapping[fontFamily_1]) {
-                        font = egret.fontMapping[fontFamily_1];
-                        break;
-                    }
-                }
-            }
-            else {
-                font = egret.fontMapping[fontFamily];
-            }
-            if (!font) {
-                font = "/system/fonts/DroidSansFallback.ttf";
-            }
-            egret_native.Label.createLabel(font, fontSize, "", 0);
-            return egret_native.Label.getTextSize(text)[0];
+            Object.defineProperty(egret.Logger, "logLevel", {
+                set: setLogLevel,
+                enumerable: true,
+                configurable: true
+            });
         }
-        egret.sys.measureText = measureText;
     })(native2 = egret.native2 || (egret.native2 = {}));
 })(egret || (egret = {}));
-//////////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (c) 2014-present, Egret Technology.
 //  All rights reserved.
@@ -3172,17 +3215,159 @@ var egret;
 (function (egret) {
     var native2;
     (function (native2) {
-        if (true) {
-            function setLogLevel(logType) {
-                egret_native.loglevel(logType);
+        var customContext;
+        var context = {
+            setAutoClear: function (value) {
+                native2.WebGLRenderBuffer.autoClear = value;
+            },
+            save: function () {
+                // do nothing
+            },
+            restore: function () {
+                var context = native2.WebGLRenderContext.getInstance(0, 0);
+                var gl = context.context;
+                if (native2.WebGLRenderContext.$supportCmdBatch) {
+                    gl = context.glCmdManager;
+                }
+                gl.bindBuffer(gl.ARRAY_BUFFER, context["vertexBuffer"]);
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, context["indexBuffer"]);
+                gl.activeTexture(gl.TEXTURE0);
+                context.shaderManager.currentShader = null;
+                context["bindIndices"] = false;
+                var buffer = context.$bufferStack[1];
+                context["activateBuffer"](buffer);
+                gl.enable(gl.BLEND);
+                context["setBlendMode"]("source-over");
             }
-            Object.defineProperty(egret.Logger, "logLevel", {
-                set: setLogLevel,
-                enumerable: true,
-                configurable: true
-            });
+        };
+        function setRendererContext(custom) {
+            custom.onStart(context);
+            customContext = custom;
         }
+        egret.setRendererContext = setRendererContext;
+        /**
+         * @private
+         */
+        native2.$supportCanvas = egret_native.Canvas ? true : false;
+        var isRunning = false;
+        var playerList = [];
+        function runEgret(options) {
+            if (isRunning) {
+                return;
+            }
+            isRunning = true;
+            if (!options) {
+                options = {};
+            }
+            /**
+             * @private
+             * 设置当前runtime版本是否支持cmdBatch
+             */
+            native2.WebGLRenderContext.$supportCmdBatch = false;
+            setRenderMode(options.renderMode);
+            if (true) {
+                //todo 获得系统语言版本
+                var language = "zh_CN";
+                if (language in egret.$locale_strings)
+                    egret.$language = language;
+            }
+            try {
+                egret.Capabilities.$setNativeCapabilities(egret_native.getVersion());
+            }
+            catch (e) {
+            }
+            var ticker = egret.sys.$ticker;
+            var mainLoop = function () {
+                if (customContext) {
+                    customContext.onRender(context);
+                }
+                ticker.update();
+            };
+            egret_native.setOnUpdate(mainLoop, ticker);
+            if (!egret.sys.screenAdapter) {
+                if (options.screenAdapter) {
+                    egret.sys.screenAdapter = options.screenAdapter;
+                }
+                else {
+                    egret.sys.screenAdapter = new egret.sys.DefaultScreenAdapter();
+                }
+            }
+            // todo
+            var player = new native2.NativePlayer();
+            playerList.push(player);
+            // 关闭脏矩形
+            player.$stage.dirtyRegionPolicy = egret.DirtyRegionPolicy.OFF;
+            egret.sys.DisplayList.prototype.setDirtyRegionPolicy = function () {
+            };
+        }
+        /**
+         * 设置渲染模式。"auto","webgl","canvas"
+         * @param renderMode
+         */
+        function setRenderMode(renderMode) {
+            egret.sys.CanvasRenderBuffer = native2.WebGLRenderBuffer;
+            // sys.RenderBuffer = web.WebGLRenderBuffer;
+            // sys.systemRenderer = new web.WebGLRenderer();
+            // sys.canvasRenderer = new CanvasRenderer();
+            // Capabilities.$renderMode = "webgl";
+            // TODO rename
+            egret.sys.RenderBuffer = native2.WebGLRenderBuffer;
+            egret.sys.systemRenderer = new native2.WebGLRenderer();
+            egret.sys.canvasRenderer = new native2.WebGLRenderer();
+            egret.sys.customHitTestBuffer = new native2.WebGLRenderBuffer(3, 3);
+            egret.sys.canvasHitTestBuffer = new native2.WebGLRenderBuffer(3, 3);
+            egret.Capabilities.$renderMode = "webgl";
+        }
+        function updateAllScreens() {
+            var length = playerList.length;
+            for (var i = 0; i < length; i++) {
+                playerList[i].updateScreenSize();
+            }
+        }
+        function toArray(argument) {
+            var args = [];
+            for (var i = 0; i < argument.length; i++) {
+                args.push(argument[i]);
+            }
+            return args;
+        }
+        egret.warn = function () {
+            console.warn.apply(console, toArray(arguments));
+        };
+        egret.error = function () {
+            console.error.apply(console, toArray(arguments));
+        };
+        egret.assert = function () {
+            console.assert.apply(console, toArray(arguments));
+        };
+        if (true) {
+            egret.log = function () {
+                if (true) {
+                    var length = arguments.length;
+                    var info = "";
+                    for (var i = 0; i < length; i++) {
+                        info += arguments[i] + " ";
+                    }
+                    egret.sys.$logToFPS(info);
+                }
+                console.log.apply(console, toArray(arguments));
+            };
+        }
+        else {
+            egret.log = function () {
+                console.log.apply(console, toArray(arguments));
+            };
+        }
+        egret.runEgret = runEgret;
+        egret.updateAllScreens = updateAllScreens;
     })(native2 = egret.native2 || (egret.native2 = {}));
+})(egret || (egret = {}));
+(function (egret) {
+    var native;
+    (function (native) {
+        native.$supportCanvas = true;
+        egret.native.$supportCanvas = egret.native2.$supportCanvas;
+    })(native = egret.native || (egret.native = {}));
 })(egret || (egret = {}));
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -3496,7 +3681,7 @@ var egret;
             // lj
             WebGLDrawCmdManager.prototype.pushDrawText = function (texture, count, textColor, stroke, strokeColor, texturesInfo) {
                 var data = this.drawData[this.drawDataLen] || {};
-                data.type = 10;
+                data.type = 10 /* FONT */;
                 data.texture = texture;
                 data.count = count;
                 data.textColor = textColor;
@@ -3726,7 +3911,11 @@ var egret;
                 // 获取webglRenderContext
                 _this.context = native2.WebGLRenderContext.getInstance(width, height);
                 // buffer 对应的 render target
-                _this.rootRenderTarget = new native2.WebGLRenderTarget(_this.context.context, 3, 3);
+                var glcontext = _this.context.context;
+                if (native2.WebGLRenderContext.$supportCmdBatch) {
+                    glcontext = _this.context.glCmdManager;
+                }
+                _this.rootRenderTarget = new native2.WebGLRenderTarget(glcontext, 3, 3);
                 if (width && height) {
                     _this.resize(width, height);
                 }
@@ -3996,6 +4185,12 @@ var egret;
                     this._dirtyRegionPolicy = this.dirtyRegionPolicy;
                 }
             };
+            WebGLRenderBuffer.prototype.onRenderFinish2 = function () {
+                // 如果是舞台渲染buffer，判断cmdbatch
+                if (this.root && native2.WebGLRenderContext.$supportCmdBatch) {
+                    this.context.glCmdManager.flushCmd();
+                }
+            };
             /**
              * 交换frameBuffer中的图像到surface中
              * @param width 宽度
@@ -4213,6 +4408,9 @@ var egret;
                 this.drawPushText = function (data, offset) {
                     // console.log(data.count);
                     var gl = this.context;
+                    if (WebGLRenderContext.$supportCmdBatch) {
+                        gl = this.glCmdManager;
+                    }
                     var size = 0;
                     for (var i = 0; i < data.texturesInfo.length; i++) {
                         // console.log(" +++++++ " + i + " " + data.count + " " + data.texturesInfo[i] + " " + size);
@@ -4237,6 +4435,9 @@ var egret;
                 this.initWebGL();
                 this.$bufferStack = [];
                 var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 this.vertexBuffer = gl.createBuffer();
                 this.indexBuffer = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -4300,6 +4501,9 @@ var egret;
              */
             WebGLRenderContext.prototype.uploadVerticesArray = function (array) {
                 var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 gl.bufferData(gl.ARRAY_BUFFER, array, gl.STREAM_DRAW);
                 // gl.bufferSubData(gl.ARRAY_BUFFER, 0, array);
             };
@@ -4308,6 +4512,9 @@ var egret;
              */
             WebGLRenderContext.prototype.uploadIndicesArray = function (array) {
                 var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, array, gl.STATIC_DRAW);
             };
             /**
@@ -4321,8 +4528,12 @@ var egret;
                 height = height || this.surface.height;
                 this.projectionX = width / 2;
                 this.projectionY = -height / 2;
-                if (this.context) {
-                    this.context.viewport(0, 0, width, height);
+                var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
+                if (gl) {
+                    gl.viewport(0, 0, width, height);
                 }
             };
             /**
@@ -4356,7 +4567,11 @@ var egret;
                 // this.surface.addEventListener("webglcontextlost", this.handleContextLost.bind(this), false);
                 // this.surface.addEventListener("webglcontextrestored", this.handleContextRestored.bind(this), false);
                 this.getWebGLContext();
-                this.shaderManager = new native2.WebGLShaderManager(this.context);
+                var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
+                this.shaderManager = new native2.WebGLShaderManager(gl);
             };
             WebGLRenderContext.prototype.handleContextLost = function () {
                 this.contextLost = true;
@@ -4369,7 +4584,8 @@ var egret;
             WebGLRenderContext.prototype.getWebGLContext = function () {
                 var options = {
                     antialias: WebGLRenderContext.antialias,
-                    stencil: true //设置可以使用模板（用于不规则遮罩）
+                    cmdbatch: WebGLRenderContext.$supportCmdBatch,
+                    stencil: true,
                 };
                 var gl;
                 //todo 是否使用chrome源码names
@@ -4388,12 +4604,19 @@ var egret;
                 if (!gl) {
                     egret.$error(1021);
                 }
+                if (options.cmdbatch == true) {
+                    this.glCmdManager = new native2.WebGLCmdArrayManager(this.surface);
+                }
                 this.setContext(gl);
             };
-            WebGLRenderContext.prototype.setContext = function (gl) {
-                this.context = gl;
-                gl.id = WebGLRenderContext.glContextId++;
-                this.glID = gl.id;
+            WebGLRenderContext.prototype.setContext = function (glcontext) {
+                this.context = glcontext;
+                glcontext.id = WebGLRenderContext.glContextId++;
+                this.glID = glcontext.id;
+                var gl = glcontext;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 gl.disable(gl.DEPTH_TEST);
                 gl.disable(gl.CULL_FACE);
                 gl.enable(gl.BLEND);
@@ -4406,6 +4629,9 @@ var egret;
              */
             WebGLRenderContext.prototype.enableStencilTest = function () {
                 var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 gl.enable(gl.STENCIL_TEST);
             };
             /**
@@ -4413,6 +4639,9 @@ var egret;
              */
             WebGLRenderContext.prototype.disableStencilTest = function () {
                 var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 gl.disable(gl.STENCIL_TEST);
             };
             /**
@@ -4420,6 +4649,9 @@ var egret;
              */
             WebGLRenderContext.prototype.enableScissorTest = function (rect) {
                 var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 gl.enable(gl.SCISSOR_TEST);
                 gl.scissor(rect.x, rect.y, rect.width, rect.height);
             };
@@ -4428,6 +4660,9 @@ var egret;
              */
             WebGLRenderContext.prototype.disableScissorTest = function () {
                 var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 gl.disable(gl.SCISSOR_TEST);
             };
             /**
@@ -4435,13 +4670,22 @@ var egret;
              */
             WebGLRenderContext.prototype.getPixels = function (x, y, width, height, pixels) {
                 var gl = this.context;
-                gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
+                // TODO
+                // gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
             };
             /**
              * 创建一个WebGLTexture
              */
             WebGLRenderContext.prototype.createTexture = function (bitmapData) {
                 var gl = this.context;
+                var useCmdBatch = false;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                    useCmdBatch = true;
+                }
                 var texture = gl.createTexture();
                 if (!texture) {
                     //先创建texture失败,然后lost事件才发出来..
@@ -4451,7 +4695,12 @@ var egret;
                 texture.glContext = gl;
                 gl.bindTexture(gl.TEXTURE_2D, texture);
                 gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bitmapData);
+                if (useCmdBatch) {
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bitmapData);
+                }
+                else {
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bitmapData.source);
+                }
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -4466,6 +4715,11 @@ var egret;
              */
             WebGLRenderContext.prototype.updateTexture = function (texture, bitmapData) {
                 var gl = this.context;
+                var useCmdBatch = false;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                    useCmdBatch = true;
+                }
                 gl.bindTexture(gl.TEXTURE_2D, texture);
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bitmapData);
             };
@@ -4476,16 +4730,16 @@ var egret;
             WebGLRenderContext.prototype.getWebGLTexture = function (bitmapData) {
                 if (!bitmapData.webGLTexture) {
                     if (bitmapData.format == "image") {
-                        bitmapData.webGLTexture = this.createTexture(bitmapData.source);
+                        bitmapData.webGLTexture = this.createTexture(bitmapData);
                     }
                     else if (bitmapData.format == "pvr") {
                         bitmapData.webGLTexture = this.createTextureFromCompressedData(bitmapData.source.pvrtcData, bitmapData.width, bitmapData.height, bitmapData.source.mipmapsCount, bitmapData.source.format);
                     }
                     if (bitmapData.$deleteSource && bitmapData.webGLTexture) {
-                        //native
-                        if (bitmapData.source && bitmapData.source.dispose) {
-                            bitmapData.source.dispose();
-                        }
+                        //native TODO
+                        // if(bitmapData.source && bitmapData.source.dispose) {
+                        //     bitmapData.source.dispose();
+                        // }
                         bitmapData.source = null;
                     }
                 }
@@ -4632,7 +4886,6 @@ var egret;
                 var tex = new Int32Array(texturesInfo);
                 this.drawCmdManager.pushDrawText(texture, count, textColor, stroke, strokeColor, tex);
                 this.vao.cacheArraysForText(transform, alpha, t, text.length, size);
-                this.$drawWebGL();
             };
             //-lj
             /**
@@ -4849,7 +5102,7 @@ var egret;
                         }
                         break;
                     // lj
-                    case 10 /* TEXT */:
+                    case 10 /* FONT */ /* TEXT */:
                         shader = this.shaderManager.fontShader;
                         var tc = data.textColor;
                         var r, g, b, a;
@@ -4910,6 +5163,9 @@ var egret;
              **/
             WebGLRenderContext.prototype.drawTextureElements = function (data, offset) {
                 var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 gl.bindTexture(gl.TEXTURE_2D, data.texture);
                 var size = data.count * 3;
                 gl.drawElements(gl.TRIANGLES, size, gl.UNSIGNED_SHORT, offset * 2);
@@ -4921,6 +5177,9 @@ var egret;
              **/
             WebGLRenderContext.prototype.drawRectElements = function (data, offset) {
                 var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 // gl.bindTexture(gl.TEXTURE_2D, null);
                 var size = data.count * 3;
                 gl.drawElements(gl.TRIANGLES, size, gl.UNSIGNED_SHORT, offset * 2);
@@ -4931,6 +5190,9 @@ var egret;
              **/
             WebGLRenderContext.prototype.drawPushMaskElements = function (data, offset) {
                 var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 var size = data.count * 3;
                 var buffer = this.activatedBuffer;
                 if (buffer) {
@@ -4956,6 +5218,9 @@ var egret;
              **/
             WebGLRenderContext.prototype.drawPopMaskElements = function (data, offset) {
                 var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 var size = data.count * 3;
                 var buffer = this.activatedBuffer;
                 if (buffer) {
@@ -4982,6 +5247,9 @@ var egret;
              */
             WebGLRenderContext.prototype.setBlendMode = function (value) {
                 var gl = this.context;
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    gl = this.glCmdManager;
+                }
                 var blendModeWebGL = WebGLRenderContext.blendModesForGL[value];
                 if (blendModeWebGL) {
                     gl.blendFunc(blendModeWebGL[0], blendModeWebGL[1]);
@@ -5180,6 +5448,7 @@ var egret;
                         renderBufferPool[i].resize(0, 0);
                     }
                 }
+                webglBuffer.onRenderFinish2();
                 return drawCall;
             };
             /**
@@ -6024,7 +6293,12 @@ var egret;
                 var gl = this.gl;
                 // 设置texture尺寸
                 gl.bindTexture(gl.TEXTURE_2D, this.texture);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+                if (native2.WebGLRenderContext.$supportCmdBatch) {
+                    gl.texImage2Di(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+                }
+                else {
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+                }
                 // gl.bindTexture(gl.TEXTURE_2D, null);
                 // 设置render buffer的尺寸
                 gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer); // 是否需要强制绑定？
@@ -6062,7 +6336,12 @@ var egret;
                 var gl = this.gl;
                 var texture = gl.createTexture();
                 gl.bindTexture(gl.TEXTURE_2D, texture);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+                if (native2.WebGLRenderContext.$supportCmdBatch) {
+                    gl.texImage2Di(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+                }
+                else {
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+                }
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -6159,9 +6438,23 @@ var egret;
             WebGLShaderManager.prototype.activateShader = function (shader, stride) {
                 if (this.currentShader != shader) {
                     this.gl.useProgram(shader.program);
-                    this.setAttribs(shader.attributes);
+                    if (this.gl.flushCmd) {
+                        this.setAttribForCmdBatch(shader.attributes);
+                    }
+                    else {
+                        this.setAttribs(shader.attributes);
+                    }
                     shader.setAttribPointer(stride);
                     this.currentShader = shader;
+                }
+            };
+            WebGLShaderManager.prototype.setAttribForCmdBatch = function (attribs) {
+                var i;
+                var l;
+                var gl = this.gl;
+                l = attribs.length;
+                for (i = 0; i < l; i++) {
+                    gl.enableVertexAttribArray(attribs[i]);
                 }
             };
             WebGLShaderManager.prototype.setAttribs = function (attribs) {
@@ -6820,6 +7113,7 @@ var egret;
         __reflect(ColorTransformShader.prototype, "egret.native2.ColorTransformShader");
     })(native2 = egret.native2 || (egret.native2 = {}));
 })(egret || (egret = {}));
+//////////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (c) 2014-present, Egret Technology.
 //  All rights reserved.
@@ -6851,151 +7145,1529 @@ var egret;
 (function (egret) {
     var native2;
     (function (native2) {
-        var customContext;
-        var context = {
-            setAutoClear: function (value) {
-                native2.WebGLRenderBuffer.autoClear = value;
-            },
-            save: function () {
-                // do nothing
-            },
-            restore: function () {
-                var context = native2.WebGLRenderContext.getInstance(0, 0);
-                var gl = context.context;
-                gl.bindBuffer(gl.ARRAY_BUFFER, context["vertexBuffer"]);
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, context["indexBuffer"]);
-                gl.activeTexture(gl.TEXTURE0);
-                context.shaderManager.currentShader = null;
-                context["bindIndices"] = false;
-                var buffer = context.$bufferStack[1];
-                context["activateBuffer"](buffer);
-                gl.enable(gl.BLEND);
-                context["setBlendMode"]("source-over");
+        var CmdCacheObject = (function (_super) {
+            __extends(CmdCacheObject, _super);
+            function CmdCacheObject() {
+                var _this = _super.call(this) || this;
+                // 0x01 WebGLObject
+                // 0x02 WebGLBuffer
+                // 0x03 WebGLFramebuffer
+                // 0x04 WebGLProgram
+                // 0x05 WebGLRenderbuffer
+                // 0x06 WebGLShader
+                // 0x07 WebGLTexture
+                // 0x08 WebGLUniformLocation
+                // 0x09 WebGLActiveInfo
+                // 0x10 WebGLAttribLocation
+                _this.$objType = 0x00;
+                return _this;
             }
-        };
-        function setRendererContext(custom) {
-            custom.onStart(context);
-            customContext = custom;
-        }
-        egret.setRendererContext = setRendererContext;
+            return CmdCacheObject;
+        }(egret.HashObject));
+        native2.CmdCacheObject = CmdCacheObject;
+        __reflect(CmdCacheObject.prototype, "egret.native2.CmdCacheObject");
         /**
          * @private
+         * 缓存WebGL命令管理器
          */
-        native2.$supportCanvas = egret_native.Canvas ? true : false;
-        var isRunning = false;
-        var playerList = [];
-        function runEgret(options) {
-            if (isRunning) {
-                return;
+        var WebGLCmdArrayManager = (function () {
+            function WebGLCmdArrayManager(canvas) {
+                /*
+                 * 存储绘制命令的 array buffer
+                 **/
+                this.maxArrayBufferLen = 80000 * 4;
+                this.arrayBuffer = new ArrayBuffer(this.maxArrayBufferLen);
+                this.dataView = new DataView(this.arrayBuffer);
+                this.arrayBufferLen = 0;
+                this.DEPTH_BUFFER_BIT = 0x00000100;
+                this.STENCIL_BUFFER_BIT = 0x00000400;
+                this.COLOR_BUFFER_BIT = 0x00004000;
+                this.POINTS = 0x0000;
+                this.LINES = 0x0001;
+                this.LINE_LOOP = 0x0002;
+                this.LINE_STRIP = 0x0003;
+                this.TRIANGLES = 0x0004;
+                this.TRIANGLE_STRIP = 0x0005;
+                this.TRIANGLE_FAN = 0x0006;
+                this.ZERO = 0;
+                this.ONE = 1;
+                this.SRC_COLOR = 0x0300;
+                this.ONE_MINUS_SRC_COLOR = 0x0301;
+                this.SRC_ALPHA = 0x0302;
+                this.ONE_MINUS_SRC_ALPHA = 0x0303;
+                this.DST_ALPHA = 0x0304;
+                this.ONE_MINUS_DST_ALPHA = 0x0305;
+                this.DST_COLOR = 0x0306;
+                this.ONE_MINUS_DST_COLOR = 0x0307;
+                this.SRC_ALPHA_SATURATE = 0x0308;
+                this.FUNC_ADD = 0x8006;
+                this.BLEND_EQUATION = 0x8009;
+                this.BLEND_EQUATION_RGB = 0x8009;
+                this.BLEND_EQUATION_ALPHA = 0x883D;
+                this.FUNC_SUBTRACT = 0x800A;
+                this.FUNC_REVERSE_SUBTRACT = 0x800B;
+                this.BLEND_DST_RGB = 0x80C8;
+                this.BLEND_SRC_RGB = 0x80C9;
+                this.BLEND_DST_ALPHA = 0x80CA;
+                this.BLEND_SRC_ALPHA = 0x80CB;
+                this.CONSTANT_COLOR = 0x8001;
+                this.ONE_MINUS_CONSTANT_COLOR = 0x8002;
+                this.CONSTANT_ALPHA = 0x8003;
+                this.ONE_MINUS_CONSTANT_ALPHA = 0x8004;
+                this.BLEND_COLOR = 0x8005;
+                this.ARRAY_BUFFER = 0x8892;
+                this.ELEMENT_ARRAY_BUFFER = 0x8893;
+                this.ARRAY_BUFFER_BINDING = 0x8894;
+                this.ELEMENT_ARRAY_BUFFER_BINDING = 0x8895;
+                this.STREAM_DRAW = 0x88E0;
+                this.STATIC_DRAW = 0x88E4;
+                this.DYNAMIC_DRAW = 0x88E8;
+                this.BUFFER_SIZE = 0x8764;
+                this.BUFFER_USAGE = 0x8765;
+                this.CURRENT_VERTEX_ATTRIB = 0x8626;
+                this.FRONT = 0x0404;
+                this.BACK = 0x0405;
+                this.FRONT_AND_BACK = 0x0408;
+                this.TEXTURE_2D = 0x0DE1;
+                this.CULL_FACE = 0x0B44;
+                this.BLEND = 0x0BE2;
+                this.DITHER = 0x0BD0;
+                this.STENCIL_TEST = 0x0B90;
+                this.DEPTH_TEST = 0x0B71;
+                this.SCISSOR_TEST = 0x0C11;
+                this.POLYGON_OFFSET_FILL = 0x8037;
+                this.SAMPLE_ALPHA_TO_COVERAGE = 0x809E;
+                this.SAMPLE_COVERAGE = 0x80A0;
+                this.NO_ERROR = 0;
+                this.INVALID_ENUM = 0x0500;
+                this.INVALID_VALUE = 0x0501;
+                this.INVALID_OPERATION = 0x0502;
+                this.OUT_OF_MEMORY = 0x0505;
+                this.CW = 0x0900;
+                this.CCW = 0x0901;
+                this.LINE_WIDTH = 0x0B21;
+                this.ALIASED_POINT_SIZE_RANGE = 0x846D;
+                this.ALIASED_LINE_WIDTH_RANGE = 0x846E;
+                this.CULL_FACE_MODE = 0x0B45;
+                this.FRONT_FACE = 0x0B46;
+                this.DEPTH_RANGE = 0x0B70;
+                this.DEPTH_WRITEMASK = 0x0B72;
+                this.DEPTH_CLEAR_VALUE = 0x0B73;
+                this.DEPTH_FUNC = 0x0B74;
+                this.STENCIL_CLEAR_VALUE = 0x0B91;
+                this.STENCIL_FUNC = 0x0B92;
+                this.STENCIL_FAIL = 0x0B94;
+                this.STENCIL_PASS_DEPTH_FAIL = 0x0B95;
+                this.STENCIL_PASS_DEPTH_PASS = 0x0B96;
+                this.STENCIL_REF = 0x0B97;
+                this.STENCIL_VALUE_MASK = 0x0B93;
+                this.STENCIL_WRITEMASK = 0x0B98;
+                this.STENCIL_BACK_FUNC = 0x8800;
+                this.STENCIL_BACK_FAIL = 0x8801;
+                this.STENCIL_BACK_PASS_DEPTH_FAIL = 0x8802;
+                this.STENCIL_BACK_PASS_DEPTH_PASS = 0x8803;
+                this.STENCIL_BACK_REF = 0x8CA3;
+                this.STENCIL_BACK_VALUE_MASK = 0x8CA4;
+                this.STENCIL_BACK_WRITEMASK = 0x8CA5;
+                this.VIEWPORT = 0x0BA2;
+                this.SCISSOR_BOX = 0x0C10;
+                this.COLOR_CLEAR_VALUE = 0x0C22;
+                this.COLOR_WRITEMASK = 0x0C23;
+                this.UNPACK_ALIGNMENT = 0x0CF5;
+                this.PACK_ALIGNMENT = 0x0D05;
+                this.MAX_TEXTURE_SIZE = 0x0D33;
+                this.MAX_VIEWPORT_DIMS = 0x0D3A;
+                this.SUBPIXEL_BITS = 0x0D50;
+                this.RED_BITS = 0x0D52;
+                this.GREEN_BITS = 0x0D53;
+                this.BLUE_BITS = 0x0D54;
+                this.ALPHA_BITS = 0x0D55;
+                this.DEPTH_BITS = 0x0D56;
+                this.STENCIL_BITS = 0x0D57;
+                this.POLYGON_OFFSET_UNITS = 0x2A00;
+                this.POLYGON_OFFSET_FACTOR = 0x8038;
+                this.TEXTURE_BINDING_2D = 0x8069;
+                this.SAMPLE_BUFFERS = 0x80A8;
+                this.SAMPLES = 0x80A9;
+                this.SAMPLE_COVERAGE_VALUE = 0x80AA;
+                this.SAMPLE_COVERAGE_INVERT = 0x80AB;
+                this.COMPRESSED_TEXTURE_FORMATS = 0x86A3;
+                this.DONT_CARE = 0x1100;
+                this.FASTEST = 0x1101;
+                this.NICEST = 0x1102;
+                this.GENERATE_MIPMAP_HINT = 0x8192;
+                this.BYTE = 0x1400;
+                this.UNSIGNED_BYTE = 0x1401;
+                this.SHORT = 0x1402;
+                this.UNSIGNED_SHORT = 0x1403;
+                this.INT = 0x1404;
+                this.UNSIGNED_INT = 0x1405;
+                this.FLOAT = 0x1406;
+                this.DEPTH_COMPONENT = 0x1902;
+                this.ALPHA = 0x1906;
+                this.RGB = 0x1907;
+                this.RGBA = 0x1908;
+                this.LUMINANCE = 0x1909;
+                this.LUMINANCE_ALPHA = 0x190A;
+                this.UNSIGNED_SHORT_4_4_4_4 = 0x8033;
+                this.UNSIGNED_SHORT_5_5_5_1 = 0x8034;
+                this.UNSIGNED_SHORT_5_6_5 = 0x8363;
+                this.FRAGMENT_SHADER = 0x8B30;
+                this.VERTEX_SHADER = 0x8B31;
+                this.MAX_VERTEX_ATTRIBS = 0x8869;
+                this.MAX_VERTEX_UNIFORM_VECTORS = 0x8DFB;
+                this.MAX_VARYING_VECTORS = 0x8DFC;
+                this.MAX_COMBINED_TEXTURE_IMAGE_UNITS = 0x8B4D;
+                this.MAX_VERTEX_TEXTURE_IMAGE_UNITS = 0x8B4C;
+                this.MAX_TEXTURE_IMAGE_UNITS = 0x8872;
+                this.MAX_FRAGMENT_UNIFORM_VECTORS = 0x8DFD;
+                this.SHADER_TYPE = 0x8B4F;
+                this.DELETE_STATUS = 0x8B80;
+                this.LINK_STATUS = 0x8B82;
+                this.VALIDATE_STATUS = 0x8B83;
+                this.ATTACHED_SHADERS = 0x8B85;
+                this.ACTIVE_UNIFORMS = 0x8B86;
+                this.ACTIVE_ATTRIBUTES = 0x8B89;
+                this.SHADING_LANGUAGE_VERSION = 0x8B8C;
+                this.CURRENT_PROGRAM = 0x8B8D;
+                this.NEVER = 0x0200;
+                this.LESS = 0x0201;
+                this.EQUAL = 0x0202;
+                this.LEQUAL = 0x0203;
+                this.GREATER = 0x0204;
+                this.NOTEQUAL = 0x0205;
+                this.GEQUAL = 0x0206;
+                this.ALWAYS = 0x0207;
+                this.KEEP = 0x1E00;
+                this.REPLACE = 0x1E01;
+                this.INCR = 0x1E02;
+                this.DECR = 0x1E03;
+                this.INVERT = 0x150A;
+                this.INCR_WRAP = 0x8507;
+                this.DECR_WRAP = 0x8508;
+                this.VENDOR = 0x1F00;
+                this.RENDERER = 0x1F01;
+                this.VERSION = 0x1F02;
+                this.NEAREST = 0x2600;
+                this.LINEAR = 0x2601;
+                this.NEAREST_MIPMAP_NEAREST = 0x2700;
+                this.LINEAR_MIPMAP_NEAREST = 0x2701;
+                this.NEAREST_MIPMAP_LINEAR = 0x2702;
+                this.LINEAR_MIPMAP_LINEAR = 0x2703;
+                this.TEXTURE_MAG_FILTER = 0x2800;
+                this.TEXTURE_MIN_FILTER = 0x2801;
+                this.TEXTURE_WRAP_S = 0x2802;
+                this.TEXTURE_WRAP_T = 0x2803;
+                this.TEXTURE = 0x1702;
+                this.TEXTURE_CUBE_MAP = 0x8513;
+                this.TEXTURE_BINDING_CUBE_MAP = 0x8514;
+                this.TEXTURE_CUBE_MAP_POSITIVE_X = 0x8515;
+                this.TEXTURE_CUBE_MAP_NEGATIVE_X = 0x8516;
+                this.TEXTURE_CUBE_MAP_POSITIVE_Y = 0x8517;
+                this.TEXTURE_CUBE_MAP_NEGATIVE_Y = 0x8518;
+                this.TEXTURE_CUBE_MAP_POSITIVE_Z = 0x8519;
+                this.TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A;
+                this.MAX_CUBE_MAP_TEXTURE_SIZE = 0x851C;
+                this.TEXTURE0 = 0x84C0;
+                this.TEXTURE1 = 0x84C1;
+                this.TEXTURE2 = 0x84C2;
+                this.TEXTURE3 = 0x84C3;
+                this.TEXTURE4 = 0x84C4;
+                this.TEXTURE5 = 0x84C5;
+                this.TEXTURE6 = 0x84C6;
+                this.TEXTURE7 = 0x84C7;
+                this.TEXTURE8 = 0x84C8;
+                this.TEXTURE9 = 0x84C9;
+                this.TEXTURE10 = 0x84CA;
+                this.TEXTURE11 = 0x84CB;
+                this.TEXTURE12 = 0x84CC;
+                this.TEXTURE13 = 0x84CD;
+                this.TEXTURE14 = 0x84CE;
+                this.TEXTURE15 = 0x84CF;
+                this.TEXTURE16 = 0x84D0;
+                this.TEXTURE17 = 0x84D1;
+                this.TEXTURE18 = 0x84D2;
+                this.TEXTURE19 = 0x84D3;
+                this.TEXTURE20 = 0x84D4;
+                this.TEXTURE21 = 0x84D5;
+                this.TEXTURE22 = 0x84D6;
+                this.TEXTURE23 = 0x84D7;
+                this.TEXTURE24 = 0x84D8;
+                this.TEXTURE25 = 0x84D9;
+                this.TEXTURE26 = 0x84DA;
+                this.TEXTURE27 = 0x84DB;
+                this.TEXTURE28 = 0x84DC;
+                this.TEXTURE29 = 0x84DD;
+                this.TEXTURE30 = 0x84DE;
+                this.TEXTURE31 = 0x84DF;
+                this.ACTIVE_TEXTURE = 0x84E0;
+                this.REPEAT = 0x2901;
+                this.CLAMP_TO_EDGE = 0x812F;
+                this.MIRRORED_REPEAT = 0x8370;
+                this.FLOAT_VEC2 = 0x8B50;
+                this.FLOAT_VEC3 = 0x8B51;
+                this.FLOAT_VEC4 = 0x8B52;
+                this.INT_VEC2 = 0x8B53;
+                this.INT_VEC3 = 0x8B54;
+                this.INT_VEC4 = 0x8B55;
+                this.BOOL = 0x8B56;
+                this.BOOL_VEC2 = 0x8B57;
+                this.BOOL_VEC3 = 0x8B58;
+                this.BOOL_VEC4 = 0x8B59;
+                this.FLOAT_MAT2 = 0x8B5A;
+                this.FLOAT_MAT3 = 0x8B5B;
+                this.FLOAT_MAT4 = 0x8B5C;
+                this.SAMPLER_2D = 0x8B5E;
+                this.SAMPLER_CUBE = 0x8B60;
+                this.VERTEX_ATTRIB_ARRAY_ENABLED = 0x8622;
+                this.VERTEX_ATTRIB_ARRAY_SIZE = 0x8623;
+                this.VERTEX_ATTRIB_ARRAY_STRIDE = 0x8624;
+                this.VERTEX_ATTRIB_ARRAY_TYPE = 0x8625;
+                this.VERTEX_ATTRIB_ARRAY_NORMALIZED = 0x886A;
+                this.VERTEX_ATTRIB_ARRAY_POINTER = 0x8645;
+                this.VERTEX_ATTRIB_ARRAY_BUFFER_BINDING = 0x889F;
+                this.IMPLEMENTATION_COLOR_READ_TYPE = 0x8B9A;
+                this.IMPLEMENTATION_COLOR_READ_FORMAT = 0x8B9B;
+                this.COMPILE_STATUS = 0x8B81;
+                this.LOW_FLOAT = 0x8DF0;
+                this.MEDIUM_FLOAT = 0x8DF1;
+                this.HIGH_FLOAT = 0x8DF2;
+                this.LOW_INT = 0x8DF3;
+                this.MEDIUM_INT = 0x8DF4;
+                this.HIGH_INT = 0x8DF5;
+                this.FRAMEBUFFER = 0x8D40;
+                this.RENDERBUFFER = 0x8D41;
+                this.RGBA4 = 0x8056;
+                this.RGB5_A1 = 0x8057;
+                this.RGB565 = 0x8D62;
+                this.DEPTH_COMPONENT16 = 0x81A5;
+                this.STENCIL_INDEX = 0x1901;
+                this.STENCIL_INDEX8 = 0x8D48;
+                this.DEPTH_STENCIL = 0x84F9;
+                this.RENDERBUFFER_WIDTH = 0x8D42;
+                this.RENDERBUFFER_HEIGHT = 0x8D43;
+                this.RENDERBUFFER_INTERNAL_FORMAT = 0x8D44;
+                this.RENDERBUFFER_RED_SIZE = 0x8D50;
+                this.RENDERBUFFER_GREEN_SIZE = 0x8D51;
+                this.RENDERBUFFER_BLUE_SIZE = 0x8D52;
+                this.RENDERBUFFER_ALPHA_SIZE = 0x8D53;
+                this.RENDERBUFFER_DEPTH_SIZE = 0x8D54;
+                this.RENDERBUFFER_STENCIL_SIZE = 0x8D55;
+                this.FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE = 0x8CD0;
+                this.FRAMEBUFFER_ATTACHMENT_OBJECT_NAME = 0x8CD1;
+                this.FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL = 0x8CD2;
+                this.FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE = 0x8CD3;
+                this.COLOR_ATTACHMENT0 = 0x8CE0;
+                this.DEPTH_ATTACHMENT = 0x8D00;
+                this.STENCIL_ATTACHMENT = 0x8D20;
+                this.DEPTH_STENCIL_ATTACHMENT = 0x821A;
+                this.NONE = 0;
+                this.FRAMEBUFFER_COMPLETE = 0x8CD5;
+                this.FRAMEBUFFER_INCOMPLETE_ATTACHMENT = 0x8CD6;
+                this.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT = 0x8CD7;
+                this.FRAMEBUFFER_INCOMPLETE_DIMENSIONS = 0x8CD9;
+                this.FRAMEBUFFER_UNSUPPORTED = 0x8CDD;
+                this.FRAMEBUFFER_BINDING = 0x8CA6;
+                this.RENDERBUFFER_BINDING = 0x8CA7;
+                this.MAX_RENDERBUFFER_SIZE = 0x84E8;
+                this.INVALID_FRAMEBUFFER_OPERATION = 0x0506;
+                this.UNPACK_FLIP_Y_WEBGL = 0x9240;
+                this.UNPACK_PREMULTIPLY_ALPHA_WEBGL = 0x9241;
+                this.CONTEXT_LOST_WEBGL = 0x9242;
+                this.UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243;
+                this.BROWSER_DEFAULT_WEBGL = 0x9244;
+                /*
+                 * 存储字符串的数组
+                 */
+                this.strArray = new Array();
+                this.typedArrays = new Array();
+                this._canvas = canvas;
             }
-            isRunning = true;
-            if (!options) {
-                options = {};
-            }
-            setRenderMode(options.renderMode);
-            if (true) {
-                //todo 获得系统语言版本
-                var language = "zh_CN";
-                if (language in egret.$locale_strings)
-                    egret.$language = language;
-            }
-            try {
-                egret.Capabilities.$setNativeCapabilities(egret_native.getVersion());
-            }
-            catch (e) {
-            }
-            var ticker = egret.sys.$ticker;
-            var mainLoop = function () {
-                if (customContext) {
-                    customContext.onRender(context);
+            /*
+             * 上传绘制命令到C
+             */
+            WebGLCmdArrayManager.prototype.flushCmd = function () {
+                var supportGLBatch = this._canvas.sendGLArray;
+                if (supportGLBatch) {
+                    this._canvas.sendGLArray(this.dataView.buffer, this.arrayBufferLen, this.strArray, this.typedArrays);
                 }
-                ticker.update();
+                this.arrayBufferLen = 0;
+                this.strArray.length = 0;
+                this.typedArrays.length = 0;
             };
-            egret_native.setOnUpdate(mainLoop, ticker);
-            if (!egret.sys.screenAdapter) {
-                if (options.screenAdapter) {
-                    egret.sys.screenAdapter = options.screenAdapter;
+            /*
+             * 压入一个字符串并返回索引
+             */
+            WebGLCmdArrayManager.prototype.pushString = function (str) {
+                var array = this.strArray;
+                var len = array.length;
+                array[len] = str;
+                return len;
+            };
+            /*
+             * 压入ArrayBufferView或是ArrayBuffer并返回索引
+             */
+            WebGLCmdArrayManager.prototype.pushTypedArrays = function (item) {
+                var array = this.typedArrays;
+                var len = array.length;
+                array[len] = item;
+                return len;
+            };
+            // 0x29 clear(mask: number): void;
+            WebGLCmdArrayManager.prototype.clear = function (mask) {
+                if (this.arrayBufferLen + 6 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x29);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, mask, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x48 enable(cap: number): void;
+            WebGLCmdArrayManager.prototype.enable = function (cap) {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x48);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, cap, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x44 disable(cap: number): void;
+            WebGLCmdArrayManager.prototype.disable = function (cap) {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x44);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, cap, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x45 disableVertexAttribArray(index: number): void;
+            WebGLCmdArrayManager.prototype.disableVertexAttribArray = function (index) {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x45);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, index.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x77 scissor(x: number, y: number, width: number, height: number): void;
+            WebGLCmdArrayManager.prototype.scissor = function (x, y, width, height) {
+                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x77);
+                arrayBufferLen += 1;
+                dataView.setInt32(arrayBufferLen, x, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, y, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, width, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, height, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x74 readPixels(x: number, y: number, width: number, height: number, format: number, type: number, pixels: ArrayBufferView | null): void;
+            WebGLCmdArrayManager.prototype.readPixels = function (x, y, width, height, format, type, pixels) {
+                //TODO
+            };
+            // 0x75 renderbufferStorage(target: number, internalformat: number, width: number, height: number): void;
+            WebGLCmdArrayManager.prototype.renderbufferStorage = function (target, internalformat, width, height) {
+                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x75);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, internalformat, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, width, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, height, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x4C framebufferRenderbuffer(target: number, attachment: number, renderbuffertarget: number, renderbuffer: WebGLRenderbuffer | null): void;
+            WebGLCmdArrayManager.prototype.framebufferRenderbuffer = function (target, attachment, renderbuffertarget, renderbuffer) {
+                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x4C);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, attachment, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, renderbuffertarget, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, renderbuffer.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x4D framebufferTexture2D(target: number, attachment: number, textarget: number, texture: WebGLTexture | null, level: number): void;
+            WebGLCmdArrayManager.prototype.framebufferTexture2D = function (target, attachment, textarget, texture, level) {
+            };
+            // 0x24 blendFunc(sfactor: number, dfactor: number): void;
+            WebGLCmdArrayManager.prototype.blendFunc = function (sfactor, dfactor) {
+                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x24);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, sfactor, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, dfactor, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x79 stencilFunc(func: number, ref: number, mask: number): void;
+            WebGLCmdArrayManager.prototype.stencilFunc = function (func, ref, mask) {
+            };
+            // 0x7A stencilFuncSeparate(face: number, func: number, ref: number, mask: number): void;
+            WebGLCmdArrayManager.prototype.stencilFuncSeparate = function (face, func, ref, mask) {
+            };
+            // 0x7D stencilOp(fail: number, zfail: number, zpass: number): void;
+            WebGLCmdArrayManager.prototype.stencilOp = function (fail, zfail, zpass) {
+            };
+            // 0x7E stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number): void;
+            WebGLCmdArrayManager.prototype.stencilOpSeparate = function (face, fail, zfail, zpass) {
+            };
+            // 0x4A finish(): void;
+            WebGLCmdArrayManager.prototype.finish = function () {
+                if (this.arrayBufferLen + 1 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x4A);
+                arrayBufferLen += 1;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x4B flush(): void;
+            WebGLCmdArrayManager.prototype.flush = function () {
+                if (this.arrayBufferLen + 1 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x4B);
+                arrayBufferLen += 1;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x2A clearColor(red: number, green: number, blue: number, alpha: number): void;
+            WebGLCmdArrayManager.prototype.clearColor = function (red, green, blue, alpha) {
+                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x2A);
+                arrayBufferLen += 1;
+                dataView.setFloat32(arrayBufferLen, red, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, green, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, blue, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, alpha, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x2D colorMask(red: boolean, green: boolean, blue: boolean, alpha: boolean): void;
+            WebGLCmdArrayManager.prototype.colorMask = function (red, green, blue, alpha) {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x2D);
+                arrayBufferLen += 1;
+                dataView.setUint8(arrayBufferLen, red ? 1 : 0);
+                arrayBufferLen += 1;
+                dataView.setUint8(arrayBufferLen, green ? 1 : 0);
+                arrayBufferLen += 1;
+                dataView.setUint8(arrayBufferLen, blue ? 1 : 0);
+                arrayBufferLen += 1;
+                dataView.setUint8(arrayBufferLen, alpha ? 1 : 0);
+                arrayBufferLen += 1;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0xA3 viewport(x: number, y: number, width: number, height: number): void;
+            WebGLCmdArrayManager.prototype.viewport = function (x, y, width, height) {
+                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0xA3);
+                arrayBufferLen += 1;
+                dataView.setInt32(arrayBufferLen, x, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, y, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, width, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, height, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x33 createBuffer(): WebGLBuffer | null;
+            WebGLCmdArrayManager.prototype.createBuffer = function () {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                var webGLObject = new CmdCacheObject();
+                webGLObject.$objType = 0x02;
+                dataView.setUint8(arrayBufferLen, 0x33);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+                return webGLObject;
+            };
+            // 0x34 createFramebuffer(): WebGLFramebuffer | null;
+            WebGLCmdArrayManager.prototype.createFramebuffer = function () {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                var webGLObject = new CmdCacheObject();
+                webGLObject.$objType = 0x03;
+                dataView.setUint8(arrayBufferLen, 0x34);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+                return webGLObject;
+            };
+            // 0x36 createRenderbuffer(): WebGLRenderbuffer | null;
+            WebGLCmdArrayManager.prototype.createRenderbuffer = function () {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                var webGLObject = new CmdCacheObject();
+                webGLObject.$objType = 0x05;
+                dataView.setUint8(arrayBufferLen, 0x36);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+                return webGLObject;
+            };
+            // 0x1D bindBuffer(target: number, buffer: WebGLBuffer | null): void;
+            WebGLCmdArrayManager.prototype.bindBuffer = function (target, bufferObj) {
+                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x1D);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, bufferObj.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x1E bindFramebuffer(target: number, framebuffer: WebGLFramebuffer | null): void;
+            WebGLCmdArrayManager.prototype.bindFramebuffer = function (target, framebuffer) {
+                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x1E);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                if (framebuffer == null || framebuffer.hashCode == 0) {
+                    dataView.setUint32(arrayBufferLen, 0, true);
                 }
                 else {
-                    egret.sys.screenAdapter = new egret.sys.DefaultScreenAdapter();
+                    dataView.setUint32(arrayBufferLen, framebuffer.hashCode, true);
                 }
-            }
-            // todo
-            var player = new native2.NativePlayer();
-            playerList.push(player);
-            // 关闭脏矩形
-            player.$stage.dirtyRegionPolicy = egret.DirtyRegionPolicy.OFF;
-            egret.sys.DisplayList.prototype.setDirtyRegionPolicy = function () {
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
             };
-        }
-        /**
-         * 设置渲染模式。"auto","webgl","canvas"
-         * @param renderMode
-         */
-        function setRenderMode(renderMode) {
-            egret.sys.CanvasRenderBuffer = native2.WebGLRenderBuffer;
-            // sys.RenderBuffer = web.WebGLRenderBuffer;
-            // sys.systemRenderer = new web.WebGLRenderer();
-            // sys.canvasRenderer = new CanvasRenderer();
-            // Capabilities.$renderMode = "webgl";
-            // TODO rename
-            egret.sys.RenderBuffer = native2.WebGLRenderBuffer;
-            egret.sys.systemRenderer = new native2.WebGLRenderer();
-            egret.sys.canvasRenderer = new native2.WebGLRenderer();
-            egret.sys.customHitTestBuffer = new native2.WebGLRenderBuffer(3, 3);
-            egret.sys.canvasHitTestBuffer = new native2.WebGLRenderBuffer(3, 3);
-            egret.Capabilities.$renderMode = "webgl";
-        }
-        function updateAllScreens() {
-            var length = playerList.length;
-            for (var i = 0; i < length; i++) {
-                playerList[i].updateScreenSize();
-            }
-        }
-        function toArray(argument) {
-            var args = [];
-            for (var i = 0; i < argument.length; i++) {
-                args.push(argument[i]);
-            }
-            return args;
-        }
-        egret.warn = function () {
-            console.warn.apply(console, toArray(arguments));
-        };
-        egret.error = function () {
-            console.error.apply(console, toArray(arguments));
-        };
-        egret.assert = function () {
-            console.assert.apply(console, toArray(arguments));
-        };
-        if (true) {
-            egret.log = function () {
-                if (true) {
-                    var length = arguments.length;
-                    var info = "";
-                    for (var i = 0; i < length; i++) {
-                        info += arguments[i] + " ";
-                    }
-                    egret.sys.$logToFPS(info);
+            // 0x1F bindRenderbuffer(target: number, renderbuffer: WebGLRenderbuffer | null): void;
+            WebGLCmdArrayManager.prototype.bindRenderbuffer = function (target, renderbuffer) {
+                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                    this.flushCmd();
                 }
-                console.log.apply(console, toArray(arguments));
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x1F);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                if (renderbuffer == null || renderbuffer.hashCode == 0) {
+                    dataView.setUint32(arrayBufferLen, 0, true);
+                }
+                else {
+                    dataView.setUint32(arrayBufferLen, renderbuffer.hashCode, true);
+                }
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
             };
-        }
-        else {
-            egret.log = function () {
-                console.log.apply(console, toArray(arguments));
+            // 0x35 createProgram(): WebGLProgram | null;
+            WebGLCmdArrayManager.prototype.createProgram = function () {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                var webGLObject = new CmdCacheObject();
+                webGLObject.$objType = 0x04;
+                dataView.setUint8(arrayBufferLen, 0x35);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+                return webGLObject;
             };
-        }
-        egret.runEgret = runEgret;
-        egret.updateAllScreens = updateAllScreens;
+            // 0x98 useProgram(program: WebGLProgram | null): void;
+            WebGLCmdArrayManager.prototype.useProgram = function (program) {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x98);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, program.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            //0x37 createShader(type: number): WebGLShader | null;
+            WebGLCmdArrayManager.prototype.createShader = function (type) {
+                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                var webGLObject = new CmdCacheObject();
+                webGLObject.$objType = 0x07;
+                dataView.setUint8(arrayBufferLen, 0x37);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, type, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+                return webGLObject;
+            };
+            // 0x2E compileShader(shader: WebGLShader | null): void;
+            WebGLCmdArrayManager.prototype.compileShader = function (shader) {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x2E);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, shader.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x60 shaderSource(shader: WebGLShader | null, source: string): void;
+            WebGLCmdArrayManager.prototype.shaderSource = function (shader, source) {
+                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                var sourceid = this.pushString(source);
+                dataView.setUint8(arrayBufferLen, 0x60);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, shader.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, sourceid, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x5E getShaderParameter(shader: WebGLShader | null, pname: number): any;
+            WebGLCmdArrayManager.prototype.getShaderParameter = function (shader, pname) {
+                // TODO
+                return 1;
+            };
+            // 0x5B getProgramParameter(program: WebGLProgram | null, pname: number): any;
+            WebGLCmdArrayManager.prototype.getProgramParameter = function (program, pname) {
+                // TODO
+                return 1;
+            };
+            // 0x5D getShaderInfoLog(shader: WebGLShader | null): string | null;
+            WebGLCmdArrayManager.prototype.getShaderInfoLog = function () {
+                // TODO
+                return "TODO - getShaderInfoLog";
+            };
+            // 0x1B attachShader(program: WebGLProgram | null, shader: WebGLShader | null): void;
+            WebGLCmdArrayManager.prototype.attachShader = function (program, shader) {
+                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x1B);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, program.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, shader.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x71 linkProgram(program: WebGLProgram | null): void;
+            WebGLCmdArrayManager.prototype.linkProgram = function (program) {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x71);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, program.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x72 pixelStorei(pname: number, param: number): void;
+            WebGLCmdArrayManager.prototype.pixelStorei = function (pname, param) {
+                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x72);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, pname, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, param, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x38 createTexture(): WebGLTexture | null;
+            WebGLCmdArrayManager.prototype.createTexture = function () {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                var webGLObject = new CmdCacheObject();
+                webGLObject.$objType = 0x07;
+                dataView.setUint8(arrayBufferLen, 0x38);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+                return webGLObject;
+            };
+            // 0x3A deleteBuffer(buffer: WebGLBuffer | null): void;
+            WebGLCmdArrayManager.prototype.deleteBuffer = function (buffer) {
+                if (buffer == null || buffer.hashCode <= 0) {
+                    return;
+                }
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x3A);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, buffer.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x3B deleteFramebuffer(framebuffer: WebGLFramebuffer | null): void;
+            WebGLCmdArrayManager.prototype.deleteFramebuffer = function (framebuffer) {
+                if (framebuffer == null || framebuffer.hashCode <= 0) {
+                    return;
+                }
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x3B);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, framebuffer.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x3C deleteProgram(program: WebGLProgram | null): void;
+            WebGLCmdArrayManager.prototype.deleteProgram = function (program) {
+                if (program == null || program.hashCode <= 0) {
+                    return;
+                }
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x3C);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, program.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x3D deleteRenderbuffer(renderbuffer: WebGLRenderbuffer | null): void;
+            WebGLCmdArrayManager.prototype.deleteRenderbuffer = function (renderbuffer) {
+                if (renderbuffer == null || renderbuffer.hashCode <= 0) {
+                    return;
+                }
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x3D);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, renderbuffer.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x3E deleteShader(shader: WebGLShader | null): void;
+            WebGLCmdArrayManager.prototype.deleteShader = function (texture) {
+                if (texture == null || texture.hashCode <= 0) {
+                    return;
+                }
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x3E);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, texture.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x3F deleteTexture(texture: WebGLTexture | null): void;
+            WebGLCmdArrayManager.prototype.deleteTexture = function (texture) {
+                if (texture == null || texture.hashCode <= 0) {
+                    return;
+                }
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x3F);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, texture.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x1A activeTexture(texture: number): void;
+            WebGLCmdArrayManager.prototype.activeTexture = function (texture) {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x1A);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, texture, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x20 bindTexture(target: number, texture: WebGLTexture | null): void;
+            WebGLCmdArrayManager.prototype.bindTexture = function (target, texture) {
+                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x20);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                if (texture == null) {
+                    // TODO check
+                    dataView.setUint32(arrayBufferLen, 0, true);
+                }
+                else {
+                    dataView.setUint32(arrayBufferLen, texture.hashCode, true);
+                }
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x64 getUniformLocation(program: WebGLProgram | null, name: string): WebGLUniformLocation | null;
+            WebGLCmdArrayManager.prototype.getUniformLocation = function (program, name) {
+                if (program == null) {
+                    return;
+                }
+                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x64);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, program.hashCode, true);
+                arrayBufferLen += 4;
+                var nameid = this.pushString(name);
+                dataView.setUint32(arrayBufferLen, nameid, true);
+                arrayBufferLen += 4;
+                var webGLObject = new CmdCacheObject();
+                webGLObject.$objType = 0x08;
+                dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+                return webGLObject;
+            };
+            // 0x53 getAttribLocation(program: WebGLProgram | null, name: string): number;
+            WebGLCmdArrayManager.prototype.getAttribLocation = function (program, name) {
+                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x53);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, program.hashCode, true);
+                arrayBufferLen += 4;
+                var nameid = this.pushString(name);
+                dataView.setUint32(arrayBufferLen, nameid, true);
+                arrayBufferLen += 4;
+                var webGLObject = new CmdCacheObject();
+                webGLObject.$objType = 0x10;
+                dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+                return webGLObject;
+            };
+            // 0x50 getActiveAttrib(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
+            WebGLCmdArrayManager.prototype.getActiveAttrib = function (program, index) {
+                // TODO
+            };
+            // 0x65 getVertexAttrib(index: number, pname: number): any;
+            // 0x66 getVertexAttribOffset(index: number, pname: number): number;
+            WebGLCmdArrayManager.prototype.getVertexAttrib = function (index, pname) {
+                // TOOD
+            };
+            // 0x49 enableVertexAttribArray(index: number): void;
+            WebGLCmdArrayManager.prototype.enableVertexAttribArray = function (indx) {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x49);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, indx.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0xA2 vertexAttribPointer(indx: number, size: number, type: number, normalized: boolean, stride: number, offset: number): void;
+            WebGLCmdArrayManager.prototype.vertexAttribPointer = function (indx, size, type, normalized, stride, offset) {
+                if (this.arrayBufferLen + 25 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0xA2);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, indx.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, size, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, type, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, normalized ? 1 : 0, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, stride, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, offset, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            WebGLCmdArrayManager.prototype.uniformxv = function (location, v, type) {
+                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, type);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, location.hashCode, true);
+                var arrayid = this.pushTypedArrays(v);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, arrayid, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x88 uniform1iv(location: WebGLUniformLocation, v: Int32Array | number[]): void;
+            WebGLCmdArrayManager.prototype.uniform1iv = function (location, v) {
+                this.uniformxv(location, v, 0x88);
+            };
+            // 0x8C uniform2iv(location: WebGLUniformLocation, v: Int32Array | number[]): void;
+            WebGLCmdArrayManager.prototype.uniform2iv = function (location, v) {
+                this.uniformxv(location, v, 0x8C);
+            };
+            // 0x90 uniform3iv(location: WebGLUniformLocation, v: Int32Array | number[]): void;
+            WebGLCmdArrayManager.prototype.uniform3iv = function (location, v) {
+                this.uniformxv(location, v, 0x90);
+            };
+            // 0x94 uniform4iv(location: WebGLUniformLocation, v: Int32Array | number[]): void;
+            WebGLCmdArrayManager.prototype.uniform4iv = function (location, v) {
+                this.uniformxv(location, v, 0x94);
+            };
+            // 0x86 uniform1fv(location: WebGLUniformLocation, v: Float32Array | number[]): void;
+            WebGLCmdArrayManager.prototype.uniform1fv = function (location, v) {
+                this.uniformxv(location, v, 0x86);
+            };
+            // 0x8A uniform2fv(location: WebGLUniformLocation, v: Float32Array | number[]): void;
+            WebGLCmdArrayManager.prototype.uniform2fv = function (location, v) {
+                this.uniformxv(location, v, 0x8A);
+            };
+            // 0x8E uniform3fv(location: WebGLUniformLocation, v: Float32Array | number[]): void;
+            WebGLCmdArrayManager.prototype.uniform3fv = function (location, v) {
+                this.uniformxv(location, v, 0x8E);
+            };
+            // 0x92 uniform4fv(location: WebGLUniformLocation, v: Float32Array | number[]): void;
+            WebGLCmdArrayManager.prototype.uniform4fv = function (location, v) {
+                this.uniformxv(location, v, 0x92);
+            };
+            // 0x85 uniform1f(location: WebGLUniformLocation | null, x: number): void;
+            WebGLCmdArrayManager.prototype.uniform1f = function (location, x) {
+                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x85);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, location.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, x, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x87 uniform1i(location: WebGLUniformLocation | null, x: number): void;
+            WebGLCmdArrayManager.prototype.uniform1i = function (location, x) {
+                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x87);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, location.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, x, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x89 uniform2f(location: WebGLUniformLocation | null, x: number, y: number): void;
+            WebGLCmdArrayManager.prototype.uniform2f = function (location, x, y) {
+                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x89);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, location.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, x, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, y, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x8B uniform2i(location: WebGLUniformLocation | null, x: number, y: number): void;
+            WebGLCmdArrayManager.prototype.uniform2i = function (location, x, y) {
+                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x8B);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, location.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, x, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, y, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x8D uniform3f(location: WebGLUniformLocation | null, x: number, y: number, z: number): void;
+            WebGLCmdArrayManager.prototype.uniform3f = function (location, x, y, z) {
+                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x8D);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, location.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, x, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, y, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, z, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x8F uniform3i(location: WebGLUniformLocation | null, x: number, y: number, z: number): void;
+            WebGLCmdArrayManager.prototype.uniform3i = function (location, x, y, z) {
+                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x8F);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, location.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, x, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, y, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, z, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x91 uniform4f(location: WebGLUniformLocation | null, x: number, y: number, z: number, w: number): void;
+            WebGLCmdArrayManager.prototype.uniform4f = function (location, x, y, z, w) {
+                if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x91);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, location.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, x, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, y, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, z, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, w, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x93 uniform4i(location: WebGLUniformLocation | null, x: number, y: number, z: number, w: number): void;
+            WebGLCmdArrayManager.prototype.uniform4i = function (location, x, y, z, w) {
+                if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x93);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, location.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, x, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, y, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, z, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, w, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x95 uniformMatrix2fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | number[]): void;
+            WebGLCmdArrayManager.prototype.uniformMatrix2fv = function (location, transpose, value) {
+                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x95);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, location.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, transpose ? 1 : 0, true);
+                arrayBufferLen += 4;
+                var arrayid = this.pushTypedArrays(value);
+                dataView.setUint32(arrayBufferLen, arrayid, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x96 uniformMatrix3fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | number[]): void;
+            WebGLCmdArrayManager.prototype.uniformMatrix3fv = function (location, transpose, value) {
+                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x96);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, location.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, transpose ? 1 : 0, true);
+                arrayBufferLen += 4;
+                var arrayid = this.pushTypedArrays(value);
+                dataView.setUint32(arrayBufferLen, arrayid, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x97 uniformMatrix4fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | number[]): void;
+            WebGLCmdArrayManager.prototype.uniformMatrix4fv = function (location, transpose, value) {
+                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x97);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, location.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, transpose ? 1 : 0, true);
+                arrayBufferLen += 4;
+                var arrayid = this.pushTypedArrays(value);
+                dataView.setUint32(arrayBufferLen, arrayid, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x7F texImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, format: number, type: number, pixels?: ArrayBufferView): void;
+            WebGLCmdArrayManager.prototype.texImage2Di = function (target, level, internalformat, width, height, border, format, type, pixels) {
+                if (this.arrayBufferLen + 37 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x7F);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, level, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, internalformat, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, width, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, height, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, border, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, format, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, type, true);
+                arrayBufferLen += 4;
+                if (pixels == null) {
+                    dataView.setUint32(arrayBufferLen, 0xFFFFFFFF, true);
+                }
+                else {
+                    var arrayid = this.pushTypedArrays(pixels);
+                    dataView.setUint32(arrayBufferLen, arrayid, true);
+                }
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x80 texImage2D(target: number, level: number, internalformat: number, format: number, type: number, pixels?: ImageData | HTMLVideoElement | HTMLImageElement | HTMLCanvasElement): void;
+            // TODO HTMLCanvasElement
+            WebGLCmdArrayManager.prototype.texImage2D = function (target, level, internalformat, format, type, pixels) {
+                if (this.arrayBufferLen + 29 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x80);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, level, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, internalformat, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, format, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, type, true);
+                arrayBufferLen += 4;
+                if (pixels == null) {
+                    dataView.setUint32(arrayBufferLen, 0, true);
+                    arrayBufferLen += 4;
+                    dataView.setUint32(arrayBufferLen, 0, true);
+                    arrayBufferLen += 4;
+                }
+                else if (pixels.source == null || pixels.source == undefined) {
+                    console.log("js error pixels =" + pixels + ".format =" + pixels.format);
+                }
+                else if (pixels.source.___native_p__) {
+                    var addr = pixels.source.___native_p__;
+                    dataView.setUint32(arrayBufferLen, (addr / 4294967296) >>> 0, true);
+                    arrayBufferLen += 4;
+                    dataView.setUint32(arrayBufferLen, (addr & 4294967295) >>> 0, true);
+                    arrayBufferLen += 4;
+                }
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x81 texParameterf(target: number, pname: number, param: number): void;
+            WebGLCmdArrayManager.prototype.texParameterf = function (target, pname, param) {
+                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x81);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, pname, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, param, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x82 texParameteri(target: number, pname: number, param: number): void;
+            WebGLCmdArrayManager.prototype.texParameteri = function (target, pname, param) {
+                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x82);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, pname, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, param, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            //0x4F generateMipmap(target: number): void;
+            WebGLCmdArrayManager.prototype.generateMipmap = function (target) {
+                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x4F);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x26 bufferData(target: number, arrayData number | ArrayBufferView | ArrayBuffer, usage: number): void;
+            WebGLCmdArrayManager.prototype.bufferData = function (target, arrayData, usage) {
+                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x26);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                if (arrayData) {
+                    var arrayid = this.pushTypedArrays(arrayData);
+                    dataView.setUint32(arrayBufferLen, arrayid, true);
+                    arrayBufferLen += 4;
+                }
+                //TODO arrayData: number
+                // else{
+                //     dataView.setFloat32(arrayBufferLen, target, true);
+                //     arrayBufferLen += 4;
+                // }
+                dataView.setUint32(arrayBufferLen, usage, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x27 bufferSubData(target: number, offset: number, data: ArrayBufferView | ArrayBuffer): void;
+            WebGLCmdArrayManager.prototype.bufferSubData = function (target, offset, arrayData) {
+                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x27);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, offset, true);
+                arrayBufferLen += 4;
+                if (arrayData.byteLength) {
+                    var arrayid = this.pushTypedArrays(arrayData);
+                    dataView.setUint32(arrayBufferLen, arrayid, true);
+                    arrayBufferLen += 4;
+                }
+                //TODO arrayData: number
+                // else
+                // {
+                //     dataView.setFloat32(arrayBufferLen, target, true);
+                //     arrayBufferLen += 4;
+                // }
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x46 drawArrays(mode: number, first: number, count: number): void;
+            WebGLCmdArrayManager.prototype.drawArrays = function (mode, first, count) {
+                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x46);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, mode, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, first, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, count, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x47 drawElements(mode: number, count: number, type: number, offset: number): void;
+            WebGLCmdArrayManager.prototype.drawElements = function (mode, count, type, offset) {
+                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0x47);
+                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, mode, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, count, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, type, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, offset, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            return WebGLCmdArrayManager;
+        }());
+        WebGLCmdArrayManager.SIZE_OF_UINT16 = 2;
+        WebGLCmdArrayManager.SIZE_OF_UINT32 = 4;
+        WebGLCmdArrayManager.SIZE_OF_FLOAT32 = 4;
+        native2.WebGLCmdArrayManager = WebGLCmdArrayManager;
+        __reflect(WebGLCmdArrayManager.prototype, "egret.native2.WebGLCmdArrayManager");
     })(native2 = egret.native2 || (egret.native2 = {}));
-})(egret || (egret = {}));
-(function (egret) {
-    var native;
-    (function (native) {
-        native.$supportCanvas = true;
-        egret.native.$supportCanvas = egret.native2.$supportCanvas;
-    })(native = egret.native || (egret.native = {}));
 })(egret || (egret = {}));
 //////////////////////////////////////////////////////////////////////////////////////
 //

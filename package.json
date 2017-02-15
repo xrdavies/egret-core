@@ -303,7 +303,7 @@
             "platform": "web"
           },
           {
-            "path": "native2/EgretNative.ts",
+            "path": "native2/NativeCmdArray.ts",
             "platform": "native"
           },
           {

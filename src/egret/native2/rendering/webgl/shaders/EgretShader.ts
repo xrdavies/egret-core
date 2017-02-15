@@ -55,7 +55,7 @@ namespace egret.native2 {
             "}";
         public fragmentSrc:string = "";
 
-        private gl:WebGLRenderingContext = null;
+        private gl:any = null;
 
         public program:WebGLProgram = null;
 
@@ -70,12 +70,15 @@ namespace egret.native2 {
         public aTextureCoord:number;
         public colorAttribute:number;
 
-        constructor(gl:WebGLRenderingContext) {
+        constructor(gl:any) {
             this.gl = gl;
         }
 
         public init():void {
-            let gl:WebGLRenderingContext = this.gl;
+
+
+            let gl:any = this.gl;
+
 
             let program:WebGLProgram = WebGLUtils.compileProgram(gl, this.defaultVertexSrc, this.fragmentSrc);
             gl.useProgram(program);
@@ -101,7 +104,8 @@ namespace egret.native2 {
             if (!this.uniforms) {
                 return;
             }
-            let gl:WebGLRenderingContext = this.gl;
+
+            let gl:any = this.gl;
             let uniform;
 
             for (let key in this.uniforms) {
@@ -145,8 +149,10 @@ namespace egret.native2 {
             if (!this.uniforms) {
                 return;
             }
+
             let uniform;
-            let gl:WebGLRenderingContext = this.gl;
+            let gl:any = this.gl;
+
 
             for (let key in this.uniforms) {
                 uniform = this.uniforms[key];
@@ -194,7 +200,8 @@ namespace egret.native2 {
          * 设置attribute pointer
          */
         public setAttribPointer(stride:number):void {
-            let gl:WebGLRenderingContext = this.gl;
+
+            let gl:any = this.gl;
             gl.vertexAttribPointer(this.aVertexPosition, 2, gl.FLOAT, false, stride, 0);
             gl.vertexAttribPointer(this.aTextureCoord, 2, gl.FLOAT, false, stride, 2 * 4);
             gl.vertexAttribPointer(this.colorAttribute, 1, gl.FLOAT, false, stride, 4 * 4);

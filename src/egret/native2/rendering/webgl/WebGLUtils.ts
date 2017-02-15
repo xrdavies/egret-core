@@ -31,7 +31,7 @@ namespace egret.native2 {
      * @private
      */
     export class WebGLUtils {
-        public static compileProgram(gl: WebGLRenderingContext, vertexSrc: string, fragmentSrc: string): WebGLProgram {
+        public static compileProgram(gl: any, vertexSrc: string, fragmentSrc: string): WebGLProgram {
             let fragmentShader: WebGLShader = WebGLUtils.compileFragmentShader(gl, fragmentSrc);
             let vertexShader: WebGLShader = WebGLUtils.compileVertexShader(gl, vertexSrc);
 
@@ -46,16 +46,18 @@ namespace egret.native2 {
             return shaderProgram;
         }
 
-        public static compileFragmentShader(gl: WebGLRenderingContext, shaderSrc: string): WebGLShader {
+        public static compileFragmentShader(gl: any, shaderSrc: string): WebGLShader {
             return WebGLUtils._compileShader(gl, shaderSrc, gl.FRAGMENT_SHADER);
         }
 
-        public static compileVertexShader(gl: WebGLRenderingContext, shaderSrc: string): WebGLShader {
+        public static compileVertexShader(gl: any, shaderSrc: string): WebGLShader {
             return WebGLUtils._compileShader(gl, shaderSrc, gl.VERTEX_SHADER);
         }
 
-        private static _compileShader(gl: WebGLRenderingContext, shaderSrc: string, shaderType: number): WebGLShader {
+
+        private static _compileShader(gl: any, shaderSrc: string, shaderType: number): WebGLShader {
             let shader: WebGLShader = gl.createShader(shaderType);
+
             gl.shaderSource(shader, shaderSrc);
             gl.compileShader(shader);
 
@@ -71,6 +73,7 @@ namespace egret.native2 {
         public static checkCanUseWebGL(): boolean {
             if (WebGLUtils.canUseWebGL == undefined) {
                 try {
+
                     let canvas = document.createElement("canvas");
                     WebGLUtils.canUseWebGL = !!window["WebGLRenderingContext"]
                         && !!(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));

@@ -64,7 +64,11 @@ namespace egret.native2 {
             // 获取webglRenderContext
             this.context = WebGLRenderContext.getInstance(width, height);
             // buffer 对应的 render target
-            this.rootRenderTarget = new WebGLRenderTarget(this.context.context, 3, 3);
+            var glcontext:any = this.context.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                glcontext = this.context.glCmdManager;
+            }
+            this.rootRenderTarget = new WebGLRenderTarget(glcontext, 3, 3);
             if(width && height) {
                 this.resize(width, height);
             }
@@ -386,9 +390,16 @@ namespace egret.native2 {
                     this.drawFrameBufferToSurface(0, 0, this.rootRenderTarget.width, this.rootRenderTarget.height, 0, 0, this.rootRenderTarget.width, this.rootRenderTarget.height);
                 }
                 this._dirtyRegionPolicy = this.dirtyRegionPolicy;
+
             }
         }
 
+        public onRenderFinish2():void {
+            // 如果是舞台渲染buffer，判断cmdbatch
+            if(this.root && WebGLRenderContext.$supportCmdBatch) {
+                this.context.glCmdManager.flushCmd();
+            }
+        }
         /**
          * 交换frameBuffer中的图像到surface中
          * @param width 宽度

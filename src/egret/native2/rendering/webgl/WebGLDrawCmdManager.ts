@@ -42,7 +42,8 @@ namespace egret.native2 {
         CLEAR_COLOR,
         ACT_BUFFER,
         ENABLE_SCISSOR,
-        DISABLE_SCISSOR
+        DISABLE_SCISSOR,
+        FONT
     }
 
     /**
@@ -111,7 +112,7 @@ namespace egret.native2 {
         // lj
         public pushDrawText(texture, count, textColor, stroke, strokeColor, texturesInfo) {
             var data = this.drawData[this.drawDataLen] || {};
-            data.type = 10;
+            data.type = DRAWABLE_TYPE.FONT;
             data.texture = texture;
             data.count = count;
             data.textColor = textColor;

@@ -70,6 +70,8 @@ declare namespace egret_native {
 
     function sendToC(float32Array: Float32Array, arrayBufferLen: number, array: string[]): void;
 
+    function sendGLArray(arrayBuffer:ArrayBuffer, arrayBufferLen:number, array:Array<string>, typedArrays:Array<any>):void;
+
     /**
      * 启动主循环
      * @param callback 主循环回调函数

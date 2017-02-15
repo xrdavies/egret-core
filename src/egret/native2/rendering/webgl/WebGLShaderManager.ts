@@ -32,7 +32,7 @@ namespace egret.native2 {
      * @private
      */
     export class WebGLShaderManager {
-        private gl:WebGLRenderingContext = null;
+        private gl:any = null;
         private maxAttibs:number = 10;
         private attribState:any[] = [];
         private tempAttribState:any[] = [];
@@ -71,9 +71,25 @@ namespace egret.native2 {
         public activateShader(shader, stride:number) {
             if (this.currentShader != shader) {
                 this.gl.useProgram(shader.program);
-                this.setAttribs(shader.attributes);
+                if(this.gl.flushCmd) {
+                    this.setAttribForCmdBatch(shader.attributes)
+                }
+                else {
+                    this.setAttribs(shader.attributes);
+                }
                 shader.setAttribPointer(stride);
                 this.currentShader = shader;
+            }
+        }
+
+        private setAttribForCmdBatch(attribs) {
+            var i:number;
+            var l:number;
+
+            var gl = this.gl;
+            l = attribs.length;
+            for (i = 0; i < l; i++) {
+                gl.enableVertexAttribArray(attribs[i]);
             }
         }
 

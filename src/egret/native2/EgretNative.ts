@@ -43,7 +43,10 @@ module egret.native2 {
 
         restore: function () {
             let context = WebGLRenderContext.getInstance(0, 0);
-            let gl = context.context;
+            let gl:any = context.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = context.glCmdManager;
+            }
             gl.bindBuffer(gl.ARRAY_BUFFER, context["vertexBuffer"]);
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, context["indexBuffer"]);
             gl.activeTexture(gl.TEXTURE0);
@@ -78,6 +81,12 @@ module egret.native2 {
         if(!options){
             options = {};
         }
+        
+        /**
+         * @private
+         * 设置当前runtime版本是否支持cmdBatch
+         */
+        WebGLRenderContext.$supportCmdBatch = false;
         setRenderMode(options.renderMode);
         if (DEBUG) {
             //todo 获得系统语言版本

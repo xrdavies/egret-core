@@ -66,6 +66,7 @@ namespace egret.native2 {
     export class WebGLRenderContext {
 
         public static antialias:boolean;
+        public static $supportCmdBatch:boolean;
 
         /**
          * 渲染上下文
@@ -87,6 +88,12 @@ namespace egret.native2 {
             this.instance = new WebGLRenderContext(width, height);
             return this.instance;
         }
+
+        /**
+         * @private
+         * 缓存WebGL命令管理器
+         */
+        public glCmdManager: WebGLCmdArrayManager;
 
         /**
          * 顶点数组管理器
@@ -178,6 +185,10 @@ namespace egret.native2 {
         private uploadVerticesArray(array: any): void {
             let gl: any = this.context;
 
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
+
             gl.bufferData(gl.ARRAY_BUFFER, array, gl.STREAM_DRAW);
             // gl.bufferSubData(gl.ARRAY_BUFFER, 0, array);
         }
@@ -186,7 +197,11 @@ namespace egret.native2 {
          * 上传索引数据
          */
         private uploadIndicesArray(array: any): void {
+
             let gl: any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
 
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, array, gl.STATIC_DRAW);
         }
@@ -202,7 +217,12 @@ namespace egret.native2 {
 
             this.$bufferStack = [];
 
-            let gl = this.context;
+
+            let gl: any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
+
             this.vertexBuffer = gl.createBuffer();
             this.indexBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -211,6 +231,7 @@ namespace egret.native2 {
             this.drawCmdManager = new WebGLDrawCmdManager();
 
             this.vao = new WebGLVertexArrayObject();
+
 
             this.setGlobalCompositeOperation("source-over");
         }
@@ -227,8 +248,12 @@ namespace egret.native2 {
             height = height || this.surface.height;
             this.projectionX = width / 2;
             this.projectionY = -height / 2;
-            if (this.context) {
-                this.context.viewport(0, 0, width, height);
+            let gl:any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
+            if (gl) {
+                gl.viewport(0, 0, width, height);
             }
         }
 
@@ -288,7 +313,11 @@ namespace egret.native2 {
 
             this.getWebGLContext();
 
-            this.shaderManager = new WebGLShaderManager(this.context);
+            let gl:any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
+            this.shaderManager = new WebGLShaderManager(gl);
         }
 
         private handleContextLost() {
@@ -304,7 +333,8 @@ namespace egret.native2 {
         private getWebGLContext() {
             let options = {
                 antialias: WebGLRenderContext.antialias,
-                stencil: true//设置可以使用模板（用于不规则遮罩）
+                cmdbatch: WebGLRenderContext.$supportCmdBatch,
+                stencil: true, //设置可以使用模板（用于不规则遮罩）
             };
             let gl: any;
             //todo 是否使用chrome源码names
@@ -322,14 +352,22 @@ namespace egret.native2 {
             if (!gl) {
                 $error(1021);
             }
+            if(options.cmdbatch == true)
+            {
+                this.glCmdManager = new WebGLCmdArrayManager(this.surface);
+            }
             this.setContext(gl);
         }
 
-        private setContext(gl: any) {
-            this.context = gl;
-            gl.id = WebGLRenderContext.glContextId++;
-            this.glID = gl.id;
+        private setContext(glcontext: any) {
+            this.context = glcontext;
+            glcontext.id = WebGLRenderContext.glContextId++;
+            this.glID = glcontext.id;
 
+            let gl:any = glcontext;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
             gl.disable(gl.DEPTH_TEST);
             gl.disable(gl.CULL_FACE);
             gl.enable(gl.BLEND);
@@ -344,6 +382,10 @@ namespace egret.native2 {
          */
         public enableStencilTest(): void {
             let gl: any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
+
             gl.enable(gl.STENCIL_TEST);
         }
 
@@ -352,6 +394,10 @@ namespace egret.native2 {
          */
         public disableStencilTest(): void {
             let gl: any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
+
             gl.disable(gl.STENCIL_TEST);
         }
 
@@ -360,6 +406,10 @@ namespace egret.native2 {
          */
         public enableScissorTest(rect:egret.Rectangle): void {
             let gl: any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
+
             gl.enable(gl.SCISSOR_TEST);
             gl.scissor(rect.x, rect.y, rect.width, rect.height);
         }
@@ -369,6 +419,10 @@ namespace egret.native2 {
          */
         public disableScissorTest(): void {
             let gl: any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
+
             gl.disable(gl.SCISSOR_TEST);
         }
 
@@ -377,7 +431,12 @@ namespace egret.native2 {
          */
         public getPixels(x, y, width, height, pixels): void {
             let gl: any = this.context;
-            gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
+	    // TODO
+            // gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+
         }
 
         /**
@@ -385,9 +444,13 @@ namespace egret.native2 {
          */
         public createTexture(bitmapData: BitmapData): WebGLTexture {
             let gl: any = this.context;
+            let useCmdBatch:boolean = false;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+                useCmdBatch = true;
+            }
 
             let texture = gl.createTexture();
-
             if (!texture) {
                 //先创建texture失败,然后lost事件才发出来..
                 this.contextLost = true;
@@ -399,7 +462,12 @@ namespace egret.native2 {
             gl.bindTexture(gl.TEXTURE_2D, texture);
             gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
 
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bitmapData);
+            if(useCmdBatch) {
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bitmapData);
+            }
+            else {
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bitmapData.source);
+            }
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
@@ -418,6 +486,12 @@ namespace egret.native2 {
          */
         public updateTexture(texture: WebGLTexture, bitmapData: BitmapData): void {
             let gl: any = this.context;
+            let useCmdBatch:boolean = false;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+                useCmdBatch = true;
+            }
+
             gl.bindTexture(gl.TEXTURE_2D, texture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bitmapData);
         }
@@ -429,16 +503,16 @@ namespace egret.native2 {
         public getWebGLTexture(bitmapData: BitmapData): WebGLTexture {
             if (!bitmapData.webGLTexture) {
                 if(bitmapData.format == "image") {
-                    bitmapData.webGLTexture = this.createTexture(bitmapData.source);
+                    bitmapData.webGLTexture = this.createTexture(bitmapData);
                 }
                 else if(bitmapData.format == "pvr") {//todo 需要支持其他格式
                     bitmapData.webGLTexture = this.createTextureFromCompressedData(bitmapData.source.pvrtcData, bitmapData.width, bitmapData.height, bitmapData.source.mipmapsCount, bitmapData.source.format);
                 }
                 if (bitmapData.$deleteSource && bitmapData.webGLTexture) {
-                    //native
-                    if(bitmapData.source && bitmapData.source.dispose) {
-                        bitmapData.source.dispose();
-                    }
+                    //native TODO
+                    // if(bitmapData.source && bitmapData.source.dispose) {
+                    //     bitmapData.source.dispose();
+                    // }
 
                     bitmapData.source = null;
                 }
@@ -619,7 +693,6 @@ namespace egret.native2 {
 
             this.drawCmdManager.pushDrawText(texture, count, textColor, stroke, strokeColor, tex);
             this.vao.cacheArraysForText(transform, alpha, t, text.length, size);
-            this.$drawWebGL();
         }
         //-lj
 
@@ -869,7 +942,7 @@ namespace egret.native2 {
                     }
                     break;
                 // lj
-                case 10 /* TEXT */:
+                case DRAWABLE_TYPE.FONT /* TEXT */:
                     shader = this.shaderManager.fontShader;
 
                     var tc = data.textColor;
@@ -920,7 +993,10 @@ namespace egret.native2 {
         // lj
         private drawPushText = function (data, offset) {
             // console.log(data.count);
-            var gl = this.context;
+            let gl:any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
 
             var size = 0;
             for (var i = 0; i < data.texturesInfo.length; i++) {
@@ -948,6 +1024,10 @@ namespace egret.native2 {
          **/
         private drawTextureElements(data: any, offset: number): number {
             let gl: any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
+
             gl.bindTexture(gl.TEXTURE_2D, data.texture);
             let size = data.count * 3;
             gl.drawElements(gl.TRIANGLES, size, gl.UNSIGNED_SHORT, offset * 2);
@@ -959,7 +1039,12 @@ namespace egret.native2 {
          * 画rect
          **/
         private drawRectElements(data: any, offset: number): number {
+
             let gl: any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
+
             // gl.bindTexture(gl.TEXTURE_2D, null);
             let size = data.count * 3;
             gl.drawElements(gl.TRIANGLES, size, gl.UNSIGNED_SHORT, offset * 2);
@@ -971,6 +1056,9 @@ namespace egret.native2 {
          **/
         private drawPushMaskElements(data: any, offset: number): number {
             let gl: any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
 
             let size = data.count * 3;
 
@@ -1004,6 +1092,9 @@ namespace egret.native2 {
          **/
         private drawPopMaskElements(data: any, offset: number) {
             let gl: any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
 
             let size = data.count * 3;
 
@@ -1038,7 +1129,11 @@ namespace egret.native2 {
          */
         private setBlendMode(value: string): void {
             let gl: any = this.context;
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl = this.glCmdManager;
+            }
             let blendModeWebGL = WebGLRenderContext.blendModesForGL[value];
+
             if (blendModeWebGL) {
                 gl.blendFunc(blendModeWebGL[0], blendModeWebGL[1]);
             }

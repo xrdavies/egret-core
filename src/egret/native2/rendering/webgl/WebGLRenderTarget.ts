@@ -36,7 +36,7 @@ namespace egret.native2 {
      */
     export class WebGLRenderTarget extends HashObject {
 
-        private gl:WebGLRenderingContext;
+        private gl:any;
 
         // 存储着绘制结果的texture
         // 某些场景下是否需要一个切换方法？
@@ -53,7 +53,7 @@ namespace egret.native2 {
         // 清除色
         public clearColor = [0, 0, 0, 0];
 
-        public constructor(gl:WebGLRenderingContext, width:number, height:number) {
+        public constructor(gl:any, width:number, height:number) {
             super();
             this.gl = gl;
 
@@ -87,7 +87,12 @@ namespace egret.native2 {
 
             // 设置texture尺寸
             gl.bindTexture(gl.TEXTURE_2D, this.texture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl.texImage2Di(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            }
+            else {
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            }
             // gl.bindTexture(gl.TEXTURE_2D, null);
 
             // 设置render buffer的尺寸
@@ -134,7 +139,12 @@ namespace egret.native2 {
 
             let texture:WebGLTexture = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            if(WebGLRenderContext.$supportCmdBatch) {
+                gl.texImage2Di(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            }
+            else {
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            }
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);

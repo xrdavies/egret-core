@@ -8207,6 +8207,7 @@ declare namespace egret_native {
     function touchUp(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
     function touchCancel(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
     function sendToC(float32Array: Float32Array, arrayBufferLen: number, array: string[]): void;
+    function sendGLArray(arrayBuffer: ArrayBuffer, arrayBufferLen: number, array: Array<string>, typedArrays: Array<any>): void;
     /**
      * 启动主循环
      * @param callback 主循环回调函数

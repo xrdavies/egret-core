@@ -81,6 +81,8 @@ namespace egret.native2 {
                     renderBufferPool[i].resize(0, 0);
                 }
             }
+
+            webglBuffer.onRenderFinish2();
             return drawCall;
         }
 
