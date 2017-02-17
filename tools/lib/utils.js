@@ -26,12 +26,11 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-/// <reference path="./node.d.ts" />
-var cp = require('child_process');
-var path = require('path');
-var file = require('./FileUtil');
+var cp = require("child_process");
+var path = require("path");
+var file = require("./FileUtil");
 var UglifyJS = require("./uglify-js/uglifyjs");
-var net = require('net');
+var net = require("net");
 //第三方调用时，可能不支持颜色显示，可通过添加 -nocoloroutput 移除颜色信息
 var ColorOutputReplacements = {
     "{color_green}": "\033[1;32;1m",
@@ -52,7 +51,8 @@ var NoColorOutputReplacements = {
 function formatStdoutString(message) {
     var replacements = ColorOutputReplacements;
     for (var raw in replacements) {
-        message = message.split(raw).join(replacements[raw]);
+        var replace = (egret.args && egret.args.ide) ? "" : replacements[raw];
+        message = message.split(raw).join(replace);
     }
     return message;
 }
@@ -244,7 +244,6 @@ function getAvailablePort(callback, port) {
             server.close();
         });
         server.on('close', function () {
-            console.log("Server running at port:", port);
             callback(port);
         });
         server.on('error', function (err) {

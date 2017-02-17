@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-module egret.native2 {
+namespace egret.native2 {
     /**
      * @private
      */
@@ -38,7 +38,7 @@ module egret.native2 {
             super();
             this.$touch = new egret.sys.TouchHandler(stage);
 
-            var self = this;
+            let self = this;
             egret_native.touchDown = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
                 self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchBegin);
             };
@@ -54,10 +54,10 @@ module egret.native2 {
         }
 
         private $executeTouchCallback(num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>, callback:Function) {
-            for (var i = 0; i < num; i++) {
-                var id = ids[i];
-                var x = xs_array[i];
-                var y = ys_array[i];
+            for (let i = 0; i < num; i++) {
+                let id = ids[i];
+                let x = xs_array[i];
+                let y = ys_array[i];
                 callback.call(this.$touch, x, y, id);
             }
         }

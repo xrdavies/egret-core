@@ -26,8 +26,8 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-module egret.native2 {
-    var callBackDic = {};
+namespace egret.native2 {
+    let callBackDic = {};
 
     /**
      * @private
@@ -35,7 +35,7 @@ module egret.native2 {
     export class NativeExternalInterface implements ExternalInterface {
 
         static call(functionName:string, value:string):void {
-            var data:any = {};
+            let data:any = {};
             data.functionName = functionName;
             data.value = value;
             egret_native.sendInfoToPlugin(JSON.stringify(data));
@@ -51,15 +51,15 @@ module egret.native2 {
      * @param info
      */
     function onReceivedPluginInfo(info:string):void {
-        var data = JSON.parse(info);
-        var functionName = data.functionName;
-        var listener = callBackDic[functionName];
+        let data = JSON.parse(info);
+        let functionName = data.functionName;
+        let listener = callBackDic[functionName];
         if (listener) {
-            var value = data.value;
+            let value = data.value;
             listener.call(null, value);
         }
         else {
-            egret.$warn(1004, functionName);
+            egret.$warn(1050, functionName);
         }
     }
 

@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-module egret.native2 {
+namespace egret.native2 {
 
     /**
      * @private
@@ -113,7 +113,7 @@ module egret.native2 {
          * @param data 需要发送的数据
          */
         public send(data?:any):void {
-            var self = this;
+            let self = this;
             if (self.isNetUrl(self._url)) {//网络请求
                 self.urlData.type = self._method;
                 //写入POST数据
@@ -141,10 +141,10 @@ module egret.native2 {
                 else {
                     delete self.urlData.header;
                 }
-                var promise = PromiseObject.create();
+                let promise = PromiseObject.create();
                 promise.onSuccessFunc = function (getted_str) {
                     self._response = getted_str;
-                    callLater(Event.dispatchEvent, Event, self, Event.COMPLETE);
+                    $callAsync(egret.Event.dispatchEvent, egret.Event, self, egret.Event.COMPLETE);
                 };
                 promise.onErrorFunc = function (error_code) {
                     $warn(1019, error_code);
@@ -162,7 +162,7 @@ module egret.native2 {
             }
 
             function readFileAsync() {
-                var promise = new egret.PromiseObject();
+                let promise = new egret.PromiseObject();
                 promise.onSuccessFunc = function (content) {
                     self._response = content;
                     Event.dispatchEvent(self, Event.COMPLETE);
@@ -179,8 +179,7 @@ module egret.native2 {
             }
 
             function download() {
-                var promise = PromiseObject.create();
-                // TODO arraybuffer
+                let promise = PromiseObject.create();
                 promise.onSuccessFunc = readFileAsync;
                 promise.onErrorFunc = function () {
                     Event.dispatchEvent(self, IOErrorEvent.IO_ERROR);
@@ -197,7 +196,7 @@ module egret.native2 {
          * @returns {boolean}
          */
         private isNetUrl(url:string):boolean {
-            return url.indexOf("http://") != -1 || url.indexOf("HTTP://") != -1;
+            return url.indexOf("http://") != -1 || url.indexOf("HTTP://") != -1 || url.indexOf("https://") != -1 || url.indexOf("HTTPS://") != -1;
         }
 
         /**
@@ -210,7 +209,11 @@ module egret.native2 {
         private responseHeader:string = "";
 
         private onResponseHeader(headers:string):void {
-            this.responseHeader = headers;
+            this.responseHeader = "";
+            let obj = JSON.parse(headers);
+            for(let key in obj) {
+                this.responseHeader += key + ": " + obj[key] + "\r\n";
+            }
         }
 
         /**
@@ -247,7 +250,4 @@ module egret.native2 {
     }
     HttpRequest = NativeHttpRequest;
 
-    if (DEBUG) {
-        egret.$markReadOnly(NativeHttpRequest, "response");
-    }
 }

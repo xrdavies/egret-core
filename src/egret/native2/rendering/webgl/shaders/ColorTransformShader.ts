@@ -26,7 +26,7 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-module egret.native2 {
+namespace egret.native2 {
     /**
      * @private
      */
@@ -51,15 +51,15 @@ module egret.native2 {
 
         public uniforms = {
             projectionVector: {type: '2f', value: {x: 0, y: 0}, dirty: true},
-            matrix: {type: 'mat4', value: new Float32Array([1, 0, 0, 0,
+            matrix: {type: 'mat4', value: [1, 0, 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
-                0, 0, 0, 1]), transpose: false, dirty: true},
+                0, 0, 0, 1], dirty: true},
             colorAdd: {type: '4f', value: {x: 0, y: 0, z: 0, w: 0}, dirty: true}
         };
 
         public setMatrix(matrix:any):void {
-            var uniform = this.uniforms.matrix;
+            let uniform = this.uniforms.matrix;
 
             if(uniform.value[0] != matrix[0] ||
                 uniform.value[0] != matrix[0] ||
@@ -105,7 +105,7 @@ module egret.native2 {
                 uniform.dirty = true;
             }
 
-            var uniform2 = this.uniforms.colorAdd;
+            let uniform2 = this.uniforms.colorAdd;
 
             if(uniform2.value.x != matrix[4] / 255.0 ||
                 uniform2.value.y != matrix[9] / 255.0 ||

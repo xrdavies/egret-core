@@ -27,38 +27,37 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-module eui {
+namespace eui {
     /**
-     * @language en_US
      * Interface of theme adapter.
      * If your project need to custom the theme rule, you need to implement the <code>IThemeAdapter</code>.
      * And use the following code to inject it to the system:
      * <pre>
-     *      var themeAdapter = new YourThemeAdapter();
-     *      Stage.registerImplementation("eui.IThemeAdapter",themeAdapter);
+     *      let themeAdapter = new YourThemeAdapter();
+     *      egret.registerImplementation("eui.IThemeAdapter",themeAdapter);
      * </pre>
      *
      * @version Egret 2.4
      * @version eui 1.0
      * @platform Web,Native
+     * @language en_US
      */
     /**
-     * @language zh_CN
      * 主题适配器接口。
      * 若项目需要自定义主题需要实现这个接口，
      * 然后调用如下代码注入自定义实现到框架即可：
      * <pre>
-     *      var themeAdapter = new YourThemeAdapter();
-     *      Stage.registerImplementation("eui.IThemeAdapter",themeAdapter);
+     *      let themeAdapter = new YourThemeAdapter();
+     *      egret.registerImplementation("eui.IThemeAdapter",themeAdapter);
      * </pre>
      * @version Egret 2.4
      * @version eui 1.0
      * @platform Web,Native
+     * @language zh_CN
      */
     export interface IThemeAdapter{
 
         /**
-         * @language en_US
          * Resolves theme
          * @param url theme url
          * @param compFunc compFunc，example：compFunc(e:egret.Event):void;
@@ -67,9 +66,9 @@ module eui {
          * @version Egret 2.4
          * @version eui 1.0
          * @platform Web,Native
+         * @language en_US
          */
         /**
-         * @language zh_CN
          * 解析主题
          * @param url 待解析的主题url
          * @param compFunc 解析完成回调函数，示例：compFunc(e:egret.Event):void;
@@ -78,6 +77,7 @@ module eui {
          * @version Egret 2.4
          * @version eui 1.0
          * @platform Web,Native
+         * @language zh_CN
          */
         getTheme(url:string,compFunc:Function,errorFunc:Function,thisObject:any):void;
     }

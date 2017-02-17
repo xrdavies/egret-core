@@ -27,14 +27,14 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-module egret.native2 {
+namespace egret.native2 {
 
     /**
      * @private
      * WebGLRenderTarget类
      * 一个WebGL渲染目标，拥有一个frame buffer和texture
      */
-    export class WebGLRenderTarget {
+    export class WebGLRenderTarget extends HashObject {
 
         private gl:WebGLRenderingContext;
 
@@ -54,6 +54,7 @@ module egret.native2 {
         public clearColor = [0, 0, 0, 0];
 
         public constructor(gl:WebGLRenderingContext, width:number, height:number) {
+            super();
             this.gl = gl;
 
             // 如果尺寸为 0 chrome会报警
@@ -82,7 +83,7 @@ module egret.native2 {
          * 重置render target的尺寸
          */
         public resize(width:number, height:number):void {
-            var gl = this.gl;
+            let gl = this.gl;
 
             // 设置texture尺寸
             gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -91,6 +92,9 @@ module egret.native2 {
 
             // 设置render buffer的尺寸
             gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);// 是否需要强制绑定？
+            // 销毁并重新创建render buffer，防止 renderbufferStorage 引发内存泄漏
+            gl.deleteRenderbuffer(this.stencilBuffer);
+            this.stencilBuffer = gl.createRenderbuffer();
             gl.bindRenderbuffer(gl.RENDERBUFFER, this.stencilBuffer);// 是否需要强制绑定？
             gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_STENCIL, width, height);
 
@@ -105,7 +109,7 @@ module egret.native2 {
          * 激活此render target
          */
         public activate():void {
-            var gl = this.gl;
+            let gl = this.gl;
             gl.bindFramebuffer(gl.FRAMEBUFFER, this.getFrameBuffer());
         }
 
@@ -126,9 +130,9 @@ module egret.native2 {
          * TODO 创建材质的方法可以合并
          */
         private createTexture():WebGLTexture {
-            var gl = this.gl;
+            let gl = this.gl;
 
-            var texture:WebGLTexture = gl.createTexture();
+            let texture:WebGLTexture = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, texture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -142,7 +146,7 @@ module egret.native2 {
          * 清除render target颜色缓存
          */
         public clear(bind?:boolean) {
-            var gl = this.gl;
+            let gl = this.gl;
 
             if(bind) {
                 this.activate();

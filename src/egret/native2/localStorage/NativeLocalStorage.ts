@@ -26,10 +26,10 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-module egret.localStorage.native2 {
-    var filePath:string = "LocalStorage.local";
+namespace egret.localStorage.native2 {
+    let filePath:string = "LocalStorage.local";
 
-    var localStorageData = {};
+    let localStorageData = {};
 
     /**
      * @private
@@ -84,7 +84,7 @@ module egret.localStorage.native2 {
      *
      */
     function clear():void {
-        for (var key in localStorageData) {
+        for (let key in localStorageData) {
             delete localStorageData[key];
         }
         save();
@@ -100,7 +100,7 @@ module egret.localStorage.native2 {
     }
 
     if (egret_native.isRecordExists(filePath)) {
-        var str:string = egret_native.loadRecord(filePath);
+        let str:string = egret_native.loadRecord(filePath);
 
         try {
             localStorageData = JSON.parse(str);

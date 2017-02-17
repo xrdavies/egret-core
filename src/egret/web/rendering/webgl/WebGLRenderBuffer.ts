@@ -27,13 +27,15 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-module egret.web {
+namespace egret.web {
 
     /**
      * @private
      * WebGL渲染缓存
      */
-    export class WebGLRenderBuffer implements sys.RenderBuffer {
+    export class WebGLRenderBuffer extends HashObject implements sys.RenderBuffer {
+
+        public static autoClear:boolean = true;
 
         /**
          * 渲染上下文
@@ -58,6 +60,7 @@ module egret.web {
         private root:boolean;
 
         public constructor(width?:number, height?:number, root?:boolean) {
+            super();
             // 获取webglRenderContext
             this.context = WebGLRenderContext.getInstance(width, height);
             // buffer 对应的 render target
@@ -76,7 +79,7 @@ module egret.web {
                 this.surface = this.context.surface;
             } else {
                 // 由于创建renderTarget造成的frameBuffer绑定，这里重置绑定
-                var lastBuffer = this.context.activatedBuffer;
+                let lastBuffer = this.context.activatedBuffer;
                 if(lastBuffer) {
                     lastBuffer.rootRenderTarget.activate();
                 }
@@ -122,7 +125,7 @@ module egret.web {
          */
         public $scissorState:boolean = false;
         private scissorRect:Rectangle = new egret.Rectangle();
-        public $hasScissor:boolean = true;
+        public $hasScissor:boolean = false;
 
         public enableScissor(x:number, y:number, width:number, height:number):void {
             if(!this.$scissorState) {
@@ -206,9 +209,9 @@ module egret.web {
         public resizeTo(width:number, height:number, offsetX:number, offsetY:number):void {
             this.context.pushBuffer(this);
 
-            var oldWidth = this.rootRenderTarget.width;
-            var oldHeight = this.rootRenderTarget.height;
-            var tempBuffer:WebGLRenderBuffer = WebGLRenderBuffer.create(oldWidth, oldHeight);
+            let oldWidth = this.rootRenderTarget.width;
+            let oldHeight = this.rootRenderTarget.height;
+            let tempBuffer:WebGLRenderBuffer = WebGLRenderBuffer.create(oldWidth, oldHeight);
             this.context.pushBuffer(tempBuffer);
             this.context.drawImage(<BitmapData><any>this.rootRenderTarget, 0, 0, oldWidth, oldHeight, 0, 0, oldWidth, oldHeight, oldWidth, oldHeight);
             this.context.popBuffer();
@@ -246,14 +249,14 @@ module egret.web {
                 } else {
                     this.rootRenderTarget.useFrameBuffer = false;
                     this.rootRenderTarget.activate();
-                    this.context.clear();
+                    WebGLRenderBuffer.autoClear && this.context.clear();
                 }
             }
 
             offsetX = +offsetX || 0;
             offsetY = +offsetY || 0;
             this.setTransform(1, 0, 0, 1, offsetX, offsetY);
-            var length = regions.length;
+            let length = regions.length;
             //只有一个区域且刚好为舞台大小时,不设置模板
             if (length == 1 && regions[0].minX == 0 && regions[0].minY == 0 &&
                 regions[0].width == this.rootRenderTarget.width && regions[0].height == this.rootRenderTarget.height) {
@@ -263,8 +266,8 @@ module egret.web {
                 return;
             }
             // 擦除脏矩形区域
-            for (var i = 0; i < length; i++) {
-                var region = regions[i];
+            for (let i = 0; i < length; i++) {
+                let region = regions[i];
                 this.context.clearRect(region.minX, region.minY, region.width, region.height);
             }
             // 设置模版
@@ -272,12 +275,12 @@ module egret.web {
 
                 // 对第一个且只有一个mask用scissor处理
                 if(!this.$hasScissor && length == 1) {
-                    var region = regions[0];
+                    let region = regions[0];
                     regions = regions.slice(1);
-                    var x = region.minX + offsetX;
-                    var y = region.minY + offsetY;
-                    var width = region.width;
-                    var height = region.height;
+                    let x = region.minX + offsetX;
+                    let y = region.minY + offsetY;
+                    let width = region.width;
+                    let height = region.height;
                     this.context.enableScissor(x, - y - height + this.height, width, height);
                     this.scissorEnabled = true;
                 } else {
@@ -327,21 +330,32 @@ module egret.web {
         }
 
         /**
-         * 获取指定坐标的像素
+         * 获取指定区域的像素
          */
-        public getPixel(x:number, y:number):number[] {
-            var pixels = new Uint8Array(4);
+        public getPixels(x:number, y:number, width:number = 1, height:number = 1):number[] {
+            let pixels = new Uint8Array(4 * width * height);
 
-            var useFrameBuffer = this.rootRenderTarget.useFrameBuffer;
+            let useFrameBuffer = this.rootRenderTarget.useFrameBuffer;
             this.rootRenderTarget.useFrameBuffer = true;
             this.rootRenderTarget.activate();
 
-            this.context.getPixels(x, y, 1, 1, pixels);
+            this.context.getPixels(x, y, width, height, pixels);
 
             this.rootRenderTarget.useFrameBuffer = useFrameBuffer;
             this.rootRenderTarget.activate();
 
-            return <number[]><any>pixels;
+            //图像反转
+            let result = new Uint8Array(4 * width * height);
+            for(let i = 0 ; i < height ; i++) {
+                for(let j = 0 ; j < width ; j++) {
+                    result[(width * (height - i - 1) + j) * 4] = pixels[(width * i + j) * 4];
+                    result[(width * (height - i - 1) + j) * 4 + 1] = pixels[(width * i + j) * 4 + 1];
+                    result[(width * (height - i - 1) + j) * 4 + 2] = pixels[(width * i + j) * 4 + 2];
+                    result[(width * (height - i - 1) + j) * 4 + 3] = pixels[(width * i + j) * 4 + 3];
+                }
+            }
+
+            return <number[]><any>result;
         }
 
         /**
@@ -444,7 +458,7 @@ module egret.web {
 
         public setTransform(a:number, b:number, c:number, d:number, tx:number, ty:number):void {
             // this.globalMatrix.setTo(a, b, c, d, tx, ty);
-            var matrix = this.globalMatrix;
+            let matrix = this.globalMatrix;
             matrix.a = a;
             matrix.b = b;
             matrix.c = c;
@@ -455,11 +469,11 @@ module egret.web {
 
         public transform(a:number, b:number, c:number, d:number, tx:number, ty:number):void {
             // this.globalMatrix.append(a, b, c, d, tx, ty);
-            var matrix = this.globalMatrix;
-            var a1 = matrix.a;
-            var b1 = matrix.b;
-            var c1 = matrix.c;
-            var d1 = matrix.d;
+            let matrix = this.globalMatrix;
+            let a1 = matrix.a;
+            let b1 = matrix.b;
+            let c1 = matrix.c;
+            let d1 = matrix.d;
             if (a != 1 || b != 0 || c != 0 || d != 1) {
                 matrix.a = a * a1 + b * c1;
                 matrix.b = a * b1 + b * d1;
@@ -472,15 +486,15 @@ module egret.web {
 
         public translate(dx:number, dy:number):void {
             // this.globalMatrix.translate(dx, dy);
-            var matrix = this.globalMatrix;
+            let matrix = this.globalMatrix;
             matrix.tx += dx;
             matrix.ty += dy;
         }
 
         public saveTransform():void {
             // this.savedGlobalMatrix.copyFrom(this.globalMatrix);
-            var matrix = this.globalMatrix;
-            var sMatrix = this.savedGlobalMatrix;
+            let matrix = this.globalMatrix;
+            let sMatrix = this.savedGlobalMatrix;
             sMatrix.a = matrix.a;
             sMatrix.b = matrix.b;
             sMatrix.c = matrix.c;
@@ -491,8 +505,8 @@ module egret.web {
 
         public restoreTransform():void {
             // this.globalMatrix.copyFrom(this.savedGlobalMatrix);
-            var matrix = this.globalMatrix;
-            var sMatrix = this.savedGlobalMatrix;
+            let matrix = this.globalMatrix;
+            let sMatrix = this.savedGlobalMatrix;
             matrix.a = sMatrix.a;
             matrix.b = sMatrix.b;
             matrix.c = sMatrix.c;
@@ -505,11 +519,18 @@ module egret.web {
          * 创建一个buffer实例
          */
         public static create(width:number, height:number):WebGLRenderBuffer {
-            var buffer = renderBufferPool.pop();
+            let buffer = renderBufferPool.pop();
             // width = Math.min(width, 1024);
             // height = Math.min(height, 1024);
             if (buffer) {
                 buffer.resize(width, height);
+                var matrix = buffer.globalMatrix;
+                matrix.a = 1;
+                matrix.b = 0;
+                matrix.c = 0;
+                matrix.d = 1;
+                matrix.tx = 0;
+                matrix.ty = 0;
             }
             else {
                 buffer = new WebGLRenderBuffer(width, height);
@@ -527,5 +548,5 @@ module egret.web {
 
     }
 
-    var renderBufferPool:WebGLRenderBuffer[] = [];//渲染缓冲区对象池
+    let renderBufferPool:WebGLRenderBuffer[] = [];//渲染缓冲区对象池
 }

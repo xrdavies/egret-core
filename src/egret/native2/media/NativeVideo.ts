@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-module egret.native2 {
+namespace egret.native2 {
     /**
      * @private
      * @inheritDoc
@@ -55,7 +55,6 @@ module egret.native2 {
          * @inheritDoc
          */
         constructor(url?:string, cache:boolean = true) {
-
             super();
             this.$renderNode = new sys.BitmapNode();
             this.cache = cache;
@@ -86,8 +85,8 @@ module egret.native2 {
             this.loaded = false;
 
             if (cache && !egret_native.isFileExists(url)) {
-                var self = this;
-                var promise = egret.PromiseObject.create();
+                let self = this;
+                let promise = egret.PromiseObject.create();
                 promise.onSuccessFunc = function () {
                     self.loadEnd();
                 };
@@ -105,14 +104,14 @@ module egret.native2 {
          * @private
          * */
         private loadEnd() {
-            var video = new __global.Video(this.src);
+            let video = new __global.Video(this.src);
             video['setVideoRect'](0, 0, 1, 1);
             video['setKeepRatio'](false);
             video.addEventListener("canplaythrough", onCanPlay);
             video.addEventListener("error", onVideoError);
             video.addEventListener("playing", onPlaying);
             video.load();
-            var self = this;
+            let self = this;
 
             function onCanPlay():void {
                 video['setVideoRect'](0, 0, 1, 1);
@@ -173,7 +172,7 @@ module egret.native2 {
                 this.once(egret.Event.COMPLETE, e=>this.play(startTime, loop), this)
                 return;
             }
-            var haveStartTime = false;
+            let haveStartTime = false;
             if (startTime != undefined && startTime != this.originVideo.currentTime) {
                 this.originVideo.currentTime = startTime || 0;
                 haveStartTime = true;
@@ -258,7 +257,7 @@ module egret.native2 {
          */
         public set poster(value:string) {
             this.posterUrl = value;
-            var loader = new NativeImageLoader();
+            let loader = new NativeImageLoader();
             loader.load(value);
             loader.addEventListener(egret.Event.COMPLETE, ()=> {
                 this.posterData = loader.data;
@@ -451,7 +450,7 @@ module egret.native2 {
          * @inheritDoc
          */
         $setX(value:number):boolean {
-            var result = super.$setX(value);
+            let result = super.$setX(value);
             this.setVideoSize();
             return result;
         }
@@ -460,7 +459,7 @@ module egret.native2 {
          * @inheritDoc
          */
         $setY(value:number):boolean {
-            var result = super.$setY(value);
+            let result = super.$setY(value);
             this.setVideoSize();
             return result;
         }
@@ -469,7 +468,7 @@ module egret.native2 {
          * @private
          */
         private setVideoSize():void {
-            var video = this.originVideo;
+            let video = this.originVideo;
             if (video && !this.fullscreen) {
                 if (!this.firstPlay) {
                     video['setVideoRect'](this.x, this.y, this.widthSet, this.heightSet);
@@ -483,7 +482,7 @@ module egret.native2 {
          * @private
          */
         $measureContentBounds(bounds:Rectangle) {
-            var posterData = this.posterData;
+            let posterData = this.posterData;
             if (posterData) {
                 bounds.setTo(0, 0, this.getPlayWidth(), this.getPlayHeight());
             }
@@ -496,10 +495,10 @@ module egret.native2 {
          * @private
          */
         $render():void {
-            var node = <sys.BitmapNode>this.$renderNode;
-            var posterData = this.posterData;
-            var width = this.getPlayWidth();
-            var height = this.getPlayHeight();
+            let node = <sys.BitmapNode>this.$renderNode;
+            let posterData = this.posterData;
+            let width = this.getPlayWidth();
+            let height = this.getPlayHeight();
             if (width <= 0 || height <= 0) {
                 return;
             }

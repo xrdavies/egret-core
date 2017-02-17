@@ -34,6 +34,6 @@ egret_native.egretStart = function () {
 
     egret.native2.NativePlayer.option = option;
     egret.runEgret();
-    // egret_native.Label.createLabel(egret.TextField.default_fontFamily, 20, "", 0);
+    // egret_native.Label.createLabel("/system/fonts/DroidSansFallback.ttf", 20, "", 0);
     // egret_native.EGTView.preSetOffScreenBufferEnable(true);
 };

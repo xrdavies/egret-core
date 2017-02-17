@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-module egret.native2 {
+namespace egret.native2 {
 
     /**
      * @private
@@ -35,30 +35,30 @@ module egret.native2 {
      */
     export class NativeSound extends egret.EventDispatcher implements egret.Sound {
         /**
-         * @language en_US
          * Background music
          * @version Egret 2.4
          * @platform Web,Native
+         * @language en_US
          */
         /**
-         * @language zh_CN
          * 背景音乐
          * @version Egret 2.4
          * @platform Web,Native
+         * @language zh_CN
          */
         public static MUSIC:string = "music";
 
         /**
-         * @language en_US
          * EFFECT
          * @version Egret 2.4
          * @platform Web,Native
+         * @language en_US
          */
         /**
-         * @language zh_CN
          * 音效
          * @version Egret 2.4
          * @platform Web,Native
+         * @language zh_CN
          */
         public static EFFECT:string = "effect";
 
@@ -104,22 +104,11 @@ module egret.native2 {
         public load(url:string):void {
 
             //
-            var self = this;
+            let self = this;
             self.loaded = true;
             self.dispatchEventWith(egret.Event.COMPLETE);
             return;
             //
-
-            var self = this;
-            
-            removeListeners();
-
-            self.loaded = true;
-            self.dispatchEventWith(egret.Event.COMPLETE);
-
-            return;
-
-            var self = this;
 
             this.url = url;
 
@@ -127,7 +116,7 @@ module egret.native2 {
                 egret.$error(3002);
             }
 
-            var audio = new Audio(url);
+            let audio = new Audio(url);
             audio.addEventListener("canplaythrough", onCanPlay);
             audio.addEventListener("error", onAudioError);
             this.originAudio = audio;
@@ -140,7 +129,7 @@ module egret.native2 {
             }
 
             function download() {
-                var promise = PromiseObject.create();
+                let promise = PromiseObject.create();
                 promise.onSuccessFunc = onAudioLoaded;
                 promise.onErrorFunc = onAudioError;
                 egret_native.download(url, url, promise);
@@ -180,7 +169,7 @@ module egret.native2 {
                 egret.$error(1049);
             }
 
-            // var audio = NativeSound.$pop(this.url);
+            // let audio = NativeSound.$pop(this.url);
             // if (audio == null) {
                 // audio = new Audio(this.url);
             // }
@@ -189,8 +178,8 @@ module egret.native2 {
             // }
             // audio.autoplay = true;
 
-            // var channel = new NativeSoundChannel(audio);
-            var channel = new NativeSoundChannel(null);
+            // let channel = new NativeSoundChannel(audio);
+            let channel = new NativeSoundChannel(null);
             channel.$url = this.url;
             channel.$loops = loops;
             channel.$startTime = startTime;
@@ -218,14 +207,14 @@ module egret.native2 {
         private static audios:Object = {};
 
         static $clear(url:string):void {
-            var array:HTMLAudioElement[] = NativeSound.audios[url];
+            let array:HTMLAudioElement[] = NativeSound.audios[url];
             if (array) {
                 array.length = 0;
             }
         }
 
         static $pop(url:string):HTMLAudioElement {
-            var array:HTMLAudioElement[] = NativeSound.audios[url];
+            let array:HTMLAudioElement[] = NativeSound.audios[url];
             if (array && array.length > 0) {
                 return array.pop();
             }
@@ -233,7 +222,7 @@ module egret.native2 {
         }
 
         static $recycle(url:string, audio:HTMLAudioElement):void {
-            var array:HTMLAudioElement[] = NativeSound.audios[url];
+            let array:HTMLAudioElement[] = NativeSound.audios[url];
             if (NativeSound.audios[url] == null) {
                 array = NativeSound.audios[url] = [];
             }

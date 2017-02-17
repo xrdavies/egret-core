@@ -27,25 +27,23 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-module egret.native2 {
+namespace egret.native2 {
 
     /**
      * 创建一个canvas。
      */
-    function createCanvas(width?:number, height?:number):any {
-        // var canvas:HTMLCanvasElement = document.createElement("canvas");
-        // if (!isNaN(width) && !isNaN(height)) {
-        //     canvas.width = width;
-        //     canvas.height = height;
-        // }
-        width = isNaN(width) ? 480 : width;
-        height = isNaN(height) ? 800 : height;
-        var canvas = new egret_native.Canvas(width, height);
-        var context = canvas.getContext("2d");
+    function createCanvas(width?:number, height?:number):HTMLCanvasElement {
+        let canvas:HTMLCanvasElement = document.createElement("canvas");
+        if (!isNaN(width) && !isNaN(height)) {
+            canvas.width = width;
+            canvas.height = height;
+        }
+        let context = canvas.getContext("2d");
         if (context["imageSmoothingEnabled"] === undefined) {
-            var keys = ["webkitImageSmoothingEnabled", "mozImageSmoothingEnabled", "msImageSmoothingEnabled"];
-            for (var i = keys.length - 1; i >= 0; i--) {
-                var key = keys[i];
+            let keys = ["webkitImageSmoothingEnabled", "mozImageSmoothingEnabled", "msImageSmoothingEnabled"];
+            let key:string;
+            for (let i = keys.length - 1; i >= 0; i--) {
+                key = keys[i];
                 if (context[key] !== void 0) {
                     break;
                 }
@@ -67,7 +65,7 @@ module egret.native2 {
         return canvas;
     }
 
-    var sharedCanvas:HTMLCanvasElement;
+    let sharedCanvas:HTMLCanvasElement;
 
     /**
      * @private
@@ -76,9 +74,8 @@ module egret.native2 {
     export class CanvasRenderBuffer implements sys.RenderBuffer {
 
         public constructor(width?:number, height?:number, root?:boolean) {
-            //todo
-            //this.surface = createCanvas(width, height);
-            //this.context = this.surface.getContext("2d");
+            // this.surface = createCanvas(width, height);
+            // this.context = this.surface.getContext("2d");
         }
 
         /**
@@ -113,9 +110,9 @@ module egret.native2 {
          * @param useMaxSize 若传入true，则将改变后的尺寸与已有尺寸对比，保留较大的尺寸。
          */
         public resize(width:number, height:number, useMaxSize?:boolean):void {
-            var surface = this.surface;
+            let surface = this.surface;
             if (useMaxSize) {
-                var change = false;
+                let change = false;
                 if (surface.width < width) {
                     surface.width = width;
                     change = true;
@@ -153,10 +150,10 @@ module egret.native2 {
             if(!sharedCanvas) {
                 sharedCanvas = createCanvas();
             }
-            var oldContext = this.context;
-            var oldSurface = this.surface;
-            var newSurface = sharedCanvas;
-            var newContext = newSurface.getContext("2d");
+            let oldContext = this.context;
+            let oldSurface = this.surface;
+            let newSurface = sharedCanvas;
+            let newContext = newSurface.getContext("2d");
             sharedCanvas = oldSurface;
             this.context = newContext;
             this.surface = newSurface;
@@ -181,13 +178,13 @@ module egret.native2 {
         public beginClip(regions:sys.Region[], offsetX?:number, offsetY?:number):void {
             offsetX = +offsetX || 0;
             offsetY = +offsetY || 0;
-            var context = this.context;
+            let context = this.context;
             context.save();
             context.beginPath();
             context.setTransform(1, 0, 0, 1, offsetX, offsetY);
-            var length = regions.length;
-            for (var i = 0; i < length; i++) {
-                var region = regions[i];
+            let length = regions.length;
+            for (let i = 0; i < length; i++) {
+                let region = regions[i];
                 context.clearRect(region.minX, region.minY, region.width, region.height);
                 context.rect(region.minX, region.minY, region.width, region.height);
             }
@@ -202,10 +199,10 @@ module egret.native2 {
         }
 
         /**
-         * 获取指定坐标的像素
+         * 获取指定区域的像素
          */
-        public getPixel(x:number, y:number):number[] {
-            return <number[]><any>this.context.getImageData(x, y, 1, 1).data;
+        public getPixels(x:number, y:number, width:number = 1, height:number = 1):number[] {
+            return <number[]><any>this.context.getImageData(x, y, width, height).data;
         }
 
         /**

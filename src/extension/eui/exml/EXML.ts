@@ -29,16 +29,15 @@
 
 /// <reference path="EXMLParser.ts" />
 
-module EXML {
+namespace EXML {
 
-    var parser = new eui.sys.EXMLParser();
+    let parser = new eui.sys.EXMLParser();
 
-    var requestPool: egret.HttpRequest[] = [];
-    var callBackMap:any = {};
-    var parsedClasses:any = {};
-    var $prefixURL: string = "";
+    let requestPool: egret.HttpRequest[] = [];
+    let callBackMap:any = {};
+    let parsedClasses:any = {};
+    let $prefixURL: string = "";
     /**
-     * @language en_US
      * Set a prefix url.
      * The prefix url will add to the front of the Exml file path when it’s loading.
      * @param text the text of a EXML file.
@@ -46,16 +45,17 @@ module EXML {
      * @version Egret 2.5.3
      * @version eui 1.0
      * @platform Web,Native
+     * @language en_US
      */
     /**
-     * @language zh_CN
      * 设置 EXML 文件加载的根路径。
      * 设置后，再加载 EXML 文件时会自动把根路径加到文件路径前面
      * @version Egret 2.5.3
      * @version eui 1.0
      * @platform Web,Native
+     * @language zh_CN
      */
-    export var prefixURL: string;
+    export let prefixURL: string;
     Object.defineProperty(EXML, "prefixURL", {
         get: function(): string { return $prefixURL },
         set: function(value: string) { $prefixURL = value },
@@ -63,10 +63,7 @@ module EXML {
         configurable: true
     });
 
-    export var $stage: egret.Stage;
-
     /**
-     * @language en_US
      * Parsing a text of EXML file for a definition of class. You can declare the <code>class</code> property in the root
      * node of the EXML to register to the global as a class name.
      *
@@ -78,9 +75,9 @@ module EXML {
      * @version Egret 2.4
      * @version eui 1.0
      * @platform Web,Native
+     * @language en_US
      */
     /**
-     * @language zh_CN
      * 解析一个 EXML 文件的文本内容为一个类定义。您可以在 EXML 文件的根节点上声明 class 属性作为要注册到全局的类名。
      * 若指定的类名已经存在，将会注册失败，并输出一个警告。注册成功后，您也可以通过 egret.getDefinitionByName(className) 方法获取这个 EXML 文件对应的类定义。
      *
@@ -89,13 +86,13 @@ module EXML {
      * @version Egret 2.4
      * @version eui 1.0
      * @platform Web,Native
+     * @language zh_CN
      */
     export function parse(text:string):{new():any} {
         return parser.parse(text);
     }
 
     /**
-     * @language en_US
      * Load and parse an external EXML file for a class definition. You can declare the <code>class</code> property in the root
      * node of the EXML to register to the global as a class name.
      *
@@ -111,9 +108,9 @@ module EXML {
      * @version Egret 2.4
      * @version eui 1.0
      * @platform Web,Native
+     * @language en_US
      */
     /**
-     * @language zh_CN
      * 加载并解析一个外部的 EXML 文件为一个类定义。您可以在 EXML 文件的根节点上声明 class 属性作为要注册到全局的类名。
      * 若指定的类名已经存在，将会注册失败，并输出一个警告。注册成功后，您也可以通过 egret.getDefinitionByName(className) 方法获取这个 EXML 文件对应的类定义。
      *
@@ -125,6 +122,7 @@ module EXML {
      * @version Egret 2.4
      * @version eui 1.0
      * @platform Web,Native
+     * @language zh_CN
      */
     export function load(url:string, callBack?:(clazz:any, url:string) => void, thisObject?:any, useCache = false):void {
         if (DEBUG) {
@@ -136,7 +134,7 @@ module EXML {
             callBack && callBack.call(thisObject, parsedClasses[url], url);
             return;
         }
-        var list = callBackMap[url];
+        let list = callBackMap[url];
         if (list) {
             list.push([callBack, thisObject]);
             return;
@@ -154,7 +152,7 @@ module EXML {
             callBack && callBack.call(thisObject, [], urls);
             return;
         }
-        var exmlContents:string[] = [];
+        let exmlContents:string[] = [];
 
         urls.forEach(url=> {
 
@@ -164,7 +162,7 @@ module EXML {
                 return;
             }
 
-            var loaded = (url:string, text:string) => {
+            let loaded = (url:string, text:string) => {
                 exmlContents[url] = text;
                 exmlContents.push(url);
                 if (exmlContents.length == urls.length)
@@ -180,7 +178,7 @@ module EXML {
      * @private
      */
     function onLoadAllFinished(urls:string[], exmlContents:any, callBack?:(clazz:any[], url:string[]) => void, thisObject?:any) {
-        var clazzes = [];
+        let clazzes = [];
         urls.forEach((url, i)=> {
 
             if ((url in parsedClasses) && !exmlContents[url]) {
@@ -188,8 +186,8 @@ module EXML {
                 return;
             }
 
-            var text = exmlContents[url];
-            var clazz = $parseURLContent(url, text);
+            let text = exmlContents[url];
+            let clazz = $parseURLContent(url, text);
             clazzes[i] = clazz;
 
         });
@@ -203,16 +201,17 @@ module EXML {
      * @param text
      */
     export function $parseURLContentAsJs(url:string,text:string,className:string):any{
+        let clazz:any = null;
         if (text) {
-            var clazz = parser.$parseCode(text,className);
+            clazz = parser.$parseCode(text,className);
         }
         if (url) {
             parsedClasses[url] = clazz;
-            var list:any[] = callBackMap[url];
+            let list:any[] = callBackMap[url];
             delete callBackMap[url];
-            var length = list ? list.length : 0;
-            for (var i = 0; i < length; i++) {
-                var arr = list[i];
+            let length = list ? list.length : 0;
+            for (let i = 0; i < length; i++) {
+                let arr = list[i];
                 if (arr[0] && arr[1])
                     arr[0].call(arr[1], clazz, url);
             }
@@ -223,16 +222,17 @@ module EXML {
      * @private
      */
     export function $parseURLContent(url:string, text:string):any {
+        let clazz:any = null;
         if (text) {
-            var clazz = parse(text);
+            clazz = parse(text);
         }
         if (url) {
             parsedClasses[url] = clazz;
-            var list:any[] = callBackMap[url];
+            let list:any[] = callBackMap[url];
             delete callBackMap[url];
-            var length = list ? list.length : 0;
-            for (var i = 0; i < length; i++) {
-                var arr = list[i];
+            let length = list ? list.length : 0;
+            for (let i = 0; i < length; i++) {
+                let arr = list[i];
                 if (arr[0] && arr[1])
                     arr[0].call(arr[1], clazz, url);
             }
@@ -244,18 +244,18 @@ module EXML {
      * @private
      */
     function request(url:string, callback:(url:string, text:string) => void) {
-        var openUrl = url;
+        let openUrl = url;
         if (url.indexOf("://") == -1) {
             openUrl = $prefixURL + url;
         }
 
-        var onConfigLoaded = function (str:string) {
+        let onConfigLoaded = function (str:string) {
             if(!str) {
                 str = "";
             }
             callback(url, str);
         };
-        var adapter:eui.IThemeAdapter = EXML.$stage?EXML.$stage.getImplementation("eui.IThemeAdapter"):null;
+        let adapter:eui.IThemeAdapter = egret.getImplementation("eui.IThemeAdapter");
         if (!adapter) {
             adapter = new eui.DefaultThemeAdapter();
         }

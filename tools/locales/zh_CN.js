@@ -38,6 +38,7 @@ var egret;
     locale_strings[5] = "编译错误";
     locale_strings[6] = "manifest.json生成成功";
     locale_strings[7] = "native拷贝共计耗时：{0}秒";
+    locale_strings[8] = "项目模块不能同时使用 gui 和 eui ，推荐使用 eui 模块";
     //create
     locale_strings[1001] = "请输入项目名称。例: {color_green}egret create [project_name]{color_normal}";
     locale_strings[1002] = "该项目已存在";
@@ -62,6 +63,7 @@ var egret;
     locale_strings[1115] = "第三方库共计耗时：{0}秒";
     locale_strings[1116] = "目前不支持修改 tsconfig.json 中的编译选项: '{0}'.";
     locale_strings[1117] = "警告! tsconfig.json 不是有效的 json 文件";
+    locale_strings[1118] = "未找到 {0} 版本引擎，将使用默认版本引擎替换，请在一键安装包中安装对应版本引擎";
     //compile
     locale_strings[1301] = "在编译路径 {0} 下找不到 egret_file_list.js 或 game_file_list.js，请检查编译路径是否正确";
     locale_strings[1302] = "请输入编译路径。例:{color_green}egret compile --source [your_typescript_source_dir] --output [your_output_dir]{color_normal}";
@@ -98,7 +100,7 @@ var egret;
     //create_app
     locale_strings[1601] = "请输入h5游戏目录以及手机平台支持库。例: {color_green}egret create_app [app_name] -f [h5_game_path] -t [template_path] {color_normal} \n如没有安装最新手机平台支持库，请从以下地址下载：\nAndroid: http://www.egret-labs.org/download/egret-android-packager-download.html, \niOS:http://www.egret-labs.org/download/egret-ios-packager-download.html";
     locale_strings[1602] = "不是h5游戏目录(缺少egretProperties.json或格式不正确) \n请从http://www.egret-labs.org/download/egret-download.html升级egret-core到最新版";
-    locale_strings[1603] = "缺少create_app.json。\n请从以下地址下载最新手机平台支持库\nAndroid: http://www.egret-labs.org/download/egret-android-packager-download.html, \n\tiOS: http://www.egret-labs.org/download/egret-ios-packager-download.html";
+    locale_strings[1603] = "{color_red}{0}{color_normal}中不存在create_app.json，请检查支持库路径是否正确。\n请从以下地址下载最新手机平台支持库\nAndroid: http://www.egret-labs.org/download/egret-android-packager-download.html\niOS: http://www.egret-labs.org/download/egret-ios-packager-download.html";
     locale_strings[1604] = "执行egret build命令失败";
     locale_strings[1605] = "移动平台项目目录不能与html5项目目录为同一目录，请修改移动平台项目目录。";
     locale_strings[1606] = "创建完毕，共计耗时：{0}秒";
@@ -110,7 +112,7 @@ var egret;
     //upgrade
     locale_strings[1701] = "项目版本低于 egret 版本，请执行 egret upgrade {your_project} 命令升级您的项目，\n命令中请不要加上大括号{}";
     locale_strings[1702] = "项目升级成功";
-    locale_strings[1703] = "\n升级第一步完成，{color_red}请按 {color_underline}https://github.com/egret-labs/egret-core/wiki/Egret_Upgrade/upgrade/index.html{color_red} 完成剩余升级步骤{color_normal}\n";
+    locale_strings[1703] = "升级脚本运行完成，请查看 {color_underline}{0}{color_normal} 了解详情";
     locale_strings[1704] = "正在更新到{0}";
     locale_strings[1705] = "升级错误，请重置引擎后重试";
     locale_strings[1706] = "共计 {color_red}{0}{color_normal} 处API冲突,请用户解决所有冲突后运行build命令";
@@ -155,6 +157,18 @@ var egret;
     locale_strings[2020] = "{0}: error 在w:Declarations内的子节点，不允许使用includeIn和excludeFrom属性\n{1}";
     locale_strings[2102] = "{0}: warning 在属性节点上找不到任何子节点\n{1}";
     locale_strings[2103] = "{0}: warning 节点上的同一个属性'{1}'被多次赋值\n{2}";
+    // android sdk install
+    locale_strings[2201] = "{0}个文件需要下载！";
+    locale_strings[2202] = "文件总大小为{0}MB";
+    locale_strings[2203] = "开始下载！";
+    locale_strings[2204] = "{0} 下载成功！";
+    locale_strings[2205] = "文件大小为{0}MB";
+    locale_strings[2206] = "所有文件下载成功！";
+    locale_strings[2207] = "{0}个文件需要解压安装！";
+    locale_strings[2208] = "开始解压安装！";
+    locale_strings[2209] = "{0} 解压安装成功！";
+    locale_strings[2210] = "所有文件解压安装成功！";
+    locale_strings[2211] = "Android SDK安装成功！";
     locale_strings[8001] = "请输入命令行选项{color_green} {0} {color_normal}的参数,并确认是以下值之一: {color_green}[{1}]{color_normal}";
     locale_strings[8002] = "{color_red}请选对正确的egret项目目录！{color_normal}\n\tEgret_Project\t\t{color_gray}//项目目录{color_normal}\n\t\t--launcher\t{color_gray}//启动目录{color_normal}\n\t\t--src\t\t{color_gray}//源代码目录{color_normal}";
     locale_strings[8003] = "配置文件{0}不存在";
@@ -246,4 +260,5 @@ var helpModule;
         "apitest": "版本升级后检测api是否已经替换完成。限于2.4之前版本升级到2.5（及以上）版本的检测，需要在2.5（及以上）版本项目中输入"
     };
     global["helpModule"] = global["helpModule"] || helpModule;
+    //global["helpModule"]["help_dict"] = help_dict;
 })(helpModule || (helpModule = {}));

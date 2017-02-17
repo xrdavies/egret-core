@@ -26,7 +26,7 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-module egret.native2 {
+namespace egret.native2 {
     /**
      * @private
      * @version Egret 2.4
@@ -82,8 +82,8 @@ module egret.native2 {
             //}
             //else {
             this._downCount++;
-            var promise = egret.PromiseObject.create();
-            var self = this;
+            let promise = egret.PromiseObject.create();
+            let self = this;
             promise.onSuccessFunc = function () {
                 self.loadOver();
             };

@@ -26,7 +26,7 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-module egret.native2 {
+namespace egret.native2 {
     /**
      * @private
      */
@@ -63,7 +63,7 @@ module egret.native2 {
         };
 
         public setBlur(blurX:number, blurY:number):void {
-            var uniform = this.uniforms.blur;
+            let uniform = this.uniforms.blur;
 
             if(uniform.value.x != blurX || uniform.value.y != blurY) {
                 uniform.value.x = blurX;
@@ -77,7 +77,7 @@ module egret.native2 {
          * 设置采样材质的尺寸
          */
         public setTextureSize(width:number, height:number):void {
-            var uniform = this.uniforms.uTextureSize;
+            let uniform = this.uniforms.uTextureSize;
 
             if(width != uniform.value.x || height != uniform.value.y) {
                 uniform.value.x = width;

@@ -29,6 +29,39 @@
 
 module egret.native2 {
 
+    let customContext: CustomContext;
+
+    let context: EgretContext = {
+
+        setAutoClear: function(value:boolean):void {
+            WebGLRenderBuffer.autoClear = value;
+        },
+
+        save: function () {
+            // do nothing
+        },
+
+        restore: function () {
+            let context = WebGLRenderContext.getInstance(0, 0);
+            let gl = context.context;
+            gl.bindBuffer(gl.ARRAY_BUFFER, context["vertexBuffer"]);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, context["indexBuffer"]);
+            gl.activeTexture(gl.TEXTURE0);
+            context.shaderManager.currentShader = null;
+            context["bindIndices"] = false;
+            let buffer = context.$bufferStack[1];
+            context["activateBuffer"](buffer);
+            gl.enable(gl.BLEND);
+            context["setBlendMode"]("source-over");
+        }
+    }
+
+    function setRendererContext(custom: CustomContext) {
+        custom.onStart(context);
+        customContext = custom;
+    }
+    egret.setRendererContext = setRendererContext;
+
     /**
      * @private
      */
@@ -60,6 +93,10 @@ module egret.native2 {
         }
         var ticker = egret.sys.$ticker;
         var mainLoop = function() {
+            if(customContext) {
+                customContext.onRender(context);
+            }
+            
             ticker.update();
         };
         egret_native.setOnUpdate(mainLoop, ticker);

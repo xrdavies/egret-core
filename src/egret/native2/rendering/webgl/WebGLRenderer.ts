@@ -27,13 +27,13 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-module egret.native2 {
+namespace egret.native2 {
 
-    var blendModes = ["source-over", "lighter", "destination-out"];
-    var defaultCompositeOp = "source-over";
-    var BLACK_COLOR = "#000000";
-    var CAPS_STYLES = { none: 'butt', square: 'square', round: 'round' };
-    var renderBufferPool: WebGLRenderBuffer[] = [];//渲染缓冲区对象池
+    let blendModes = ["source-over", "lighter", "destination-out"];
+    let defaultCompositeOp = "source-over";
+    let BLACK_COLOR = "#000000";
+    let CAPS_STYLES = { none: 'butt', square: 'square', round: 'round' };
+    let renderBufferPool: WebGLRenderBuffer[] = [];//渲染缓冲区对象池
     /**
      * @private
      * WebGL渲染器
@@ -56,16 +56,16 @@ module egret.native2 {
          */
         public render(displayObject: DisplayObject, buffer: sys.RenderBuffer, matrix: Matrix, dirtyList?: egret.sys.Region[], forRenderTexture?: boolean): number {
             this.nestLevel++;
-            var webglBuffer: WebGLRenderBuffer = <WebGLRenderBuffer>buffer;
-            var webglBufferContext: WebGLRenderContext = webglBuffer.context;
-            var root: DisplayObject = forRenderTexture ? displayObject : null;
+            let webglBuffer: WebGLRenderBuffer = <WebGLRenderBuffer>buffer;
+            let webglBufferContext: WebGLRenderContext = webglBuffer.context;
+            let root: DisplayObject = forRenderTexture ? displayObject : null;
 
             webglBufferContext.pushBuffer(webglBuffer);
 
             //绘制显示对象
             this.drawDisplayObject(displayObject, webglBuffer, dirtyList, matrix, null, null, root);
             webglBufferContext.$drawWebGL();
-            var drawCall = webglBuffer.$drawCalls;
+            let drawCall = webglBuffer.$drawCalls;
             webglBuffer.onRenderFinish();
 
             webglBufferContext.popBuffer();
@@ -76,8 +76,8 @@ module egret.native2 {
                 if (renderBufferPool.length > 6) {
                     renderBufferPool.length = 6;
                 }
-                var length = renderBufferPool.length;
-                for (var i = 0; i < length; i++) {
+                let length = renderBufferPool.length;
+                for (let i = 0; i < length; i++) {
                     renderBufferPool[i].resize(0, 0);
                 }
             }
@@ -90,9 +90,9 @@ module egret.native2 {
          */
         private drawDisplayObject(displayObject: DisplayObject, buffer: WebGLRenderBuffer, dirtyList: egret.sys.Region[],
             matrix: Matrix, displayList: sys.DisplayList, clipRegion: sys.Region, root: DisplayObject): number {
-            var drawCalls = 0;
-            var node: sys.RenderNode;
-            var filterPushed: boolean = false;
+            let drawCalls = 0;
+            let node: sys.RenderNode;
+            let filterPushed: boolean = false;
             if (displayList && !root) {
                 if (displayList.isDirty) {
                     drawCalls += displayList.drawToSurface();
@@ -105,13 +105,13 @@ module egret.native2 {
 
             if (node) {
                 if (dirtyList) {
-                    var renderRegion = node.renderRegion;
+                    let renderRegion = node.renderRegion;
                     if (clipRegion && !clipRegion.intersects(renderRegion)) {
                         node.needRedraw = false;
                     }
                     else if (!node.needRedraw) {
-                        var l = dirtyList.length;
-                        for (var j = 0; j < l; j++) {
+                        let l = dirtyList.length;
+                        for (let j = 0; j < l; j++) {
                             if (renderRegion.intersects(dirtyList[j])) {
                                 node.needRedraw = true;
                                 break;
@@ -124,8 +124,8 @@ module egret.native2 {
                 }
                 if (node.needRedraw) {
                     drawCalls++;
-                    var renderAlpha: number;
-                    var m: Matrix;
+                    let renderAlpha: number;
+                    let m: Matrix;
                     if (root) {
                         renderAlpha = displayObject.$getConcatenatedAlphaAt(root, displayObject.$getConcatenatedAlpha());
                         m = Matrix.create().copyFrom(displayObject.$getConcatenatedMatrix());
@@ -147,15 +147,15 @@ module egret.native2 {
             if (displayList && !root) {
                 return drawCalls;
             }
-            var children = displayObject.$children;
+            let children = displayObject.$children;
             if (children) {
-                var length = children.length;
-                for (var i = 0; i < length; i++) {
-                    var child = children[i];
+                let length = children.length;
+                for (let i = 0; i < length; i++) {
+                    let child = children[i];
                     if (!child.$visible || child.$alpha <= 0 || child.$maskedObject) {
                         continue;
                     }
-                    var filters = child.$getFilters();
+                    let filters = child.$getFilters();
                     if (filters && filters.length > 0) {
                         drawCalls += this.drawWithFilter(child, buffer, dirtyList, matrix, clipRegion, root);
                     }
@@ -190,11 +190,12 @@ module egret.native2 {
          */
         private drawWithFilter(displayObject: DisplayObject, buffer: WebGLRenderBuffer, dirtyList: egret.sys.Region[],
             matrix: Matrix, clipRegion: sys.Region, root: DisplayObject): number {
-            var drawCalls = 0;
-            var filters = displayObject.$getFilters();
-            var hasBlendMode = (displayObject.$blendMode !== 0);
+            let drawCalls = 0;
+            let filters = displayObject.$getFilters();
+            let hasBlendMode = (displayObject.$blendMode !== 0);
+            let compositeOp: string;
             if (hasBlendMode) {
-                var compositeOp = blendModes[displayObject.$blendMode];
+                compositeOp = blendModes[displayObject.$blendMode];
                 if (!compositeOp) {
                     compositeOp = defaultCompositeOp;
                 }
@@ -206,8 +207,15 @@ module egret.native2 {
                 }
 
                 buffer.context.$filter = <ColorMatrixFilter>filters[0];
-                drawCalls += this.drawDisplayObject(displayObject, buffer, dirtyList, matrix,
-                    displayObject.$displayList, clipRegion, root);
+                if ((displayObject.$mask && (displayObject.$mask.$parentDisplayList || root))) {
+                    drawCalls += this.drawWithClip(displayObject, buffer, dirtyList, matrix, clipRegion, root);
+                }
+                else if (displayObject.$scrollRect || displayObject.$maskRect) {
+                    drawCalls += this.drawWithScrollRect(displayObject, buffer, dirtyList, matrix, clipRegion, root);
+                }
+                else {
+                    drawCalls += this.drawDisplayObject(displayObject, buffer, dirtyList, matrix, displayObject.$displayList, clipRegion, root);
+                }
                 buffer.context.$filter = null;
 
                 if (hasBlendMode) {
@@ -218,24 +226,35 @@ module egret.native2 {
             }
 
             // 获取显示对象的链接矩阵
-            var displayMatrix = Matrix.create();
+            let displayMatrix = Matrix.create();
             displayMatrix.copyFrom(displayObject.$getConcatenatedMatrix());
+            if (root) {
+                displayObject.$getConcatenatedMatrixAt(root, displayMatrix);
+            }
 
             // 获取显示对象的矩形区域
-            var region: sys.Region;
+            let region: sys.Region;
             region = sys.Region.create();
-            var bounds = displayObject.$getOriginalBounds();
+            let bounds = displayObject.$getOriginalBounds();
             region.updateRegion(bounds, displayMatrix);
 
             // 为显示对象创建一个新的buffer
             // todo 这里应该计算 region.x region.y
-            var displayBuffer = this.createRenderBuffer(region.width, region.height);
+            let displayBuffer = this.createRenderBuffer(region.width, region.height);
             displayBuffer.context.pushBuffer(displayBuffer);
             displayBuffer.setTransform(1, 0, 0, 1, -region.minX, -region.minY);
-            var offsetM = Matrix.create().setTo(1, 0, 0, 1, -region.minX, -region.minY);
+            let offsetM = Matrix.create().setTo(1, 0, 0, 1, -region.minX, -region.minY);
 
-            drawCalls += this.drawDisplayObject(displayObject, displayBuffer, dirtyList, offsetM,
-                displayObject.$displayList, region, root);
+            //todo 可以优化减少draw次数
+            if ((displayObject.$mask && (displayObject.$mask.$parentDisplayList || root))) {
+                drawCalls += this.drawWithClip(displayObject, displayBuffer, dirtyList, offsetM, region, root);
+            }
+            else if (displayObject.$scrollRect || displayObject.$maskRect) {
+                drawCalls += this.drawWithScrollRect(displayObject, displayBuffer, dirtyList, offsetM, region, root);
+            }
+            else {
+                drawCalls += this.drawDisplayObject(displayObject, displayBuffer, dirtyList, offsetM, displayObject.$displayList, region, root);
+            }
 
             Matrix.release(offsetM);
             displayBuffer.context.popBuffer();
@@ -271,22 +290,22 @@ module egret.native2 {
          */
         private drawWithClip(displayObject: DisplayObject, buffer: WebGLRenderBuffer, dirtyList: egret.sys.Region[],
             matrix: Matrix, clipRegion: sys.Region, root: DisplayObject): number {
-            var drawCalls = 0;
-            var hasBlendMode = (displayObject.$blendMode !== 0);
+            let drawCalls = 0;
+            let hasBlendMode = (displayObject.$blendMode !== 0);
+            let compositeOp: string;
             if (hasBlendMode) {
-                var compositeOp = blendModes[displayObject.$blendMode];
+                compositeOp = blendModes[displayObject.$blendMode];
                 if (!compositeOp) {
                     compositeOp = defaultCompositeOp;
                 }
             }
 
-            var scrollRect = displayObject.$scrollRect ? displayObject.$scrollRect : displayObject.$maskRect;
-            var mask = displayObject.$mask;
-            var mask = displayObject.$mask;
+            let scrollRect = displayObject.$scrollRect ? displayObject.$scrollRect : displayObject.$maskRect;
+            let mask = displayObject.$mask;
             if (mask) {
-                var maskRenderNode = mask.$getRenderNode();
+                let maskRenderNode = mask.$getRenderNode();
                 if (maskRenderNode) {
-                    var maskRenderMatrix = maskRenderNode.renderMatrix;
+                    let maskRenderMatrix = maskRenderNode.renderMatrix;
                     //遮罩scaleX或scaleY为0，放弃绘制
                     if ((maskRenderMatrix.a == 0 && maskRenderMatrix.b == 0) || (maskRenderMatrix.c == 0 && maskRenderMatrix.d == 0)) {
                         return drawCalls;
@@ -298,29 +317,26 @@ module egret.native2 {
             //}
 
             //计算scrollRect和mask的clip区域是否需要绘制，不需要就直接返回，跳过所有子项的遍历。
-            var maskRegion: sys.Region;
-            var displayMatrix = Matrix.create();
+            let maskRegion: sys.Region;
+            let displayMatrix = Matrix.create();
             displayMatrix.copyFrom(displayObject.$getConcatenatedMatrix());
             if (displayObject.$parentDisplayList) {
-                var displayRoot = displayObject.$parentDisplayList.root;
-                var invertedMatrix: Matrix;
+                let displayRoot = displayObject.$parentDisplayList.root;
                 if (displayRoot !== displayObject.$stage) {
                     displayObject.$getConcatenatedMatrixAt(displayRoot, displayMatrix);
                 }
             }
 
+            let bounds: Rectangle;
             if (mask) {
-                var bounds = mask.$getOriginalBounds();
+                bounds = mask.$getOriginalBounds();
                 maskRegion = sys.Region.create();
-                var m = Matrix.create();
+                let m = Matrix.create();
                 m.copyFrom(mask.$getConcatenatedMatrix());
-                if (invertedMatrix) {
-                    invertedMatrix.$preMultiplyInto(m, m);
-                }
                 maskRegion.updateRegion(bounds, m);
                 Matrix.release(m);
             }
-            var region: sys.Region;
+            let region: sys.Region;
             if (scrollRect) {
                 region = sys.Region.create();
                 region.updateRegion(scrollRect, displayMatrix);
@@ -344,13 +360,13 @@ module egret.native2 {
                 bounds = displayObject.$getOriginalBounds();
                 region.updateRegion(bounds, displayMatrix);
             }
-            var found = false;
+            let found = false;
             if (!dirtyList) {//forRenderTexture
                 found = true;
             }
             else {
-                var l = dirtyList.length;
-                for (var j = 0; j < l; j++) {
+                let l = dirtyList.length;
+                for (let j = 0; j < l; j++) {
                     if (region.intersects(dirtyList[j])) {
                         found = true;
                         break;
@@ -366,7 +382,7 @@ module egret.native2 {
             //没有遮罩,同时显示对象没有子项
             if (!mask && (!displayObject.$children || displayObject.$children.length == 0)) {
                 if (scrollRect) {
-                    var m = displayMatrix;
+                    let m = displayMatrix;
                     buffer.setTransform(m.a, m.b, m.c, m.d, m.tx - region.minX, m.ty - region.minY);
                     buffer.context.pushMask(scrollRect);
                 }
@@ -375,7 +391,7 @@ module egret.native2 {
                     buffer.context.setGlobalCompositeOperation(compositeOp);
                 }
                 drawCalls += this.drawDisplayObject(displayObject, buffer, dirtyList, matrix,
-                    displayObject.$displayList, region, null);
+                    displayObject.$displayList, clipRegion, root);
                 if (hasBlendMode) {
                     buffer.context.setGlobalCompositeOperation(defaultCompositeOp);
                 }
@@ -388,11 +404,11 @@ module egret.native2 {
             }
             else {
                 //绘制显示对象自身，若有scrollRect，应用clip
-                var displayBuffer = this.createRenderBuffer(region.width, region.height);
-                // var displayContext = displayBuffer.context;
+                let displayBuffer = this.createRenderBuffer(region.width, region.height);
+                // let displayContext = displayBuffer.context;
                 displayBuffer.context.pushBuffer(displayBuffer);
                 displayBuffer.setTransform(1, 0, 0, 1, -region.minX, -region.minY);
-                var offsetM = Matrix.create().setTo(1, 0, 0, 1, -region.minX, -region.minY);
+                let offsetM = Matrix.create().setTo(1, 0, 0, 1, -region.minX, -region.minY);
 
                 drawCalls += this.drawDisplayObject(displayObject, displayBuffer, dirtyList, offsetM,
                     displayObject.$displayList, region, root);
@@ -400,32 +416,28 @@ module egret.native2 {
                 if (mask) {
                     //如果只有一次绘制或是已经被cache直接绘制到displayContext
                     //webgl暂时无法添加,因为会有边界像素没有被擦除
-                    //var maskRenderNode = mask.$getRenderNode();
+                    //let maskRenderNode = mask.$getRenderNode();
                     //if (maskRenderNode && maskRenderNode.$getRenderCount() == 1 || mask.$displayList) {
                     //    displayBuffer.context.setGlobalCompositeOperation("destination-in");
                     //    drawCalls += this.drawDisplayObject(mask, displayBuffer, dirtyList, offsetM,
                     //        mask.$displayList, region, root);
                     //}
                     //else {
-                    var maskBuffer = this.createRenderBuffer(region.width, region.height);
+                    let maskBuffer = this.createRenderBuffer(region.width, region.height);
                     maskBuffer.context.pushBuffer(maskBuffer);
                     maskBuffer.setTransform(1, 0, 0, 1, -region.minX, -region.minY);
                     offsetM = Matrix.create().setTo(1, 0, 0, 1, -region.minX, -region.minY);
-                    var calls = this.drawDisplayObject(mask, maskBuffer, dirtyList, offsetM,
+                    drawCalls += this.drawDisplayObject(mask, maskBuffer, dirtyList, offsetM,
                         mask.$displayList, region, root);
                     maskBuffer.context.popBuffer();
-
-                    if (calls > 0) {
-                        drawCalls += calls;
-                        displayBuffer.context.setGlobalCompositeOperation("destination-in");
-                        displayBuffer.setTransform(1, 0, 0, -1, 0, maskBuffer.height);
-                        displayBuffer.globalAlpha = 1;
-                        var maskBufferWidth = maskBuffer.rootRenderTarget.width;
-                        var maskBufferHeight = maskBuffer.rootRenderTarget.height;
-                        displayBuffer.context.drawTexture(maskBuffer.rootRenderTarget.texture, 0, 0, maskBufferWidth, maskBufferHeight,
-                            0, 0, maskBufferWidth, maskBufferHeight, maskBufferWidth, maskBufferHeight);
-                        displayBuffer.context.setGlobalCompositeOperation("source-over");
-                    }
+                    displayBuffer.context.setGlobalCompositeOperation("destination-in");
+                    displayBuffer.setTransform(1, 0, 0, -1, 0, maskBuffer.height);
+                    displayBuffer.globalAlpha = 1;
+                    let maskBufferWidth = maskBuffer.rootRenderTarget.width;
+                    let maskBufferHeight = maskBuffer.rootRenderTarget.height;
+                    displayBuffer.context.drawTexture(maskBuffer.rootRenderTarget.texture, 0, 0, maskBufferWidth, maskBufferHeight,
+                        0, 0, maskBufferWidth, maskBufferHeight, maskBufferWidth, maskBufferHeight);
+                    displayBuffer.context.setGlobalCompositeOperation("source-over");
                     renderBufferPool.push(maskBuffer);
                     //}
                 }
@@ -441,14 +453,14 @@ module egret.native2 {
                         buffer.context.setGlobalCompositeOperation(compositeOp);
                     }
                     if (scrollRect) {
-                        var m = displayMatrix;
+                        let m = displayMatrix;
                         displayBuffer.setTransform(m.a, m.b, m.c, m.d, m.tx - region.minX, m.ty - region.minY);
                         displayBuffer.context.pushMask(scrollRect);
                     }
                     buffer.globalAlpha = 1;
                     buffer.setTransform(1, 0, 0, -1, region.minX + matrix.tx, region.minY + matrix.ty + displayBuffer.height);
-                    var displayBufferWidth = displayBuffer.rootRenderTarget.width;
-                    var displayBufferHeight = displayBuffer.rootRenderTarget.height;
+                    let displayBufferWidth = displayBuffer.rootRenderTarget.width;
+                    let displayBufferHeight = displayBuffer.rootRenderTarget.height;
                     buffer.context.drawTexture(displayBuffer.rootRenderTarget.texture, 0, 0, displayBufferWidth, displayBufferHeight,
                         0, 0, displayBufferWidth, displayBufferHeight, displayBufferWidth, displayBufferHeight);
                     if (scrollRect) {
@@ -472,38 +484,36 @@ module egret.native2 {
          */
         private drawWithScrollRect(displayObject: DisplayObject, buffer: WebGLRenderBuffer, dirtyList: egret.sys.Region[],
             matrix: Matrix, clipRegion: sys.Region, root: DisplayObject): number {
-            var drawCalls = 0;
-            var scrollRect = displayObject.$scrollRect ? displayObject.$scrollRect : displayObject.$maskRect;
-            if (scrollRect.width == 0 || scrollRect.height == 0) {
+            let drawCalls = 0;
+            let scrollRect = displayObject.$scrollRect ? displayObject.$scrollRect : displayObject.$maskRect;
+            if (scrollRect.isEmpty()) {
                 return drawCalls;
             }
-            var m = Matrix.create();
+            let m = Matrix.create();
             m.copyFrom(displayObject.$getConcatenatedMatrix());
             if (root) {
                 displayObject.$getConcatenatedMatrixAt(root, m);
             }
             else if (displayObject.$parentDisplayList) {
-                var displayRoot = displayObject.$parentDisplayList.root;
+                let displayRoot = displayObject.$parentDisplayList.root;
                 if (displayRoot !== displayObject.$stage) {
                     displayObject.$getConcatenatedMatrixAt(displayRoot, m);
                 }
             }
-            var region: sys.Region = sys.Region.create();
-            if (!scrollRect.isEmpty()) {
-                region.updateRegion(scrollRect, m);
-            }
+            let region: sys.Region = sys.Region.create();
+            region.updateRegion(scrollRect, m);
             if (region.isEmpty() || (clipRegion && !clipRegion.intersects(region))) {
                 sys.Region.release(region);
                 Matrix.release(m);
                 return drawCalls;
             }
-            var found = false;
+            let found = false;
             if (!dirtyList) {//forRenderTexture
                 found = true;
             }
             else {
-                var l = dirtyList.length;
-                for (var j = 0; j < l; j++) {
+                let l = dirtyList.length;
+                for (let j = 0; j < l; j++) {
                     if (region.intersects(dirtyList[j])) {
                         found = true;
                         break;
@@ -519,32 +529,80 @@ module egret.native2 {
             //绘制显示对象自身
             buffer.setTransform(m.a, m.b, m.c, m.d, m.tx + matrix.tx, m.ty + matrix.ty);
 
-            var context = buffer.context;
-            var scissor = false;
-            if(buffer.$hasScissor || m.b != 0 || m.c != 0) {// 有旋转的情况下不能使用scissor
+            let context = buffer.context;
+            let scissor = false;
+            if (buffer.$hasScissor || m.b != 0 || m.c != 0) {// 有旋转的情况下不能使用scissor
                 context.pushMask(scrollRect);
             } else {
-                var x = scrollRect.x;
-                var y = scrollRect.y;
-                var w = scrollRect.width;
-                var h = scrollRect.height;
-                x = x * m.a + m.tx + matrix.tx;
-                y = y * m.d + m.ty + matrix.ty;
-                w = w * m.a;
-                h = h * m.d;
-                context.enableScissor(x, - y - h + buffer.height, w, h);
+                let a = m.a;
+                let d = m.d;
+                let tx = m.tx;
+                let ty = m.ty;
+                let x = scrollRect.x;
+                let y = scrollRect.y;
+                let xMax = x + scrollRect.width;
+                let yMax = y + scrollRect.height;
+                let minX: number, minY: number, maxX: number, maxY: number;
+                //优化，通常情况下不缩放的对象占多数，直接加上偏移量即可。
+                if (a == 1.0 && d == 1.0) {
+                    minX = x + tx;
+                    minY = y + ty;
+                    maxX = xMax + tx;
+                    maxY = yMax + ty;
+                }
+                else {
+                    let x0 = a * x + tx;
+                    let y0 = d * y + ty;
+                    let x1 = a * xMax + tx;
+                    let y1 = d * y + ty;
+                    let x2 = a * xMax + tx;
+                    let y2 = d * yMax + ty;
+                    let x3 = a * x + tx;
+                    let y3 = d * yMax + ty;
+
+                    let tmp = 0;
+
+                    if (x0 > x1) {
+                        tmp = x0;
+                        x0 = x1;
+                        x1 = tmp;
+                    }
+                    if (x2 > x3) {
+                        tmp = x2;
+                        x2 = x3;
+                        x3 = tmp;
+                    }
+
+                    minX = (x0 < x2 ? x0 : x2);
+                    maxX = (x1 > x3 ? x1 : x3);
+
+                    if (y0 > y1) {
+                        tmp = y0;
+                        y0 = y1;
+                        y1 = tmp;
+                    }
+                    if (y2 > y3) {
+                        tmp = y2;
+                        y2 = y3;
+                        y3 = tmp;
+                    }
+
+                    minY = (y0 < y2 ? y0 : y2);
+                    maxY = (y1 > y3 ? y1 : y3);
+                }
+                context.enableScissor(minX + matrix.tx, -matrix.ty - maxY + buffer.height, maxX - minX, maxY - minY);
                 scissor = true;
             }
 
             drawCalls += this.drawDisplayObject(displayObject, buffer, dirtyList, matrix, displayObject.$displayList, region, root);
             buffer.setTransform(m.a, m.b, m.c, m.d, m.tx + matrix.tx, m.ty + matrix.ty);
 
-            if(scissor) {
+            if (scissor) {
                 context.disableScissor();
             } else {
                 context.popMask();
             }
-            
+
             sys.Region.release(region);
             Matrix.release(m);
             return drawCalls;
@@ -558,7 +616,7 @@ module egret.native2 {
          * @param forHitTest 绘制结果是用于碰撞检测。若为true，当渲染GraphicsNode时，会忽略透明度样式设置，全都绘制为不透明的。
          */
         public drawNodeToBuffer(node: sys.RenderNode, buffer: WebGLRenderBuffer, matrix: Matrix, forHitTest?: boolean): void {
-            var webglBuffer: WebGLRenderBuffer = <WebGLRenderBuffer>buffer;
+            let webglBuffer: WebGLRenderBuffer = <WebGLRenderBuffer>buffer;
 
             //pushRenderTARGET
             webglBuffer.context.pushBuffer(webglBuffer);
@@ -602,17 +660,17 @@ module egret.native2 {
          * @private
          */
         private renderBitmap(node: sys.BitmapNode, buffer: WebGLRenderBuffer): void {
-            var image = node.image;
-            if(!image) {
+            let image = node.image;
+            if (!image) {
                 return;
             }
             //buffer.imageSmoothingEnabled = node.smoothing;
-            var data = node.drawData;
-            var length = data.length;
-            var pos = 0;
-            var m = node.matrix;
-            var blendMode = node.blendMode;
-            var alpha = node.alpha;
+            let data = node.drawData;
+            let length = data.length;
+            let pos = 0;
+            let m = node.matrix;
+            let blendMode = node.blendMode;
+            let alpha = node.alpha;
             if (m) {
                 buffer.saveTransform();
                 buffer.transform(m.a, m.b, m.c, m.d, m.tx, m.ty);
@@ -621,11 +679,12 @@ module egret.native2 {
             if (blendMode) {
                 buffer.context.setGlobalCompositeOperation(blendModes[blendMode]);
             }
-            if(alpha == alpha) {
-                var originAlpha = buffer.globalAlpha;
+            let originAlpha: number;
+            if (alpha == alpha) {
+                originAlpha = buffer.globalAlpha;
                 buffer.globalAlpha *= alpha;
             }
-            if(node.filter) {
+            if (node.filter) {
                 buffer.context.$filter = node.filter;
                 while (pos < length) {
                     buffer.context.drawImage(image, data[pos++], data[pos++], data[pos++], data[pos++],
@@ -642,7 +701,7 @@ module egret.native2 {
             if (blendMode) {
                 buffer.context.setGlobalCompositeOperation(defaultCompositeOp);
             }
-            if(alpha == alpha) {
+            if (alpha == alpha) {
                 buffer.globalAlpha = originAlpha;
             }
             if (m) {
@@ -654,12 +713,12 @@ module egret.native2 {
          * @private
          */
         private renderMesh(node: sys.MeshNode, buffer: WebGLRenderBuffer): void {
-            var image = node.image;
+            let image = node.image;
             //buffer.imageSmoothingEnabled = node.smoothing;
-            var data = node.drawData;
-            var length = data.length;
-            var pos = 0;
-            var m = node.matrix;
+            let data = node.drawData;
+            let length = data.length;
+            let pos = 0;
+            let m = node.matrix;
             if (m) {
                 buffer.saveTransform();
                 buffer.transform(m.a, m.b, m.c, m.d, m.tx, m.ty);
@@ -785,8 +844,8 @@ module egret.native2 {
                 return;
             // change end
 
-            var width = node.width;
-            var height = node.height;
+            let width = node.width;
+            let height = node.height;
             if (width <= 0 || height <= 0 || !width || !height || node.drawData.length == 0) {
                 return;
             }
@@ -806,18 +865,18 @@ module egret.native2 {
                 }
                 buffer.transform(1, 0, 0, 1, node.x, node.y);
             }
-            var surface = this.canvasRenderBuffer.surface;
+            let surface = this.canvasRenderBuffer.surface;
             if (forHitTest) {
                 this.canvasRenderer.renderGraphics(node, this.canvasRenderBuffer.context, true);
                 WebGLUtils.deleteWebGLTexture(surface);
-                var texture = buffer.context.getWebGLTexture(<BitmapData><any>surface);
+                let texture = buffer.context.getWebGLTexture(<BitmapData><any>surface);
                 buffer.context.drawTexture(texture, 0, 0, width, height, 0, 0, width, height, surface.width, surface.height);
             } else {
                 if (node.dirtyRender) {
                     this.canvasRenderer.renderGraphics(node, this.canvasRenderBuffer.context);
 
                     // 拷贝canvas到texture
-                    var texture: WebGLTexture = node.$texture;
+                    let texture: WebGLTexture = node.$texture;
                     if (!texture) {
                         texture = buffer.context.createTexture(<BitmapData><any>surface);
                         node.$texture = texture;
@@ -829,8 +888,8 @@ module egret.native2 {
                     node.$textureWidth = surface.width;
                     node.$textureHeight = surface.height;
                 }
-                var textureWidth = node.$textureWidth;
-                var textureHeight = node.$textureHeight;
+                let textureWidth = node.$textureWidth;
+                let textureHeight = node.$textureHeight;
                 buffer.context.drawTexture(node.$texture, 0, 0, textureWidth, textureHeight, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
             }
 
@@ -846,11 +905,21 @@ module egret.native2 {
         }
 
         private renderGroup(groupNode: sys.GroupNode, buffer: WebGLRenderBuffer): void {
-            var children = groupNode.drawData;
-            var length = children.length;
-            for (var i = 0; i < length; i++) {
-                var node: sys.RenderNode = children[i];
+            let m = groupNode.matrix;
+            if (m) {
+                buffer.saveTransform();
+                buffer.transform(m.a, m.b, m.c, m.d, m.tx, m.ty);
+            }
+
+            let children = groupNode.drawData;
+            let length = children.length;
+            for (let i = 0; i < length; i++) {
+                let node: sys.RenderNode = children[i];
                 this.renderNode(node, buffer);
+            }
+
+            if (m) {
+                buffer.restoreTransform();
             }
         }
 
@@ -858,7 +927,7 @@ module egret.native2 {
          * @private
          */
         private createRenderBuffer(width: number, height: number): WebGLRenderBuffer {
-            var buffer = renderBufferPool.pop();
+            let buffer = renderBufferPool.pop();
             if (buffer) {
                 buffer.resize(width, height);
             }

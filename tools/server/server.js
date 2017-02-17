@@ -1,84 +1,73 @@
 /// <reference path="../lib/types.d.ts" />
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+var http = require("http");
+var utils = require("../lib/utils");
+var fs = require("fs");
+var url = require("url");
+var path = require("path");
+var mine = {
+    "css": "text/css",
+    "gif": "image/gif",
+    "html": "text/html",
+    "ico": "image/x-icon",
+    "jpeg": "image/jpeg",
+    "jpg": "image/jpeg",
+    "js": "text/javascript",
+    "json": "application/json",
+    "pdf": "application/pdf",
+    "png": "image/png",
+    "svg": "image/svg+xml",
+    "swf": "application/x-shockwave-flash",
+    "tiff": "image/tiff",
+    "txt": "text/plain",
+    "wav": "audio/x-wav",
+    "wma": "audio/x-ms-wma",
+    "wmv": "video/x-ms-wmv",
+    "xml": "text/xml"
 };
-global.TotalJS = { Controller: {} };
-var events = require('events');
-var utils = require('../lib/utils');
-var Default = require('./controllers/default');
-global.lark = global.lark || {};
-function startServer(options, startupUrl) {
-    var total = require('../lib/totaljs/');
-    total.setRoot(__dirname);
-    options.port = options.port || 3000;
-    Default.UserProjectPath = options.projectDir;
-    options.projectDir = options.projectDir || '/public/';
-    egret.server = {
-        options: options,
-        console: new ServerConsole(),
-        IPs: getLocalIPAddress()
-    };
-    var serverTmp = '~' + options.getTmpDir() + 'server/';
-    framework.config['directory-temp'] = serverTmp;
-    framework.config['directory-public'] = serverTmp;
-    framework.config['directory-views'] = '~' + __dirname + '/views/';
-    framework.config['directory-controllers'] = '~' + __dirname + '/controllers/';
-    framework.config['default-websocket-encodedecode'] = false;
-    framework.config['allow-compile-js'] = false;
-    framework.config['allow-compile-html'] = false;
-    framework.config['allow-compile-css'] = false;
-    try {
-        total.http('debug', { port: options.port, ip: '0.0.0.0' });
-        if (!options.serverOnly)
-            utils.open(startupUrl || options.manageUrl);
-    }
-    catch (e) {
-        if (e.toString().indexOf('listen EADDRINUSE') !== -1) {
-            if (!options.serverOnly)
-                utils.open(startupUrl || options.manageUrl);
-        }
+function startServer(args, startupUrl) {
+    var ips = getLocalIPAddress();
+    var server = http.createServer(function (request, response) {
+        var pathname = url.parse(request.url).pathname;
+        var realPath = path.join(args.projectDir, pathname);
+        //console.log(realPath);
+        var ext = path.extname(realPath);
+        ext = ext ? ext.slice(1) : 'unknown';
+        fs.exists(realPath, function (exists) {
+            if (!exists) {
+                response.writeHead(404, {
+                    'Content-Type': 'text/plain'
+                });
+                response.write("This request URL " + pathname + " was not found on this server.");
+                response.end();
+            }
+            else {
+                fs.readFile(realPath, "binary", function (err, file) {
+                    if (err) {
+                        response.writeHead(500, {
+                            'Content-Type': 'text/plain'
+                        });
+                        response.end(err);
+                    }
+                    else {
+                        var contentType = mine[ext] || "text/plain";
+                        response.writeHead(200, {
+                            'Content-Type': contentType
+                        });
+                        response.write(file, "binary");
+                        response.end();
+                    }
+                });
+            }
+        });
+    });
+    var PORT = egret.args.port;
+    server.listen(PORT);
+    console.log("Server running at port: " + PORT + ".");
+    if (!args.serverOnly) {
+        utils.open(startupUrl);
     }
 }
 exports.startServer = startServer;
-var ServerConsole = (function (_super) {
-    __extends(ServerConsole, _super);
-    function ServerConsole() {
-        _super.call(this);
-        this.attach();
-    }
-    ServerConsole.prototype.attach = function () {
-        var _this = this;
-        if (console['override'])
-            return;
-        console['override'] = true;
-        ["log", "warn", "error"].forEach(function (method) {
-            var oldMethod = console[method].bind(console);
-            console['old_' + method] = oldMethod;
-            console[method] = function () {
-                var params = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    params[_i - 0] = arguments[_i];
-                }
-                oldMethod.apply(console, params);
-                if (!params || !params.length)
-                    return;
-                _this.log(params);
-            };
-        });
-    };
-    ServerConsole.prototype.dettach = function () {
-        ["log", "warn", "error"].forEach(function (method) {
-            console[method] = console['old_' + method];
-        });
-        console['override'] = false;
-    };
-    ServerConsole.prototype.log = function (params) {
-        this.emit('log', params);
-    };
-    return ServerConsole;
-}(events.EventEmitter));
 function getLocalIPAddress() {
     var os = require('os');
     var ifaces = os.networkInterfaces();
