@@ -40,7 +40,7 @@ namespace egret.native2 {
         // console.log("createCanvas height = " + height);
         width = isNaN(width) ? 480 : width;
         height = isNaN(height) ? 800 : height;
-        var canvas = new egret_native.Canvas(width, height);
+        var canvas = document.createElement("canvas");
         // canvas.style = {};
         // need ????
         // function $toBitmapData(data) {

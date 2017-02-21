@@ -385,6 +385,7 @@ var egret;
                 this.$stage = stage;
                 this.player = player;
                 this.nativeTouch = touch;
+                this.webTouchHandler = touch;
                 //this.nativeInput = nativeInput;
                 this.updateScreenSize();
                 this.updateMaxTouches();
@@ -405,6 +406,8 @@ var egret;
                 var left = (screenWidth - displayWidth) / 2;
                 egret_native.setVisibleRect(left, top, displayWidth, displayHeight);
                 egret_native.setDesignSize(stageWidth, stageHeight);
+                var scalex = displayWidth / stageWidth, scaley = displayHeight / stageHeight;
+                this.webTouchHandler.updateScaleMode(scalex, scaley, 0);
                 this.player.updateStageSize(stageWidth, stageHeight);
             };
             NativePlayer.prototype.setContentSize = function (width, height) {
@@ -418,6 +421,7 @@ var egret;
              * 添加canvas
              */
             NativePlayer.prototype.attachCanvas = function (canvas) {
+                this.canvas = canvas;
                 egret_native.setScreenCanvas(canvas);
             };
             ;
@@ -699,28 +703,79 @@ var egret;
             __extends(NativeTouchHandler, _super);
             function NativeTouchHandler(stage) {
                 var _this = _super.call(this) || this;
+                // private $executeTouchCallback(num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>, callback:Function) {
+                //     for (let i = 0; i < num; i++) {
+                //         let id = ids[i];
+                //         let x = xs_array[i];
+                //         let y = ys_array[i];
+                //         callback.call(this.$touch, x, y, id);
+                //     }
+                // }
+                /**
+                 * @private
+                 */
+                _this.scaleX = 1;
+                /**
+                 * @private
+                 */
+                _this.scaleY = 1;
+                /**
+                 * @private
+                 */
+                _this.rotation = 0;
                 _this.$touch = new egret.sys.TouchHandler(stage);
                 var self = _this;
-                egret_native.touchDown = function (num, ids, xs_array, ys_array) {
-                    self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchBegin);
-                };
-                egret_native.touchMove = function (num, ids, xs_array, ys_array) {
-                    self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchMove);
-                };
-                egret_native.touchUp = function (num, ids, xs_array, ys_array) {
-                    self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchEnd);
-                };
-                egret_native.touchCancel = function (num, ids, xs_array, ys_array) {
-                };
+                window.addEventListener("touchstart", function (event) {
+                    var l = event.changedTouches.length;
+                    for (var i = 0; i < l; i++) {
+                        var touch = event.changedTouches[i];
+                        self.$touch.onTouchBegin(touch.pageX, touch.pageY, touch.identifier);
+                    }
+                });
+                window.addEventListener("touchmove", function (event) {
+                    var l = event.changedTouches.length;
+                    for (var i = 0; i < l; i++) {
+                        var touch = event.changedTouches[i];
+                        self.$touch.onTouchMove(touch.pageX, touch.pageY, touch.identifier);
+                    }
+                });
+                window.addEventListener("touchend", function (event) {
+                    var l = event.changedTouches.length;
+                    for (var i = 0; i < l; i++) {
+                        var touch = event.changedTouches[i];
+                        self.$touch.onTouchEnd(touch.pageX, touch.pageY, touch.identifier);
+                    }
+                });
+                window.addEventListener("touchcancel", function (event) {
+                    var l = event.changedTouches.length;
+                    for (var i = 0; i < l; i++) {
+                        var touch = event.changedTouches[i];
+                        self.$touch.onTouchEnd(touch.pageX, touch.pageY, touch.identifier);
+                    }
+                });
                 return _this;
+                // egret_native.touchDown = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
+                //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchBegin);
+                // };
+                // egret_native.touchMove = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
+                //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchMove);
+                // };
+                // egret_native.touchUp = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
+                //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchEnd);
+                // };
+                // egret_native.touchCancel = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
+                // };
             }
-            NativeTouchHandler.prototype.$executeTouchCallback = function (num, ids, xs_array, ys_array, callback) {
-                for (var i = 0; i < num; i++) {
-                    var id = ids[i];
-                    var x = xs_array[i];
-                    var y = ys_array[i];
-                    callback.call(this.$touch, x, y, id);
-                }
+            /**
+             * @private
+             * 更新屏幕当前的缩放比例，用于计算准确的点击位置。
+             * @param scaleX 水平方向的缩放比例。
+             * @param scaleY 垂直方向的缩放比例。
+             */
+            NativeTouchHandler.prototype.updateScaleMode = function (scaleX, scaleY, rotation) {
+                this.scaleX = scaleX;
+                this.scaleY = scaleY;
+                this.rotation = rotation;
             };
             /**
              * @private
@@ -4374,7 +4429,7 @@ var egret;
             // console.log("createCanvas height = " + height);
             width = isNaN(width) ? 480 : width;
             height = isNaN(height) ? 800 : height;
-            var canvas = new egret_native.Canvas(width, height);
+            var canvas = document.createElement("canvas");
             // canvas.style = {};
             // need ????
             // function $toBitmapData(data) {

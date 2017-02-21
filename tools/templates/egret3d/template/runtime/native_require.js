@@ -10,9 +10,9 @@ var game_file_list = [
 	//----auto game_file_list end----
 ];
 
-var window = this;
+// var window = this;
 
-egret_native.setSearchPaths([""]);
+// egret_native.setSearchPaths([""]);
 
 egret_native.requireFiles = function () {
     for (var key in game_file_list) {
@@ -34,23 +34,11 @@ egret_native.egretStart = function () {
     var option = {
         //以下为自动修改，请勿修改
         //----auto option start----
-		entryClassName: "Main",
-		frameRate: 30,
-		scaleMode: "noScale",
-		contentWidth: 640,
-		contentHeight: 960,
-		showPaintRect: false,
-		showFPS: false,
-		fpsStyles: "x:0,y:0,size:30,textColor:0x00c200,bgAlpha:0.9",
-		showLog: false,
-		logFilter: "",
-		maxTouches: 2,
-		textureScaleFactor: 1
-		//----auto option end----
+        //----auto option end----
     };
 
-    egret.native.NativePlayer.option = option;
+    egret.native2.NativePlayer.option = option;
     egret.runEgret();
-    egret_native.Label.createLabel(egret.TextField.default_fontFamily, 20, "", 0);
-    egret_native.EGTView.preSetOffScreenBufferEnable(true);
+    // egret_native.Label.createLabel("/system/fonts/DroidSansFallback.ttf", 20, "", 0);
+    // egret_native.EGTView.preSetOffScreenBufferEnable(true);
 };

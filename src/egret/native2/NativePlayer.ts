@@ -45,6 +45,8 @@ namespace egret.native2 {
 
         private nativeTouch:NativeTouchHandler;
 
+        private webTouchHandler:NativeTouchHandler;
+
         public constructor() {
             super();
             this.init(NativePlayer.option);
@@ -86,6 +88,7 @@ namespace egret.native2 {
             this.player = player;
 
             this.nativeTouch = touch;
+            this.webTouchHandler = touch;
             //this.nativeInput = nativeInput;
 
             this.updateScreenSize();
@@ -112,6 +115,11 @@ namespace egret.native2 {
             egret_native.setVisibleRect(left, top, displayWidth, displayHeight);
             egret_native.setDesignSize(stageWidth, stageHeight);
 
+            let scalex = displayWidth / stageWidth,
+                scaley = displayHeight / stageHeight;
+
+            this.webTouchHandler.updateScaleMode(scalex, scaley, 0);
+
             this.player.updateStageSize(stageWidth, stageHeight);
         }
 
@@ -124,9 +132,16 @@ namespace egret.native2 {
 
         /**
          * @private
+         * 画布实例
+         */
+        private canvas:any;
+
+        /**
+         * @private
          * 添加canvas
          */
         private attachCanvas(canvas):void {
+            this.canvas = canvas;
             egret_native.setScreenCanvas(canvas);
         };
 

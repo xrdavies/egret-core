@@ -39,27 +39,80 @@ namespace egret.native2 {
             this.$touch = new egret.sys.TouchHandler(stage);
 
             let self = this;
-            egret_native.touchDown = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-                self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchBegin);
-            };
-            egret_native.touchMove = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-                self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchMove);
-            };
-            egret_native.touchUp = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-                self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchEnd);
-            };
-            egret_native.touchCancel = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
+            window.addEventListener("touchstart", function(event:any) {
+                let l = event.changedTouches.length;
+                for (let i:number = 0; i < l; i++) {
+                    var touch = event.changedTouches[i];
+                    self.$touch.onTouchBegin(touch.pageX, touch.pageY, touch.identifier);
+                }
+            });
+            window.addEventListener("touchmove", function(event:any) {
+                let l = event.changedTouches.length;
+                for (let i:number = 0; i < l; i++) {
+                    var touch = event.changedTouches[i];
+                    self.$touch.onTouchMove(touch.pageX, touch.pageY, touch.identifier);
+                }
+            });
+            window.addEventListener("touchend", function(event:any) {
+                let l = event.changedTouches.length;
+                for (let i:number = 0; i < l; i++) {
+                    var touch = event.changedTouches[i];
+                    self.$touch.onTouchEnd(touch.pageX, touch.pageY, touch.identifier);
+                }
+            });
+            window.addEventListener("touchcancel", function(event:any) {
+                let l = event.changedTouches.length;
+                for (let i:number = 0; i < l; i++) {
+                    var touch = event.changedTouches[i];
+                    self.$touch.onTouchEnd(touch.pageX, touch.pageY, touch.identifier);
+                }
+            });
+            // egret_native.touchDown = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
+            //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchBegin);
+            // };
+            // egret_native.touchMove = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
+            //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchMove);
+            // };
+            // egret_native.touchUp = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
+            //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchEnd);
+            // };
+            // egret_native.touchCancel = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
 
-            };
+            // };
         }
 
-        private $executeTouchCallback(num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>, callback:Function) {
-            for (let i = 0; i < num; i++) {
-                let id = ids[i];
-                let x = xs_array[i];
-                let y = ys_array[i];
-                callback.call(this.$touch, x, y, id);
-            }
+        // private $executeTouchCallback(num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>, callback:Function) {
+        //     for (let i = 0; i < num; i++) {
+        //         let id = ids[i];
+        //         let x = xs_array[i];
+        //         let y = ys_array[i];
+        //         callback.call(this.$touch, x, y, id);
+        //     }
+        // }
+
+        /**
+         * @private
+         */
+        private scaleX:number = 1;
+        /**
+         * @private
+         */
+        private scaleY:number = 1;
+        /**
+         * @private
+         */
+        private rotation:number = 0;
+
+        /**
+         * @private
+         * 更新屏幕当前的缩放比例，用于计算准确的点击位置。
+         * @param scaleX 水平方向的缩放比例。
+         * @param scaleY 垂直方向的缩放比例。
+         */
+        public updateScaleMode(scaleX:number, scaleY:number, rotation:number):void {
+            this.scaleX = scaleX;
+            this.scaleY = scaleY;
+            this.rotation = rotation;
         }
 
         /**
