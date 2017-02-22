@@ -550,7 +550,26 @@ module egret.native2 {
 
         // 0x4D framebufferTexture2D(target: number, attachment: number, textarget: number, texture: WebGLTexture | null, level: number): void;
         public framebufferTexture2D(target: number, attachment: number, textarget: number, texture: CmdCacheObject, level: number) {
+            if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+                this.flushCmd();
+            }
+            var dataView = this.dataView;
+            var arrayBufferLen = this.arrayBufferLen;
 
+            dataView.setUint8(arrayBufferLen, 0x4D);
+            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, target, true);
+            arrayBufferLen += 4; 
+            dataView.setUint32(arrayBufferLen, attachment, true);
+            arrayBufferLen += 4; 
+            dataView.setUint32(arrayBufferLen, textarget, true);
+            arrayBufferLen += 4; 
+            dataView.setUint32(arrayBufferLen, texture.hashCode, true);
+            arrayBufferLen += 4; 
+            dataView.setInt32(arrayBufferLen, level, true);
+            arrayBufferLen += 4; 
+
+            this.arrayBufferLen = arrayBufferLen;
         }
 
         // 0x24 blendFunc(sfactor: number, dfactor: number): void;
@@ -772,8 +791,8 @@ module egret.native2 {
             arrayBufferLen += 1;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4;
-            if(framebuffer == null || framebuffer.hashCode == 0) {
-                dataView.setUint32(arrayBufferLen, 0, true);
+            if(framebuffer == null) {  //TODO || pixels == 0) {
+                dataView.setUint32(arrayBufferLen, 0xFFFFFFFF, true);
             }
             else {
                 dataView.setUint32(arrayBufferLen, framebuffer.hashCode, true);
@@ -1119,7 +1138,7 @@ module egret.native2 {
             arrayBufferLen += 4;
             if(texture == null) {
 	    	// TODO check
-                dataView.setUint32(arrayBufferLen, 0, true);
+                dataView.setUint32(arrayBufferLen, 0xFFFFFFFF, true);
             }
             else {
                 dataView.setUint32(arrayBufferLen, texture.hashCode, true);
@@ -1474,7 +1493,14 @@ module egret.native2 {
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, transpose ? 1 : 0, true);
             arrayBufferLen += 4;
-            var arrayid = this.pushTypedArrays(value);
+            var arrayid = 0;
+            if(value instanceof Array) {
+                var arrayObj = new Float32Array(value);
+                arrayid = this.pushTypedArrays(arrayObj);
+            }
+            else {
+                arrayid = this.pushTypedArrays(value);
+            }
             dataView.setUint32(arrayBufferLen, arrayid, true);
             arrayBufferLen += 4;
             
@@ -1495,7 +1521,14 @@ module egret.native2 {
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, transpose ? 1 : 0, true);
             arrayBufferLen += 4;
-            var arrayid = this.pushTypedArrays(value);
+            var arrayid = 0;
+            if(value instanceof Array) {
+                var arrayObj = new Float32Array(value);
+                arrayid = this.pushTypedArrays(arrayObj);
+            }
+            else {
+                arrayid = this.pushTypedArrays(value);
+            }
             dataView.setUint32(arrayBufferLen, arrayid, true);
             arrayBufferLen += 4;
             
@@ -1516,7 +1549,14 @@ module egret.native2 {
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, transpose ? 1 : 0, true);
             arrayBufferLen += 4;
-            var arrayid = this.pushTypedArrays(value);
+            var arrayid = 0;
+            if(value instanceof Array) {
+                var arrayObj = new Float32Array(value);
+                arrayid = this.pushTypedArrays(arrayObj);
+            }
+            else {
+                arrayid = this.pushTypedArrays(value);
+            }
             dataView.setUint32(arrayBufferLen, arrayid, true);
             arrayBufferLen += 4;
             

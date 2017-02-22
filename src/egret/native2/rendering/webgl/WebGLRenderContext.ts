@@ -485,6 +485,7 @@ namespace egret.native2 {
          * 更新材质的bitmapData
          */
         public updateTexture(texture: WebGLTexture, bitmapData: BitmapData): void {
+            //TODO when renderGraphic
             let gl: any = this.context;
             let useCmdBatch:boolean = false;
             if(WebGLRenderContext.$supportCmdBatch) {
@@ -1018,6 +1019,12 @@ namespace egret.native2 {
             return size;
         }
         //-lj
+
+        private drawPushTextForCmdBatch = function (data, offset) {
+            let gl:any = this.context;
+            gl = this.glCmdManager;
+
+        }
 
         /**
          * 画texture
