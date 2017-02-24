@@ -105,9 +105,9 @@ namespace egret.native2 {
 
             //
             let self = this;
-            self.loaded = true;
-            self.dispatchEventWith(egret.Event.COMPLETE);
-            return;
+            // self.loaded = true;
+            // self.dispatchEventWith(egret.Event.COMPLETE);
+            // return;
             //
 
             this.url = url;
@@ -169,17 +169,17 @@ namespace egret.native2 {
                 egret.$error(1049);
             }
 
-            // let audio = NativeSound.$pop(this.url);
-            // if (audio == null) {
-                // audio = new Audio(this.url);
-            // }
-            // else {
-                //audio.load();
-            // }
+            let audio = NativeSound.$pop(this.url);
+            if (audio == null) {
+                audio = new Audio(this.url);
+            }
+            else {
+                audio.load();
+            }
             // audio.autoplay = true;
 
-            // let channel = new NativeSoundChannel(audio);
-            let channel = new NativeSoundChannel(null);
+            let channel = new NativeSoundChannel(audio);
+            //let channel = new NativeSoundChannel(null);
             channel.$url = this.url;
             channel.$loops = loops;
             channel.$startTime = startTime;

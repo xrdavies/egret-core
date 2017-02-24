@@ -1670,9 +1670,9 @@ var egret;
             NativeSound.prototype.load = function (url) {
                 //
                 var self = this;
-                self.loaded = true;
-                self.dispatchEventWith(egret.Event.COMPLETE);
-                return;
+                // self.loaded = true;
+                // self.dispatchEventWith(egret.Event.COMPLETE);
+                // return;
                 //
                 this.url = url;
                 if (true && !url) {
@@ -1721,16 +1721,16 @@ var egret;
                 if (true && this.loaded == false) {
                     egret.$error(1049);
                 }
-                // let audio = NativeSound.$pop(this.url);
-                // if (audio == null) {
-                // audio = new Audio(this.url);
-                // }
-                // else {
-                //audio.load();
-                // }
+                var audio = NativeSound.$pop(this.url);
+                if (audio == null) {
+                    audio = new Audio(this.url);
+                }
+                else {
+                    audio.load();
+                }
                 // audio.autoplay = true;
-                // let channel = new NativeSoundChannel(audio);
-                var channel = new native2.NativeSoundChannel(null);
+                var channel = new native2.NativeSoundChannel(audio);
+                //let channel = new NativeSoundChannel(null);
                 channel.$url = this.url;
                 channel.$loops = loops;
                 channel.$startTime = startTime;
@@ -1877,13 +1877,13 @@ var egret;
                     _this.$play();
                 };
                 _this.$volume = 1;
+                audio.addEventListener("ended", _this.onPlayEnd);
+                _this.audio = audio;
                 return _this;
-                // audio.addEventListener("ended", this.onPlayEnd);
-                // this.audio = audio;
             }
             NativeSoundChannel.prototype.$play = function () {
                 //
-                return;
+                //return;
                 //
                 if (this.isStopped) {
                     egret.$error(1036);
@@ -9068,14 +9068,14 @@ var egret;
                 egret_native.pauseApp = function () {
                     //console.log("pauseApp");
                     stage.dispatchEvent(new egret.Event(egret.Event.DEACTIVATE));
-                    egret_native.Audio.pauseBackgroundMusic();
-                    egret_native.Audio.pauseAllEffects();
+                    // egret_native.Audio.pauseBackgroundMusic();
+                    // egret_native.Audio.pauseAllEffects();
                 };
                 egret_native.resumeApp = function () {
                     //console.log("resumeApp");
                     stage.dispatchEvent(new egret.Event(egret.Event.ACTIVATE));
-                    egret_native.Audio.resumeBackgroundMusic();
-                    egret_native.Audio.resumeAllEffects();
+                    // egret_native.Audio.resumeBackgroundMusic();
+                    // egret_native.Audio.resumeAllEffects();
                 };
                 return _this;
             }
