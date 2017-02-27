@@ -1,4 +1,4 @@
-require("template/runtime/native_require.js");
+require("launcher/native_require.js");
 
 egret_native.egtMain = function () {
     egret_native.nativeType = "native";

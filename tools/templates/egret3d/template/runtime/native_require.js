@@ -28,6 +28,7 @@ egret_native.egretInit = function () {
     egret.dom = {};
     egret.dom.drawAsCanvas = function () {
     };
+    egret.Capabilities.$runtimeType = egret.RuntimeType.NATIVE;
 };
 
 egret_native.egretStart = function () {
