@@ -3747,6 +3747,85 @@ var egret;
                 this.drawDataLen++;
             };
             //-lj
+            WebGLDrawCmdManager.prototype.pushDrawTextForCmdBatch = function (text, length, x, y, textColor, stroke, strokeColor, alpha, transform /*, texturesInfo */) {
+                var data = this.drawData[this.drawDataLen] || {};
+                data.type = 10 /* FONT */;
+                data.text = text;
+                data.count = length;
+                data.x = x;
+                data.y = y;
+                data.textColor = textColor;
+                data.stroke = stroke;
+                data.strokeColor = strokeColor;
+                //计算出绘制矩阵，之后把矩阵还原回之前的
+                var locWorldTransform = transform;
+                var originalA = locWorldTransform.a;
+                var originalB = locWorldTransform.b;
+                var originalC = locWorldTransform.c;
+                var originalD = locWorldTransform.d;
+                var originalTx = locWorldTransform.tx;
+                var originalTy = locWorldTransform.ty;
+                var a = locWorldTransform.a;
+                var b = locWorldTransform.b;
+                var c = locWorldTransform.c;
+                var d = locWorldTransform.d;
+                var tx = locWorldTransform.tx - 2;
+                var ty = locWorldTransform.ty - 2;
+                locWorldTransform.a = originalA;
+                locWorldTransform.b = originalB;
+                locWorldTransform.c = originalC;
+                locWorldTransform.d = originalD;
+                locWorldTransform.tx = originalTx;
+                locWorldTransform.ty = originalTy;
+                var w = 0;
+                var h = 0;
+                // var cacheTextId = this.vertexIndex * this.vertSize * len;
+                var vertexIndex = 0;
+                var vertSize = 5;
+                var numVerts = vertSize * length;
+                var vertices = new Float32Array(numVerts);
+                for (var i = 0; i < length; i++) {
+                    var index = vertexIndex * vertSize;
+                    var j = i * 16;
+                    // xy
+                    vertices[index++] = tx; // + arr[j++];
+                    vertices[index++] = ty; // + arr[j++];
+                    // uv
+                    vertices[index++] = 0; //arr[j++];
+                    vertices[index++] = 0; //arr[j++];
+                    // alpha
+                    vertices[index++] = alpha;
+                    // xy
+                    vertices[index++] = a * w + tx; // + arr[j++];
+                    vertices[index++] = b * w + ty; // + arr[j++];
+                    // uv
+                    vertices[index++] = 0; //arr[j++];
+                    vertices[index++] = 0; //arr[j++];
+                    // alpha
+                    vertices[index++] = alpha;
+                    // xy
+                    vertices[index++] = a * w + c * h + tx; // + arr[j++];
+                    vertices[index++] = d * h + b * w + ty; // + arr[j++];
+                    // uv
+                    vertices[index++] = 0; //arr[j++];
+                    vertices[index++] = 0; //arr[j++];
+                    // alpha
+                    vertices[index++] = alpha;
+                    // xy
+                    vertices[index++] = c * h + tx; // + arr[j++];
+                    vertices[index++] = d * h + ty; // + arr[j++];
+                    // uv
+                    vertices[index++] = 0; //arr[j++];
+                    vertices[index++] = 0; //arr[j++];
+                    // alpha
+                    vertices[index++] = alpha;
+                    vertexIndex += 4;
+                }
+                // data.texturesInfo = texturesInfo;
+                data.transformData = vertices;
+                this.drawData[this.drawDataLen] = data;
+                this.drawDataLen++;
+            };
             /**
              * 压入pushMask指令
              */
@@ -4462,11 +4541,13 @@ var egret;
                 // lj
                 this.drawPushText = function (data, offset) {
                     // console.log(data.count);
+                    var size = 0;
                     var gl = this.context;
                     if (WebGLRenderContext.$supportCmdBatch) {
                         gl = this.glCmdManager;
+                        gl.drawText(data.text, data.transformData, data.textColor, data.stroke, data.strokeColor);
+                        return 0;
                     }
-                    var size = 0;
                     for (var i = 0; i < data.texturesInfo.length; i++) {
                         // console.log(" +++++++ " + i + " " + data.count + " " + data.texturesInfo[i] + " " + size);
                         // var shader = this.shaderManager.fontShader;
@@ -4483,11 +4564,6 @@ var egret;
                     // var size = data.count * 3;
                     // gl.drawElements(gl.TRIANGLES, size, gl.UNSIGNED_SHORT, offset * 2);
                     return size;
-                };
-                //-lj
-                this.drawPushTextForCmdBatch = function (data, offset) {
-                    var gl = this.context;
-                    gl = this.glCmdManager;
                 };
                 this.vertSize = 5;
                 this.blurFilter = null;
@@ -4934,6 +5010,11 @@ var egret;
                 if (this.contextLost || !buffer) {
                     return;
                 }
+                // TODO
+                // if(WebGLRenderContext.$supportCmdBatch) {
+                //     this.drawTextForCmdBatch(text, size, x, y, textColor, stroke, strokeColor);
+                //     return;
+                // }
                 var textData = egret_native.Label["setupTextQuads"](text, text.length, x, y);
                 var t = new Float32Array(textData);
                 for (var i = 0; i < text.length; i++) {
@@ -4949,6 +5030,15 @@ var egret;
                 this.vao.cacheArraysForText(transform, alpha, t, text.length, size);
             };
             //-lj
+            WebGLRenderContext.prototype.drawTextForCmdBatch = function (text, size, x, y, textColor, stroke, strokeColor) {
+                var buffer = this.currentBuffer;
+                if (this.contextLost || !buffer) {
+                    return;
+                }
+                var transform = buffer.globalMatrix;
+                var alpha = buffer.globalAlpha;
+                this.drawCmdManager.pushDrawTextForCmdBatch(text, text.length, x, y, textColor, stroke, strokeColor, alpha, transform);
+            };
             /**
              * 绘制矩形（仅用于遮罩擦除等）
              */
@@ -5218,6 +5308,7 @@ var egret;
                 }
                 return offset;
             };
+            //-lj
             /**
              * 画texture
              **/
@@ -8756,6 +8847,29 @@ var egret;
                 dataView.setUint32(arrayBufferLen, type, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, offset, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0xFF drawText(str: string, transform: Float32Array, textColor: number, stroke: boolean, strokeColor: number)
+            WebGLCmdArrayManager.prototype.drawText = function (str, transform, textColor, stroke, strokeColor) {
+                if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint8(arrayBufferLen, 0xFF);
+                arrayBufferLen += 1;
+                var strId = this.pushString(str);
+                dataView.setUint32(arrayBufferLen, strId, true);
+                arrayBufferLen += 4;
+                var transformId = this.pushTypedArrays(transform);
+                dataView.setUint32(arrayBufferLen, transformId, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, textColor, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, stroke ? 1 : 0, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, strokeColor, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };

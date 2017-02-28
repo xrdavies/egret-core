@@ -677,6 +677,12 @@ namespace egret.native2 {
                 return;
             }
 
+            // TODO
+            // if(WebGLRenderContext.$supportCmdBatch) {
+            //     this.drawTextForCmdBatch(text, size, x, y, textColor, stroke, strokeColor);
+            //     return;
+            // }
+
             var textData = egret_native.Label["setupTextQuads"](text, text.length, x, y);
             var t = new Float32Array(textData);
             for (var i = 0; i < text.length; i++) {
@@ -696,6 +702,18 @@ namespace egret.native2 {
             this.vao.cacheArraysForText(transform, alpha, t, text.length, size);
         }
         //-lj
+
+        private drawTextForCmdBatch(text, size, x, y, textColor, stroke, strokeColor) {
+            var buffer = this.currentBuffer;
+            if (this.contextLost || !buffer) {
+                return;
+            }
+
+            var transform = buffer.globalMatrix;
+            var alpha = buffer.globalAlpha;
+
+            this.drawCmdManager.pushDrawTextForCmdBatch(text, text.length, x, y, textColor, stroke, strokeColor, alpha, transform);
+        }
 
         /**
          * 绘制矩形（仅用于遮罩擦除等）
@@ -994,12 +1012,14 @@ namespace egret.native2 {
         // lj
         private drawPushText = function (data, offset) {
             // console.log(data.count);
+            let size = 0;
             let gl:any = this.context;
             if(WebGLRenderContext.$supportCmdBatch) {
                 gl = this.glCmdManager;
+                gl.drawText(data.text, data.transformData, data.textColor, data.stroke, data.strokeColor);
+                return 0;
             }
 
-            var size = 0;
             for (var i = 0; i < data.texturesInfo.length; i++) {
                 // console.log(" +++++++ " + i + " " + data.count + " " + data.texturesInfo[i] + " " + size);
                 // var shader = this.shaderManager.fontShader;
@@ -1019,12 +1039,6 @@ namespace egret.native2 {
             return size;
         }
         //-lj
-
-        private drawPushTextForCmdBatch = function (data, offset) {
-            let gl:any = this.context;
-            gl = this.glCmdManager;
-
-        }
 
         /**
          * 画texture

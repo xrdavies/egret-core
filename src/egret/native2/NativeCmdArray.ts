@@ -1804,5 +1804,32 @@ module egret.native2 {
             this.arrayBufferLen = arrayBufferLen;
         }
 
+        // 0xFF drawText(str: string, transform: Float32Array, textColor: number, stroke: boolean, strokeColor: number)
+        public drawText(str: string, transform: Float32Array, textColor: number, stroke: boolean, strokeColor: number) {
+            if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+                this.flushCmd();
+            }
+            var dataView = this.dataView;
+            var arrayBufferLen = this.arrayBufferLen;
+
+            dataView.setUint8(arrayBufferLen, 0xFF);
+            arrayBufferLen += 1;
+            
+            var strId = this.pushString(str); 
+            dataView.setUint32(arrayBufferLen, strId, true);
+            arrayBufferLen += 4;
+            var transformId = this.pushTypedArrays(transform);
+            dataView.setUint32(arrayBufferLen, transformId, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, textColor, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, stroke ? 1 : 0, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, strokeColor, true);
+            arrayBufferLen += 4;
+
+            this.arrayBufferLen = arrayBufferLen;
+        }
+
     }
 }

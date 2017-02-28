@@ -124,6 +124,89 @@ namespace egret.native2 {
         }
         //-lj
 
+        public pushDrawTextForCmdBatch(text, length, x, y, textColor, stroke, strokeColor, alpha, transform /*, texturesInfo */) {
+            var data = this.drawData[this.drawDataLen] || {};
+            data.type = DRAWABLE_TYPE.FONT;
+            data.text = text;
+            data.count = length;
+            data.x = x;
+            data.y = y;
+            data.textColor = textColor;
+            data.stroke = stroke;
+            data.strokeColor = strokeColor;
+
+            //计算出绘制矩阵，之后把矩阵还原回之前的
+            var locWorldTransform = transform;
+            var originalA = locWorldTransform.a;
+            var originalB = locWorldTransform.b;
+            var originalC = locWorldTransform.c;
+            var originalD = locWorldTransform.d;
+            var originalTx = locWorldTransform.tx;
+            var originalTy = locWorldTransform.ty;
+            var a = locWorldTransform.a;
+            var b = locWorldTransform.b;
+            var c = locWorldTransform.c;
+            var d = locWorldTransform.d;
+            var tx = locWorldTransform.tx - 2;
+            var ty = locWorldTransform.ty - 2;
+            locWorldTransform.a = originalA;
+            locWorldTransform.b = originalB;
+            locWorldTransform.c = originalC;
+            locWorldTransform.d = originalD;
+            locWorldTransform.tx = originalTx;
+            locWorldTransform.ty = originalTy;
+            var w = 0;
+            var h = 0;
+            // var cacheTextId = this.vertexIndex * this.vertSize * len;
+            var vertexIndex = 0;
+            var vertSize:number = 5;
+            var numVerts = vertSize * length;
+            var vertices = new Float32Array(numVerts);
+
+            for (var i = 0; i < length; i++) {
+                var index = vertexIndex * vertSize;
+                var j = i * 16;
+
+                // xy
+                vertices[index++] = tx; // + arr[j++];
+                vertices[index++] = ty; // + arr[j++];
+                // uv
+                vertices[index++] = 0; //arr[j++];
+                vertices[index++] = 0; //arr[j++];
+                // alpha
+                vertices[index++] = alpha;
+                // xy
+                vertices[index++] = a * w + tx; // + arr[j++];
+                vertices[index++] = b * w + ty; // + arr[j++];
+                // uv
+                vertices[index++] = 0; //arr[j++];
+                vertices[index++] = 0; //arr[j++];
+                // alpha
+                vertices[index++] = alpha;
+                // xy
+                vertices[index++] = a * w + c * h + tx; // + arr[j++];
+                vertices[index++] = d * h + b * w + ty; // + arr[j++];
+                // uv
+                vertices[index++] = 0; //arr[j++];
+                vertices[index++] = 0; //arr[j++];
+                // alpha
+                vertices[index++] = alpha;
+                // xy
+                vertices[index++] = c * h + tx; // + arr[j++];
+                vertices[index++] = d * h + ty; // + arr[j++];
+                // uv
+                vertices[index++] = 0; //arr[j++];
+                vertices[index++] = 0; //arr[j++];
+                // alpha
+                vertices[index++] = alpha;
+                vertexIndex += 4;
+            }
+
+            // data.texturesInfo = texturesInfo;
+            data.transformData = vertices;
+            this.drawData[this.drawDataLen] = data;
+            this.drawDataLen++;
+        }
         /**
          * 压入pushMask指令
          */
