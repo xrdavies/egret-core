@@ -154,7 +154,7 @@ namespace egret.native2 {
                 promise.onResponseHeaderThisObject = this;
                 egret_native.requireHttp(self._url, self.urlData, promise);
             }
-            else if (!egret_native.isFileExists(self._url)) {
+            else if (!native2.FileManager.isFileExistSync(self._url)) {
                 download();
             }
             else {
@@ -171,10 +171,10 @@ namespace egret.native2 {
                     Event.dispatchEvent(self, IOErrorEvent.IO_ERROR);
                 };
                 if (self._responseType == HttpResponseType.ARRAY_BUFFER) {
-                    egret_native.readFileAsync(self._url, promise, "ArrayBuffer");
+                    native2.FileManager.readFileAsync(self._url, promise, "ArrayBuffer");
                 }
                 else {
-                    egret_native.readFileAsync(self._url, promise);
+                    native2.FileManager.readFileAsync(self._url, promise, "String");
                 }
             }
 

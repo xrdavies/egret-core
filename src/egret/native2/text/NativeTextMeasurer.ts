@@ -38,6 +38,7 @@ namespace egret.native2 {
      * @param italic 是否斜体
      */
     function measureText(text:string, fontFamily:string, fontSize:number, bold:boolean, italic:boolean):number {
+        return 0;//Refactor
         let font:string;
         var arr:string[];
         if(fontFamily.indexOf(", ") != -1) {

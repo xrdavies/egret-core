@@ -280,6 +280,7 @@ var egret;
          * @param italic 是否斜体
          */
         function measureText(text, fontFamily, fontSize, bold, italic) {
+            return 0; //Refactor
             var font;
             var arr;
             if (fontFamily.indexOf(", ") != -1) {
@@ -2626,7 +2627,7 @@ var egret;
                     promise.onResponseHeaderThisObject = this;
                     egret_native.requireHttp(self._url, self.urlData, promise);
                 }
-                else if (!egret_native.isFileExists(self._url)) {
+                else if (!native2.FileManager.isFileExistSync(self._url)) {
                     download();
                 }
                 else {
@@ -2642,10 +2643,10 @@ var egret;
                         egret.Event.dispatchEvent(self, egret.IOErrorEvent.IO_ERROR);
                     };
                     if (self._responseType == egret.HttpResponseType.ARRAY_BUFFER) {
-                        egret_native.readFileAsync(self._url, promise, "ArrayBuffer");
+                        native2.FileManager.readFileAsync(self._url, promise, "ArrayBuffer");
                     }
                     else {
-                        egret_native.readFileAsync(self._url, promise);
+                        native2.FileManager.readFileAsync(self._url, promise, "String");
                     }
                 }
                 function download() {
@@ -2820,7 +2821,7 @@ var egret;
                     self.dispatchEventWith(egret.IOErrorEvent.IO_ERROR);
                 };
                 // egret_native.Texture.addTextureAsyn(url, promise);
-                egret_native.createRawImage(url, promise);
+                egret_native.createRawImage(native2.FileManager.makeFullPath(url), promise);
             };
             /**
              * 是否是网络地址
@@ -8936,13 +8937,13 @@ var egret;
                     'uniform float inner;',
                     'uniform float knockout;',
                     'uniform float hideObject;',
-                    "uniform vec2 uTextureSize;" +
-                        'vec2 px = vec2(1.0 / uTextureSize.x, 1.0 / uTextureSize.y);',
+                    "uniform vec2 uTextureSize;",
                     'float random(vec3 scale, float seed)',
                     '{',
                     'return fract(sin(dot(gl_FragCoord.xyz + seed, scale)) * 43758.5453 + seed);',
                     '}',
                     'void main(void) {',
+                    'vec2 px = vec2(1.0 / uTextureSize.x, 1.0 / uTextureSize.y);',
                     // TODO 自动调节采样次数？
                     'const float linearSamplingTimes = 7.0;',
                     'const float circleSamplingTimes = 12.0;',

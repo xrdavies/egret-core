@@ -136,7 +136,7 @@ var self = this;
     // extends URL
     window.URL = {
         createObjectURL: function(blob) {
-            return blob;
+            return egret.native2.FileManager.makeFullPath(blob);
         },
         revokeObjectURL: function(blob) {}
     };
@@ -639,9 +639,10 @@ var self = this;
                 }
             };
             if (this.responseType === "arraybuffer") {
-                egret_native.readFileAsync(localurl, promise, "ArrayBuffer");
+                egret.native2.FileManager.readFileAsync(localurl, promise, "ArrayBuffer");
+                //egret_native.readFileAsync(localurl, promise, "ArrayBuffer");
             } else {
-                egret_native.readFileAsync(localurl, promise);
+                egret.native2.FileManager.readFileAsync(localurl, promise, "String");
             }
         }
     }

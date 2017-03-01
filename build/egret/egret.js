@@ -12349,6 +12349,58 @@ var egret;
         egret.getOption = getOption;
     })(native2 = egret.native2 || (egret.native2 = {}));
 })(egret || (egret = {}));
+var egret;
+(function (egret) {
+    var native2;
+    (function (native2) {
+        var FileManager = (function () {
+            function FileManager() {
+            }
+            FileManager.makeFullPath = function (url) {
+                console.log("makeFullPath = " + url);
+                var fullPath = "";
+                if (!egret_native.fs.isAbsolutePathSync(url)) {
+                    console.log("========" + egret.Capabilities.os);
+                    if (egret.Capabilities.os == "Android") {
+                        fullPath = "egret-game/1/" + url;
+                    }
+                    else {
+                        var workPath = egret_native.fs.getAssetDirectorySync();
+                        //console.log("url = " + url);
+                        //console.log("workPath = " + workPath);
+                        if (workPath.lastIndexOf("/") !== workPath.length) {
+                            workPath += "/";
+                        }
+                        fullPath = workPath + "egret-game/1/" + url;
+                    }
+                }
+                else {
+                    fullPath = url;
+                }
+                console.log("fullPath = " + fullPath);
+                return fullPath;
+            };
+            FileManager.createImage = function (url, promise) {
+                var fullPath = FileManager.makeFullPath(url);
+                console.log("YH __createImage = " + fullPath);
+                egret_native.createRawImage(fullPath, promise);
+            };
+            FileManager.readFileAsync = function (url, promise, type) {
+                var fullPath = FileManager.makeFullPath(url);
+                console.log("YH __readFileAsync = " + fullPath + " type = " + type);
+                egret_native.fs.readFile(fullPath, promise, type);
+            };
+            FileManager.isFileExistSync = function (url) {
+                var fullPath = FileManager.makeFullPath(url);
+                console.log("YH __isFileExistSync = " + fullPath);
+                return egret_native.fs.isFileExistSync(fullPath);
+            };
+            return FileManager;
+        }());
+        native2.FileManager = FileManager;
+        __reflect(FileManager.prototype, "egret.native2.FileManager");
+    })(native2 = egret.native2 || (egret.native2 = {}));
+})(egret || (egret = {}));
 //////////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (c) 2014-present, Egret Technology.
@@ -13206,374 +13258,29 @@ var egret;
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-/// <reference path="../display/Sprite.ts" />
 var egret;
 (function (egret) {
-    var sys;
-    (function (sys) {
+    /**
+     * OrientationMode 类为舞台初始旋转模式提供值。
+     */
+    egret.OrientationMode = {
         /**
-         * @private
-         * Egret播放器
+         * 适配屏幕
          */
-        var Player = (function (_super) {
-            __extends(Player, _super);
-            /**
-             * @private
-             * 实例化一个播放器对象。
-             */
-            function Player(buffer, stage, entryClassName) {
-                var _this = _super.call(this) || this;
-                /**
-                 * @private
-                 */
-                _this.isPlaying = false;
-                if (true && !buffer) {
-                    egret.$error(1003, "buffer");
-                }
-                _this.entryClassName = entryClassName;
-                _this.stage = stage;
-                _this.screenDisplayList = _this.createDisplayList(stage, buffer);
-                _this.showFPS = false;
-                _this.showLog = false;
-                _this._showPaintRect = false;
-                _this.stageDisplayList = null;
-                _this.paintList = [];
-                _this.displayFPS = displayFPS;
-                _this.showPaintRect = showPaintRect;
-                _this.drawPaintRect = drawPaintRect;
-                _this.drawDirtyRect = drawDirtyRect;
-                return _this;
-            }
-            /**
-             * @private
-             */
-            Player.prototype.createDisplayList = function (stage, buffer) {
-                var displayList = new sys.DisplayList(stage);
-                displayList.renderBuffer = buffer;
-                stage.$displayList = displayList;
-                //displayList.setClipRect(stage.$stageWidth, stage.$stageHeight);
-                return displayList;
-            };
-            /**
-             * @private
-             * 启动播放器
-             */
-            Player.prototype.start = function () {
-                if (this.isPlaying || !this.stage) {
-                    return;
-                }
-                sys.$TempStage = sys.$TempStage || this.stage;
-                this.isPlaying = true;
-                if (!this.root) {
-                    this.initialize();
-                }
-                sys.$ticker.$addPlayer(this);
-            };
-            /**
-             * @private
-             *
-             */
-            Player.prototype.initialize = function () {
-                var rootClass;
-                if (this.entryClassName) {
-                    rootClass = egret.getDefinitionByName(this.entryClassName);
-                }
-                if (rootClass) {
-                    var rootContainer = new rootClass();
-                    this.root = rootContainer;
-                    if (rootContainer instanceof egret.DisplayObject) {
-                        this.stage.addChild(rootContainer);
-                    }
-                    else {
-                        true && egret.$error(1002, this.entryClassName);
-                    }
-                }
-                else {
-                    true && egret.$error(1001, this.entryClassName);
-                }
-            };
-            /**
-             * @private
-             * 停止播放器，停止后将不能重新启动。
-             */
-            Player.prototype.stop = function () {
-                this.pause();
-                this.stage = null;
-            };
-            /**
-             * @private
-             * 暂停播放器，后续可以通过调用start()重新启动播放器。
-             */
-            Player.prototype.pause = function () {
-                if (!this.isPlaying) {
-                    return;
-                }
-                this.isPlaying = false;
-                sys.$ticker.$removePlayer(this);
-            };
-            /**
-             * @private
-             * 渲染屏幕
-             */
-            Player.prototype.$render = function (triggerByFrame, costTicker) {
-                if (this.showFPS || this.showLog) {
-                    this.stage.addChild(this.fps);
-                }
-                var stage = this.stage;
-                var t = egret.getTimer();
-                var dirtyList = stage.$displayList.updateDirtyRegions();
-                var t1 = egret.getTimer();
-                dirtyList = dirtyList.concat();
-                var drawCalls = stage.$displayList.drawToSurface();
-                if (this._showPaintRect) {
-                    this.drawPaintRect(dirtyList);
-                }
-                var t2 = egret.getTimer();
-                if (triggerByFrame && this.showFPS) {
-                    var dirtyRatio = 0;
-                    if (drawCalls > 0) {
-                        var length_4 = dirtyList.length;
-                        var dirtyArea = 0;
-                        for (var i = 0; i < length_4; i++) {
-                            dirtyArea += dirtyList[i].area;
-                        }
-                        dirtyRatio = Math.ceil(dirtyArea * 1000 / (stage.stageWidth * stage.stageHeight)) / 10;
-                    }
-                    this.fps.update(drawCalls, dirtyRatio, t1 - t, t2 - t1, costTicker);
-                }
-            };
-            /**
-             * @private
-             * 更新舞台尺寸
-             * @param stageWidth 舞台宽度（以像素为单位）
-             * @param stageHeight 舞台高度（以像素为单位）
-             */
-            Player.prototype.updateStageSize = function (stageWidth, stageHeight) {
-                var stage = this.stage;
-                //if (stageWidth !== stage.$stageWidth || stageHeight !== stage.$stageHeight) {
-                stage.$stageWidth = stageWidth;
-                stage.$stageHeight = stageHeight;
-                this.screenDisplayList.setClipRect(stageWidth, stageHeight);
-                if (this.stageDisplayList) {
-                    this.stageDisplayList.setClipRect(stageWidth, stageHeight);
-                }
-                stage.dispatchEventWith(egret.Event.RESIZE);
-                stage.$invalidate(true);
-                //}
-            };
-            return Player;
-        }(egret.HashObject));
-        sys.Player = Player;
-        __reflect(Player.prototype, "egret.sys.Player");
-        var infoLines = [];
-        var fpsDisplay;
-        var fpsStyle;
-        sys.$logToFPS = function (info) {
-            if (!fpsDisplay) {
-                infoLines.push(info);
-                return;
-            }
-            fpsDisplay.updateInfo(info);
-        };
-        function displayFPS(showFPS, showLog, logFilter, styles) {
-            if (showLog) {
-                egret.log = function () {
-                    var length = arguments.length;
-                    var info = "";
-                    for (var i = 0; i < length; i++) {
-                        info += arguments[i] + " ";
-                    }
-                    sys.$logToFPS(info);
-                    console.log.apply(console, toArray(arguments));
-                };
-            }
-            fpsStyle = styles ? {} : styles;
-            showLog = !!showLog;
-            this.showFPS = !!showFPS;
-            this.showLog = showLog;
-            if (!this.fps) {
-                var x = styles["x"] === undefined ? 0 : styles["x"];
-                var y = styles["y"] === undefined ? 0 : styles["y"];
-                fpsDisplay = this.fps = new FPS(this.stage, showFPS, showLog, logFilter, styles);
-                fpsDisplay.x = x;
-                fpsDisplay.y = y;
-                var length_5 = infoLines.length;
-                for (var i = 0; i < length_5; i++) {
-                    fpsDisplay.updateInfo(infoLines[i]);
-                }
-                infoLines = null;
-            }
-        }
-        function showPaintRect(value) {
-            value = !!value;
-            if (this._showPaintRect == value) {
-                return;
-            }
-            this._showPaintRect = value;
-            if (value) {
-                if (!this.stageDisplayList) {
-                    this.stageDisplayList = sys.DisplayList.create(this.stage);
-                }
-                this.stage.$displayList = this.stageDisplayList;
-            }
-            else {
-                this.stage.$displayList = this.screenDisplayList;
-            }
-        }
-        function drawPaintRect(dirtyList) {
-            var length = dirtyList.length;
-            var list = [];
-            for (var i = 0; i < length; i++) {
-                var region = dirtyList[i];
-                list[i] = [region.minX, region.minY, region.width, region.height];
-                region.width -= 1;
-                region.height -= 1;
-            }
-            var repaintList = this.paintList;
-            repaintList.push(list);
-            if (repaintList.length > 1) {
-                repaintList.shift();
-            }
-            var renderBuffer = this.screenDisplayList.renderBuffer;
-            var context = renderBuffer.context;
-            context.setTransform(1, 0, 0, 1, 0, 0);
-            context.clearRect(0, 0, renderBuffer.surface.width, renderBuffer.surface.height);
-            context.drawImage(this.stageDisplayList.renderBuffer.surface, 0, 0);
-            length = repaintList.length;
-            for (var i = 0; i < length; i++) {
-                list = repaintList[i];
-                for (var j = list.length - 1; j >= 0; j--) {
-                    var r = list[j];
-                    this.drawDirtyRect(r[0], r[1], r[2], r[3], context);
-                }
-            }
-            context.save();
-            context.beginPath();
-            length = dirtyList.length;
-            for (var i = 0; i < length; i++) {
-                var region = dirtyList[i];
-                context.clearRect(region.minX, region.minY, region.width, region.height);
-                context.rect(region.minX, region.minY, region.width, region.height);
-            }
-            context.clip();
-            context.drawImage(this.stageDisplayList.renderBuffer.surface, 0, 0);
-            context.restore();
-        }
+        AUTO: "auto",
         /**
-         * 绘制一个脏矩形显示区域，在显示重绘区功能开启时调用。
+         * 默认竖屏
          */
-        function drawDirtyRect(x, y, width, height, context) {
-            context.strokeStyle = 'rgb(255,0,0)';
-            context.lineWidth = 5;
-            context.strokeRect(x - 0.5, y - 0.5, width, height);
-        }
+        PORTRAIT: "portrait",
         /**
-         * FPS显示对象
+         * 默认横屏，舞台顺时针旋转90度
          */
-        FPS = (function (_super) {
-            __extends(FPSImpl, _super);
-            function FPSImpl(stage, showFPS, showLog, logFilter, styles) {
-                _super.call(this);
-                this["isFPS"] = true;
-                this.infoLines = [];
-                this.totalTime = 0;
-                this.totalTick = 0;
-                this.lastTime = 0;
-                this.drawCalls = 0;
-                this.dirtyRatio = 0;
-                this.costDirty = 0;
-                this.costRender = 0;
-                this.costTicker = 0;
-                this._stage = stage;
-                this.showFPS = showFPS;
-                this.showLog = showLog;
-                this.logFilter = logFilter;
-                this.touchChildren = false;
-                this.touchEnabled = false;
-                this.styles = styles;
-                this.fpsDisplay = new egret.FPSDisplay(stage, showFPS, showLog, logFilter, styles);
-                this.addChild(this.fpsDisplay);
-                var logFilterRegExp;
-                try {
-                    logFilterRegExp = logFilter ? new RegExp(logFilter) : null;
-                }
-                catch (e) {
-                    egret.log(e);
-                }
-                this.filter = function (message) {
-                    if (logFilterRegExp)
-                        return logFilterRegExp.test(message);
-                    return !logFilter || message.indexOf(logFilter) == 0;
-                };
-            }
-            FPSImpl.prototype.update = function (drawCalls, dirtyRatio, costDirty, costRender, costTicker) {
-                var current = egret.getTimer();
-                this.totalTime += current - this.lastTime;
-                this.lastTime = current;
-                this.totalTick++;
-                this.drawCalls += drawCalls;
-                this.dirtyRatio += dirtyRatio;
-                this.costDirty += costDirty;
-                this.costRender += costRender;
-                this.costTicker += costTicker;
-                if (this.totalTime >= 1000) {
-                    var lastFPS = Math.min(Math.ceil(this.totalTick * 1000 / this.totalTime), sys.$ticker.$frameRate);
-                    var lastDrawCalls = Math.round(this.drawCalls / this.totalTick);
-                    var lastDirtyRatio = Math.round(this.dirtyRatio / this.totalTick);
-                    var lastCostDirty = Math.round(this.costDirty / this.totalTick);
-                    var lastCostRender = Math.round(this.costRender / this.totalTick);
-                    var lastCostTicker = Math.round(this.costTicker / this.totalTick);
-                    this.fpsDisplay.update({
-                        fps: lastFPS,
-                        draw: lastDrawCalls,
-                        dirty: lastDirtyRatio,
-                        costTicker: lastCostTicker,
-                        costDirty: lastCostDirty,
-                        costRender: lastCostRender
-                    });
-                    this.totalTick = 0;
-                    this.totalTime = this.totalTime % 1000;
-                    this.drawCalls = 0;
-                    this.dirtyRatio = 0;
-                    this.costDirty = 0;
-                    this.costRender = 0;
-                    this.costTicker = 0;
-                }
-            };
-            FPSImpl.prototype.updateInfo = function (info) {
-                if (!info) {
-                    return;
-                }
-                if (!this.showLog) {
-                    return;
-                }
-                if (!this.filter(info)) {
-                    return;
-                }
-                this.fpsDisplay.updateInfo(info);
-            };
-            return FPSImpl;
-        })(egret.Sprite);
-        function toArray(argument) {
-            var args = [];
-            for (var i = 0; i < argument.length; i++) {
-                args.push(argument[i]);
-            }
-            return args;
-        }
-        egret.warn = function () {
-            console.warn.apply(console, toArray(arguments));
-        };
-        egret.error = function () {
-            console.error.apply(console, toArray(arguments));
-        };
-        egret.assert = function () {
-            console.assert.apply(console, toArray(arguments));
-        };
-        egret.log = function () {
-            console.log.apply(console, toArray(arguments));
-        };
-    })(sys = egret.sys || (egret.sys = {}));
+        LANDSCAPE: "landscape",
+        /**
+         * 默认横屏，舞台逆时针旋转90度
+         */
+        LANDSCAPE_FLIPPED: "landscapeFlipped"
+    };
 })(egret || (egret = {}));
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -13603,30 +13310,6 @@ var egret;
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-var egret;
-(function (egret) {
-    /**
-     * OrientationMode 类为舞台初始旋转模式提供值。
-     */
-    egret.OrientationMode = {
-        /**
-         * 适配屏幕
-         */
-        AUTO: "auto",
-        /**
-         * 默认竖屏
-         */
-        PORTRAIT: "portrait",
-        /**
-         * 默认横屏，舞台顺时针旋转90度
-         */
-        LANDSCAPE: "landscape",
-        /**
-         * 默认横屏，舞台逆时针旋转90度
-         */
-        LANDSCAPE_FLIPPED: "landscapeFlipped"
-    };
-})(egret || (egret = {}));
 //////////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (c) 2014-present, Egret Technology.
@@ -14588,8 +14271,8 @@ var egret;
                     egret.$callLaterArgsList = [];
                 }
                 if (functionList) {
-                    var length_6 = functionList.length;
-                    for (var i = 0; i < length_6; i++) {
+                    var length_4 = functionList.length;
+                    for (var i = 0; i < length_4; i++) {
                         var func = functionList[i];
                         if (func != null) {
                             func.apply(thisList[i], argsList[i]);
@@ -15974,8 +15657,8 @@ var egret;
                 if (renderBufferPool.length > 6) {
                     renderBufferPool.length = 6;
                 }
-                var length_7 = renderBufferPool.length;
-                for (var i = 0; i < length_7; i++) {
+                var length_5 = renderBufferPool.length;
+                for (var i = 0; i < length_5; i++) {
                     renderBufferPool[i].resize(0, 0);
                 }
                 if (renderBufferPool_Filters.length > 1) {
@@ -16046,8 +15729,8 @@ var egret;
             }
             var children = displayObject.$children;
             if (children) {
-                var length_8 = children.length;
-                for (var i = 0; i < length_8; i++) {
+                var length_6 = children.length;
+                for (var i = 0; i < length_6; i++) {
                     var child = children[i];
                     if (!child.$visible || child.$alpha <= 0 || child.$maskedObject) {
                         continue;
@@ -17967,7 +17650,7 @@ var egret;
          */
         BitmapFont.prototype.getConfigByKey = function (configText, key) {
             var itemConfigTextList = configText.split(" ");
-            for (var i = 0, length_9 = itemConfigTextList.length; i < length_9; i++) {
+            for (var i = 0, length_7 = itemConfigTextList.length; i < length_7; i++) {
                 var itemConfigText = itemConfigTextList[i];
                 if (key == itemConfigText.substring(0, key.length)) {
                     var value = itemConfigText.substring(key.length + 1);
@@ -20634,8 +20317,8 @@ var egret;
                 if (lines && lines.length > 0) {
                     var textColor = values[2 /* textColor */];
                     var lastColor = -1;
-                    var length_10 = lines.length;
-                    for (var i = 0; i < length_10; i += 4) {
+                    var length_8 = lines.length;
+                    for (var i = 0; i < length_8; i += 4) {
                         var x = lines[i];
                         var y = lines[i + 1];
                         var w = lines[i + 2];
@@ -22586,14 +22269,14 @@ var egret;
             if (writeLength > 0) {
                 this.validateBuffer(writeLength);
                 var tmp_data = new DataView(bytes.buffer);
-                var length_11 = writeLength;
+                var length_9 = writeLength;
                 var BYTES_OF_UINT32 = 4;
-                for (; length_11 > BYTES_OF_UINT32; length_11 -= BYTES_OF_UINT32) {
+                for (; length_9 > BYTES_OF_UINT32; length_9 -= BYTES_OF_UINT32) {
                     this.data.setUint32(this._position, tmp_data.getUint32(offset));
                     this.position += BYTES_OF_UINT32;
                     offset += BYTES_OF_UINT32;
                 }
-                for (; length_11 > 0; length_11--) {
+                for (; length_9 > 0; length_9--) {
                     this.data.setUint8(this.position++, tmp_data.getUint8(offset++));
                 }
             }
@@ -22805,8 +22488,8 @@ var egret;
             len += this._position;
             if (this.data.byteLength < len || needReplace) {
                 var tmp = new Uint8Array(new ArrayBuffer(len + this.BUFFER_EXT_SIZE));
-                var length_12 = Math.min(this.data.buffer.byteLength, len + this.BUFFER_EXT_SIZE);
-                tmp.set(new Uint8Array(this.data.buffer, 0, length_12));
+                var length_10 = Math.min(this.data.buffer.byteLength, len + this.BUFFER_EXT_SIZE);
+                tmp.set(new Uint8Array(this.data.buffer, 0, length_10));
                 this.buffer = tmp.buffer;
             }
         };
@@ -23331,8 +23014,8 @@ var egret;
         }
         var superTypes = prototype.__types__;
         if (prototype.__types__) {
-            var length_13 = superTypes.length;
-            for (var i = 0; i < length_13; i++) {
+            var length_11 = superTypes.length;
+            for (var i = 0; i < length_11; i++) {
                 var name_1 = superTypes[i];
                 if (types.indexOf(name_1) == -1) {
                     types.push(name_1);
@@ -25294,3 +24977,372 @@ var egret;
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
+/// <reference path="../display/Sprite.ts" />
+var egret;
+(function (egret) {
+    var sys;
+    (function (sys) {
+        /**
+         * @private
+         * Egret播放器
+         */
+        var Player = (function (_super) {
+            __extends(Player, _super);
+            /**
+             * @private
+             * 实例化一个播放器对象。
+             */
+            function Player(buffer, stage, entryClassName) {
+                var _this = _super.call(this) || this;
+                /**
+                 * @private
+                 */
+                _this.isPlaying = false;
+                if (true && !buffer) {
+                    egret.$error(1003, "buffer");
+                }
+                _this.entryClassName = entryClassName;
+                _this.stage = stage;
+                _this.screenDisplayList = _this.createDisplayList(stage, buffer);
+                _this.showFPS = false;
+                _this.showLog = false;
+                _this._showPaintRect = false;
+                _this.stageDisplayList = null;
+                _this.paintList = [];
+                _this.displayFPS = displayFPS;
+                _this.showPaintRect = showPaintRect;
+                _this.drawPaintRect = drawPaintRect;
+                _this.drawDirtyRect = drawDirtyRect;
+                return _this;
+            }
+            /**
+             * @private
+             */
+            Player.prototype.createDisplayList = function (stage, buffer) {
+                var displayList = new sys.DisplayList(stage);
+                displayList.renderBuffer = buffer;
+                stage.$displayList = displayList;
+                //displayList.setClipRect(stage.$stageWidth, stage.$stageHeight);
+                return displayList;
+            };
+            /**
+             * @private
+             * 启动播放器
+             */
+            Player.prototype.start = function () {
+                if (this.isPlaying || !this.stage) {
+                    return;
+                }
+                sys.$TempStage = sys.$TempStage || this.stage;
+                this.isPlaying = true;
+                if (!this.root) {
+                    this.initialize();
+                }
+                sys.$ticker.$addPlayer(this);
+            };
+            /**
+             * @private
+             *
+             */
+            Player.prototype.initialize = function () {
+                var rootClass;
+                if (this.entryClassName) {
+                    rootClass = egret.getDefinitionByName(this.entryClassName);
+                }
+                if (rootClass) {
+                    var rootContainer = new rootClass();
+                    this.root = rootContainer;
+                    if (rootContainer instanceof egret.DisplayObject) {
+                        this.stage.addChild(rootContainer);
+                    }
+                    else {
+                        true && egret.$error(1002, this.entryClassName);
+                    }
+                }
+                else {
+                    true && egret.$error(1001, this.entryClassName);
+                }
+            };
+            /**
+             * @private
+             * 停止播放器，停止后将不能重新启动。
+             */
+            Player.prototype.stop = function () {
+                this.pause();
+                this.stage = null;
+            };
+            /**
+             * @private
+             * 暂停播放器，后续可以通过调用start()重新启动播放器。
+             */
+            Player.prototype.pause = function () {
+                if (!this.isPlaying) {
+                    return;
+                }
+                this.isPlaying = false;
+                sys.$ticker.$removePlayer(this);
+            };
+            /**
+             * @private
+             * 渲染屏幕
+             */
+            Player.prototype.$render = function (triggerByFrame, costTicker) {
+                if (this.showFPS || this.showLog) {
+                    this.stage.addChild(this.fps);
+                }
+                var stage = this.stage;
+                var t = egret.getTimer();
+                var dirtyList = stage.$displayList.updateDirtyRegions();
+                var t1 = egret.getTimer();
+                dirtyList = dirtyList.concat();
+                var drawCalls = stage.$displayList.drawToSurface();
+                if (this._showPaintRect) {
+                    this.drawPaintRect(dirtyList);
+                }
+                var t2 = egret.getTimer();
+                if (triggerByFrame && this.showFPS) {
+                    var dirtyRatio = 0;
+                    if (drawCalls > 0) {
+                        var length_12 = dirtyList.length;
+                        var dirtyArea = 0;
+                        for (var i = 0; i < length_12; i++) {
+                            dirtyArea += dirtyList[i].area;
+                        }
+                        dirtyRatio = Math.ceil(dirtyArea * 1000 / (stage.stageWidth * stage.stageHeight)) / 10;
+                    }
+                    this.fps.update(drawCalls, dirtyRatio, t1 - t, t2 - t1, costTicker);
+                }
+            };
+            /**
+             * @private
+             * 更新舞台尺寸
+             * @param stageWidth 舞台宽度（以像素为单位）
+             * @param stageHeight 舞台高度（以像素为单位）
+             */
+            Player.prototype.updateStageSize = function (stageWidth, stageHeight) {
+                var stage = this.stage;
+                //if (stageWidth !== stage.$stageWidth || stageHeight !== stage.$stageHeight) {
+                stage.$stageWidth = stageWidth;
+                stage.$stageHeight = stageHeight;
+                this.screenDisplayList.setClipRect(stageWidth, stageHeight);
+                if (this.stageDisplayList) {
+                    this.stageDisplayList.setClipRect(stageWidth, stageHeight);
+                }
+                stage.dispatchEventWith(egret.Event.RESIZE);
+                stage.$invalidate(true);
+                //}
+            };
+            return Player;
+        }(egret.HashObject));
+        sys.Player = Player;
+        __reflect(Player.prototype, "egret.sys.Player");
+        var infoLines = [];
+        var fpsDisplay;
+        var fpsStyle;
+        sys.$logToFPS = function (info) {
+            if (!fpsDisplay) {
+                infoLines.push(info);
+                return;
+            }
+            fpsDisplay.updateInfo(info);
+        };
+        function displayFPS(showFPS, showLog, logFilter, styles) {
+            if (showLog) {
+                egret.log = function () {
+                    var length = arguments.length;
+                    var info = "";
+                    for (var i = 0; i < length; i++) {
+                        info += arguments[i] + " ";
+                    }
+                    sys.$logToFPS(info);
+                    console.log.apply(console, toArray(arguments));
+                };
+            }
+            fpsStyle = styles ? {} : styles;
+            showLog = !!showLog;
+            this.showFPS = !!showFPS;
+            this.showLog = showLog;
+            if (!this.fps) {
+                var x = styles["x"] === undefined ? 0 : styles["x"];
+                var y = styles["y"] === undefined ? 0 : styles["y"];
+                fpsDisplay = this.fps = new FPS(this.stage, showFPS, showLog, logFilter, styles);
+                fpsDisplay.x = x;
+                fpsDisplay.y = y;
+                var length_13 = infoLines.length;
+                for (var i = 0; i < length_13; i++) {
+                    fpsDisplay.updateInfo(infoLines[i]);
+                }
+                infoLines = null;
+            }
+        }
+        function showPaintRect(value) {
+            value = !!value;
+            if (this._showPaintRect == value) {
+                return;
+            }
+            this._showPaintRect = value;
+            if (value) {
+                if (!this.stageDisplayList) {
+                    this.stageDisplayList = sys.DisplayList.create(this.stage);
+                }
+                this.stage.$displayList = this.stageDisplayList;
+            }
+            else {
+                this.stage.$displayList = this.screenDisplayList;
+            }
+        }
+        function drawPaintRect(dirtyList) {
+            var length = dirtyList.length;
+            var list = [];
+            for (var i = 0; i < length; i++) {
+                var region = dirtyList[i];
+                list[i] = [region.minX, region.minY, region.width, region.height];
+                region.width -= 1;
+                region.height -= 1;
+            }
+            var repaintList = this.paintList;
+            repaintList.push(list);
+            if (repaintList.length > 1) {
+                repaintList.shift();
+            }
+            var renderBuffer = this.screenDisplayList.renderBuffer;
+            var context = renderBuffer.context;
+            context.setTransform(1, 0, 0, 1, 0, 0);
+            context.clearRect(0, 0, renderBuffer.surface.width, renderBuffer.surface.height);
+            context.drawImage(this.stageDisplayList.renderBuffer.surface, 0, 0);
+            length = repaintList.length;
+            for (var i = 0; i < length; i++) {
+                list = repaintList[i];
+                for (var j = list.length - 1; j >= 0; j--) {
+                    var r = list[j];
+                    this.drawDirtyRect(r[0], r[1], r[2], r[3], context);
+                }
+            }
+            context.save();
+            context.beginPath();
+            length = dirtyList.length;
+            for (var i = 0; i < length; i++) {
+                var region = dirtyList[i];
+                context.clearRect(region.minX, region.minY, region.width, region.height);
+                context.rect(region.minX, region.minY, region.width, region.height);
+            }
+            context.clip();
+            context.drawImage(this.stageDisplayList.renderBuffer.surface, 0, 0);
+            context.restore();
+        }
+        /**
+         * 绘制一个脏矩形显示区域，在显示重绘区功能开启时调用。
+         */
+        function drawDirtyRect(x, y, width, height, context) {
+            context.strokeStyle = 'rgb(255,0,0)';
+            context.lineWidth = 5;
+            context.strokeRect(x - 0.5, y - 0.5, width, height);
+        }
+        /**
+         * FPS显示对象
+         */
+        FPS = (function (_super) {
+            __extends(FPSImpl, _super);
+            function FPSImpl(stage, showFPS, showLog, logFilter, styles) {
+                _super.call(this);
+                this["isFPS"] = true;
+                this.infoLines = [];
+                this.totalTime = 0;
+                this.totalTick = 0;
+                this.lastTime = 0;
+                this.drawCalls = 0;
+                this.dirtyRatio = 0;
+                this.costDirty = 0;
+                this.costRender = 0;
+                this.costTicker = 0;
+                this._stage = stage;
+                this.showFPS = showFPS;
+                this.showLog = showLog;
+                this.logFilter = logFilter;
+                this.touchChildren = false;
+                this.touchEnabled = false;
+                this.styles = styles;
+                this.fpsDisplay = new egret.FPSDisplay(stage, showFPS, showLog, logFilter, styles);
+                this.addChild(this.fpsDisplay);
+                var logFilterRegExp;
+                try {
+                    logFilterRegExp = logFilter ? new RegExp(logFilter) : null;
+                }
+                catch (e) {
+                    egret.log(e);
+                }
+                this.filter = function (message) {
+                    if (logFilterRegExp)
+                        return logFilterRegExp.test(message);
+                    return !logFilter || message.indexOf(logFilter) == 0;
+                };
+            }
+            FPSImpl.prototype.update = function (drawCalls, dirtyRatio, costDirty, costRender, costTicker) {
+                var current = egret.getTimer();
+                this.totalTime += current - this.lastTime;
+                this.lastTime = current;
+                this.totalTick++;
+                this.drawCalls += drawCalls;
+                this.dirtyRatio += dirtyRatio;
+                this.costDirty += costDirty;
+                this.costRender += costRender;
+                this.costTicker += costTicker;
+                if (this.totalTime >= 1000) {
+                    var lastFPS = Math.min(Math.ceil(this.totalTick * 1000 / this.totalTime), sys.$ticker.$frameRate);
+                    var lastDrawCalls = Math.round(this.drawCalls / this.totalTick);
+                    var lastDirtyRatio = Math.round(this.dirtyRatio / this.totalTick);
+                    var lastCostDirty = Math.round(this.costDirty / this.totalTick);
+                    var lastCostRender = Math.round(this.costRender / this.totalTick);
+                    var lastCostTicker = Math.round(this.costTicker / this.totalTick);
+                    this.fpsDisplay.update({
+                        fps: lastFPS,
+                        draw: lastDrawCalls,
+                        dirty: lastDirtyRatio,
+                        costTicker: lastCostTicker,
+                        costDirty: lastCostDirty,
+                        costRender: lastCostRender
+                    });
+                    this.totalTick = 0;
+                    this.totalTime = this.totalTime % 1000;
+                    this.drawCalls = 0;
+                    this.dirtyRatio = 0;
+                    this.costDirty = 0;
+                    this.costRender = 0;
+                    this.costTicker = 0;
+                }
+            };
+            FPSImpl.prototype.updateInfo = function (info) {
+                if (!info) {
+                    return;
+                }
+                if (!this.showLog) {
+                    return;
+                }
+                if (!this.filter(info)) {
+                    return;
+                }
+                this.fpsDisplay.updateInfo(info);
+            };
+            return FPSImpl;
+        })(egret.Sprite);
+        function toArray(argument) {
+            var args = [];
+            for (var i = 0; i < argument.length; i++) {
+                args.push(argument[i]);
+            }
+            return args;
+        }
+        egret.warn = function () {
+            console.warn.apply(console, toArray(arguments));
+        };
+        egret.error = function () {
+            console.error.apply(console, toArray(arguments));
+        };
+        egret.assert = function () {
+            console.assert.apply(console, toArray(arguments));
+        };
+        egret.log = function () {
+            console.log.apply(console, toArray(arguments));
+        };
+    })(sys = egret.sys || (egret.sys = {}));
+})(egret || (egret = {}));

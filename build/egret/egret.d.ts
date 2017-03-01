@@ -8485,6 +8485,24 @@ declare namespace egret.native2 {
      */
     function getOption(key: string): string;
 }
+declare namespace egret_native {
+    namespace fs {
+        function readFile(path: string, promise: any, type: string): ArrayBuffer | string;
+        function isFileExistSync(path: string): boolean;
+        function isAbsolutePathSync(url: string): boolean;
+        function getAssetDirectorySync(): string;
+    }
+}
+declare namespace egret {
+    namespace native2 {
+        class FileManager {
+            static makeFullPath(url: string): string;
+            static createImage(url: string, promise: any): void;
+            static readFileAsync(url: string, promise: any, type: "String" | "ArrayBuffer"): void;
+            static isFileExistSync(url: string): boolean;
+        }
+    }
+}
 declare namespace egret {
     /**
      * The HttpMethod class provides values that specify whether the HttpRequest object should use the POST method
@@ -9138,125 +9156,6 @@ interface FPSData extends Object {
     costDirty: number;
     costRender: number;
 }
-declare namespace egret.sys {
-    let $TempStage: egret.Stage;
-    /**
-     * @private
-     * Egret播放器
-     */
-    class Player extends HashObject {
-        /**
-         * @private
-         * 实例化一个播放器对象。
-         */
-        constructor(buffer: RenderBuffer, stage: Stage, entryClassName: string);
-        /**
-         * @private
-         */
-        private createDisplayList(stage, buffer);
-        /**
-         * @private
-         */
-        private screenDisplayList;
-        /**
-         * @private
-         * 入口类的完整类名
-         */
-        private entryClassName;
-        /**
-         * @private
-         * 舞台引用
-         */
-        stage: Stage;
-        /**
-         * @private
-         * 入口类实例
-         */
-        private root;
-        /**
-         * @private
-         */
-        private isPlaying;
-        /**
-         * @private
-         * 启动播放器
-         */
-        start(): void;
-        /**
-         * @private
-         *
-         */
-        private initialize();
-        /**
-         * @private
-         * 停止播放器，停止后将不能重新启动。
-         */
-        stop(): void;
-        /**
-         * @private
-         * 暂停播放器，后续可以通过调用start()重新启动播放器。
-         */
-        pause(): void;
-        /**
-         * @private
-         * 渲染屏幕
-         */
-        $render(triggerByFrame: boolean, costTicker: number): void;
-        /**
-         * @private
-         * 更新舞台尺寸
-         * @param stageWidth 舞台宽度（以像素为单位）
-         * @param stageHeight 舞台高度（以像素为单位）
-         */
-        updateStageSize(stageWidth: number, stageHeight: number): void;
-        /**
-         * @private
-         * 显示FPS。
-         */
-        displayFPS: (showFPS: boolean, showLog: boolean, logFilter: string, fpsStyles: Object) => void;
-        /**
-         * @private
-         */
-        private showFPS;
-        /**
-         * @private
-         */
-        private showLog;
-        /**
-         * @private
-         */
-        private fps;
-        /**
-         * @private
-         * 是否显示脏矩形重绘区。
-         */
-        showPaintRect: (value: boolean) => void;
-        /**
-         * @private
-         */
-        private drawDirtyRect;
-        /**
-         * @private
-         */
-        private _showPaintRect;
-        /**
-         * @private
-         */
-        private stageDisplayList;
-        /**
-         * @private
-         */
-        private paintList;
-        /**
-         * @private
-         */
-        private drawPaintRect;
-    }
-    /**
-     * @private
-     */
-    let $logToFPS: (info: string) => void;
-}
 declare namespace egret {
     /**
      * OrientationMode 类为舞台初始旋转模式提供值。
@@ -9267,6 +9166,63 @@ declare namespace egret {
         LANDSCAPE: string;
         LANDSCAPE_FLIPPED: string;
     };
+}
+/**
+ * @private
+ */
+interface PlayerOption {
+    /**
+     * 入口类完整类名
+     */
+    entryClassName?: string;
+    /**
+     * 默认帧率
+     */
+    frameRate?: number;
+    /**
+     * 屏幕适配模式
+     */
+    scaleMode?: string;
+    /**
+     * 初始内容宽度
+     */
+    contentWidth?: number;
+    /**
+     * 初始内容高度
+     */
+    contentHeight?: number;
+    /**
+     * 屏幕方向
+     */
+    orientation?: string;
+    /**
+     * 是否显示重绘区域
+     */
+    showPaintRect?: boolean;
+    /**
+     * 显示FPS
+     */
+    showFPS?: boolean;
+    /**
+     *
+     */
+    fpsStyles?: Object;
+    /**
+     * 显示日志
+     */
+    showLog?: boolean;
+    /**
+     * 过滤日志的正则表达式
+     */
+    logFilter?: string;
+    /**
+     *
+     */
+    maxTouches?: number;
+    /**
+     *
+     */
+    textureScaleFactor?: number;
 }
 declare namespace egret.sys {
     /**
@@ -15356,60 +15312,122 @@ declare namespace egret {
      */
     function toColorString(value: number): string;
 }
-/**
- * @private
- */
-interface PlayerOption {
+declare namespace egret.sys {
+    let $TempStage: egret.Stage;
     /**
-     * 入口类完整类名
+     * @private
+     * Egret播放器
      */
-    entryClassName?: string;
+    class Player extends HashObject {
+        /**
+         * @private
+         * 实例化一个播放器对象。
+         */
+        constructor(buffer: RenderBuffer, stage: Stage, entryClassName: string);
+        /**
+         * @private
+         */
+        private createDisplayList(stage, buffer);
+        /**
+         * @private
+         */
+        private screenDisplayList;
+        /**
+         * @private
+         * 入口类的完整类名
+         */
+        private entryClassName;
+        /**
+         * @private
+         * 舞台引用
+         */
+        stage: Stage;
+        /**
+         * @private
+         * 入口类实例
+         */
+        private root;
+        /**
+         * @private
+         */
+        private isPlaying;
+        /**
+         * @private
+         * 启动播放器
+         */
+        start(): void;
+        /**
+         * @private
+         *
+         */
+        private initialize();
+        /**
+         * @private
+         * 停止播放器，停止后将不能重新启动。
+         */
+        stop(): void;
+        /**
+         * @private
+         * 暂停播放器，后续可以通过调用start()重新启动播放器。
+         */
+        pause(): void;
+        /**
+         * @private
+         * 渲染屏幕
+         */
+        $render(triggerByFrame: boolean, costTicker: number): void;
+        /**
+         * @private
+         * 更新舞台尺寸
+         * @param stageWidth 舞台宽度（以像素为单位）
+         * @param stageHeight 舞台高度（以像素为单位）
+         */
+        updateStageSize(stageWidth: number, stageHeight: number): void;
+        /**
+         * @private
+         * 显示FPS。
+         */
+        displayFPS: (showFPS: boolean, showLog: boolean, logFilter: string, fpsStyles: Object) => void;
+        /**
+         * @private
+         */
+        private showFPS;
+        /**
+         * @private
+         */
+        private showLog;
+        /**
+         * @private
+         */
+        private fps;
+        /**
+         * @private
+         * 是否显示脏矩形重绘区。
+         */
+        showPaintRect: (value: boolean) => void;
+        /**
+         * @private
+         */
+        private drawDirtyRect;
+        /**
+         * @private
+         */
+        private _showPaintRect;
+        /**
+         * @private
+         */
+        private stageDisplayList;
+        /**
+         * @private
+         */
+        private paintList;
+        /**
+         * @private
+         */
+        private drawPaintRect;
+    }
     /**
-     * 默认帧率
+     * @private
      */
-    frameRate?: number;
-    /**
-     * 屏幕适配模式
-     */
-    scaleMode?: string;
-    /**
-     * 初始内容宽度
-     */
-    contentWidth?: number;
-    /**
-     * 初始内容高度
-     */
-    contentHeight?: number;
-    /**
-     * 屏幕方向
-     */
-    orientation?: string;
-    /**
-     * 是否显示重绘区域
-     */
-    showPaintRect?: boolean;
-    /**
-     * 显示FPS
-     */
-    showFPS?: boolean;
-    /**
-     *
-     */
-    fpsStyles?: Object;
-    /**
-     * 显示日志
-     */
-    showLog?: boolean;
-    /**
-     * 过滤日志的正则表达式
-     */
-    logFilter?: string;
-    /**
-     *
-     */
-    maxTouches?: number;
-    /**
-     *
-     */
-    textureScaleFactor?: number;
+    let $logToFPS: (info: string) => void;
 }
