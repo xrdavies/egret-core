@@ -8230,6 +8230,7 @@ declare namespace egret_native {
     function pickPhoto(promise: egret.PromiseObject): void;
     function requireHttpSync(url: string, callback: Function): void;
     function requireHttp(url: string, param: any, callback: Function): void;
+    function requestHttp(url: string, type: "GET" | "POST", stringfyHeaders: string, postData: string, forBinary: boolean, promise: egret.PromiseObject): void;
     function sendInfoToPlugin(info: string): void;
     function receivedPluginInfo(info: string): void;
     function loadRecord(filepath: string): string;

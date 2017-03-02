@@ -18,8 +18,8 @@ var self = this;
 // console.log("}")
 
 // fake HTMLElement
-(function(window) {
-    window.HTMLElement = function(tagName) {
+(function (window) {
+    window.HTMLElement = function (tagName) {
         this.tagName = tagName.toUpperCase();
         this.children = [];
         this.style = {};
@@ -29,16 +29,16 @@ var self = this;
         this.clientHeight = window.innerHeight;
     }
 
-    HTMLElement.prototype.appendChild = function(element) {
+    HTMLElement.prototype.appendChild = function (element) {
         this.children.push(element);
     }
 
-    HTMLElement.prototype.insertBefore = function(newElement, existingElement) {
+    HTMLElement.prototype.insertBefore = function (newElement, existingElement) {
         // Just append; we don't care about order here
         this.children.push(newElement);
     }
 
-    HTMLElement.prototype.removeChild = function(node) {
+    HTMLElement.prototype.removeChild = function (node) {
         for (var i = this.children.length; i--;) {
             if (this.children[i] === node) {
                 this.children.splice(i, 1);
@@ -46,7 +46,7 @@ var self = this;
         }
     }
 
-    HTMLElement.prototype.getBoundingClientRect = function() {
+    HTMLElement.prototype.getBoundingClientRect = function () {
         return {
             top: 0,
             left: 0,
@@ -55,21 +55,21 @@ var self = this;
         };
     }
 
-    HTMLElement.prototype.setAttribute = function(attr, value) {
+    HTMLElement.prototype.setAttribute = function (attr, value) {
         this[attr] = value;
     }
 
-    HTMLElement.prototype.getAttribute = function(attr) {
+    HTMLElement.prototype.getAttribute = function (attr) {
         return this[attr];
     }
 
-    HTMLElement.prototype.addEventListener = function(event, method){
+    HTMLElement.prototype.addEventListener = function (event, method) {
         if (event === 'load') {
             this.onload = method;
         }
     };
 
-    HTMLElement.prototype.removeEventListener = function(event, method){
+    HTMLElement.prototype.removeEventListener = function (event, method) {
         if (event === 'load') {
             this.onload = undefined;
         }
@@ -80,7 +80,7 @@ var self = this;
 
 
 
-(function(window) {
+(function (window) {
     window.Event = function (type) {
         this.type = type;
         this.cancelBubble = false;
@@ -88,7 +88,7 @@ var self = this;
         this.target = null;
         // this.timestamp = ej.performanceNow();
         this.timestamp = null;
-        
+
         this.initEvent = function (type, bubbles, cancelable) {
             this.type = type;
             this.cancelBubble = bubbles;
@@ -97,8 +97,8 @@ var self = this;
             this.timestamp = null;
         };
 
-        this.preventDefault = function () {};
-        this.stopPropagation = function () {};
+        this.preventDefault = function () { };
+        this.stopPropagation = function () { };
     };
 
     window.Event.prototype.initCustomEvent = function (type, canBubble, cancelable, detail) {
@@ -108,7 +108,7 @@ var self = this;
 })(this);
 
 // extends window
-(function(window) {
+(function (window) {
     // extends innerHeight & innerWidth
     window.innerHeight = egret_native.getDeviceHeight();
     window.innerWidth = egret_native.getDeviceWidth();
@@ -131,20 +131,20 @@ var self = this;
     window.devicePixelRatio = 1;
 
     // extends DOMParser
-    window.DOMParser = function() {};
+    window.DOMParser = function () { };
 
     // extends URL
     window.URL = {
-        createObjectURL: function(blob) {
+        createObjectURL: function (blob) {
             return egret.native2.FileManager.makeFullPath(blob);
         },
-        revokeObjectURL: function(blob) {}
+        revokeObjectURL: function (blob) { }
     };
 
     window.location = {
-        hostname : "redmine",
-        pathname : "",
-        reload : function() {
+        hostname: "redmine",
+        pathname: "",
+        reload: function () {
         }
     }
 
@@ -176,7 +176,7 @@ var self = this;
         head: new HTMLElement("head"),
         body: new HTMLElement("body"),
 
-        createElement: function(tagName) {
+        createElement: function (tagName) {
             if (tagName == "canvas") {
                 return window.canvas;
             } else if (tagName == "img") {
@@ -186,30 +186,29 @@ var self = this;
             }
         },
 
-        getElementById: function(id) {
+        getElementById: function (id) {
             if (id === "canvas") {
                 return window.canvas;
             }
             return this.body;
         },
 
-        getElementsByTagName: function() {
+        getElementsByTagName: function () {
             return [this.body];
         },
 
-        getElementsByClassName: function() {
+        getElementsByClassName: function () {
             return [this.body];
         },
 
         // for egret
-        querySelectorAll: function() {
+        querySelectorAll: function () {
             return [this.body];
         },
 
-        createEvent: function (type) { 
+        createEvent: function (type) {
             var evt = new window.Event(type);
-            if(type === "CustomEvent")
-            {
+            if (type === "CustomEvent") {
                 evt.initCustomEvent();
             }
             return evt;
@@ -217,7 +216,7 @@ var self = this;
 
         eventMap: {},
 
-        addEventListener: function(type, callback, useCapture) {
+        addEventListener: function (type, callback, useCapture) {
             if (type == 'DOMContentLoaded') {
                 setTimeout(callback, 1);
                 return;
@@ -230,7 +229,7 @@ var self = this;
             this.eventMap[type].push(callback);
         },
 
-        removeEventListener: function(type, callback) {
+        removeEventListener: function (type, callback) {
             var listeners = this.eventMap[type];
             if (!listeners) {
                 return;
@@ -243,8 +242,8 @@ var self = this;
             }
         },
 
-        dispatchEvent: function(event) {
-            if(event.type == 'keyup' && window.onkeypress !== null) {
+        dispatchEvent: function (event) {
+            if (event.type == 'keyup' && window.onkeypress !== null) {
                 window.onkeypress(event);
             }
             var listeners = this.eventMap[event.type];
@@ -259,19 +258,19 @@ var self = this;
     };
 
     window.canvas.parentElement = window.document.body;
-    window.canvas.addEventListener = window.addEventListener = function(type, callback) {
+    window.canvas.addEventListener = window.addEventListener = function (type, callback) {
         window.document.addEventListener(type, callback);
     };
 
-    window.canvas.removeEventListener = window.removeEventListener = function(type, callback) {
+    window.canvas.removeEventListener = window.removeEventListener = function (type, callback) {
         window.document.removeEventListener(type, callback);
     };
 
-    window.dispatchEvent = function(event) {
+    window.dispatchEvent = function (event) {
         window.document.dispatchEvent(event);
     }
 
-    window.canvas.getBoundingClientRect = function() {
+    window.canvas.getBoundingClientRect = function () {
         return {
             top: 0,
             left: 0,
@@ -282,7 +281,7 @@ var self = this;
 })(this);
 
 // extends TouchEvent
-(function(window) {
+(function (window) {
     var touchEvent = {
         type: 'touchstart',
         target: window.canvas,
@@ -291,8 +290,8 @@ var self = this;
         targetTouches: null,
         changedTouches: null,
         timestamp: 0,
-        preventDefault: function() {},
-        stopPropagation: function() {},
+        preventDefault: function () { },
+        stopPropagation: function () { },
 
         pageX: 0,
         pageY: 0
@@ -320,7 +319,7 @@ var self = this;
         keyCode: null
     }
 
-    var dispatchTouchEvent = function(type, num, ids, xs_array, ys_array) {
+    var dispatchTouchEvent = function (type, num, ids, xs_array, ys_array) {
         var all = [];
 
         for (var i = 0; i < num; i++) {
@@ -359,7 +358,7 @@ var self = this;
     };
 
 
-    var dispatchMouseEvent = function(type, num, ids, xs_array, ys_array) {
+    var dispatchMouseEvent = function (type, num, ids, xs_array, ys_array) {
         for (var i = 0; i < num; i++) {
             var id = ids[i];
             var x = xs_array[i];
@@ -375,8 +374,8 @@ var self = this;
         }
     }
 
-	// intptr_t ids[4] = { key, scancode, action, mods };
-    var dispatchKeyEvent = function(type, num, ids, xs_array, ys_array) {
+    // intptr_t ids[4] = { key, scancode, action, mods };
+    var dispatchKeyEvent = function (type, num, ids, xs_array, ys_array) {
         keyEvent.type = type;
         keyEvent.key = ids[0];
         keyEvent.keyCode = ids[1];
@@ -399,16 +398,16 @@ var self = this;
 })(this);
 
 // extends Blob 
-(function() {
+(function () {
     var Blob = function Blob(array, options) {
         this.type = options ? options.type : "image/png";
-        this.data = (array[0] instanceof ArrayBuffer) ? array[0] : new ArrayBuffer(array[0]); 
+        this.data = (array[0] instanceof ArrayBuffer) ? array[0] : new ArrayBuffer(array[0]);
     }
     window.Blob = Blob;
 })(window);
 
 // extends XMLHttpRequest
-(function() {
+(function () {
     function isNetUrl(url) {
         return url.indexOf("http://") != -1 || url.indexOf("HTTP://") != -1;
     }
@@ -424,10 +423,10 @@ var self = this;
         error: 0,
         filename: null,
         lineno: 0,
-        message: null 
-    }     
+        message: null
+    }
 
-    var XMLHttpRequest = function() {
+    var XMLHttpRequest = function () {
         this.responseHeader = "";
         this.response = null;
         this.responseText = "";
@@ -440,21 +439,21 @@ var self = this;
         this._method = "";
         this.headerObj = undefined;
 
-        this.onreadystatechange = function() {};
-        this.updateProgress = function() {};
-        this.onprogress = function(e) {};
-        this.onload = function(e) {};
-        this.onerror = function(e) {};
+        this.onreadystatechange = function () { };
+        this.updateProgress = function () { };
+        this.onprogress = function (e) { };
+        this.onload = function (e) { };
+        this.onerror = function (e) { };
     };
 
-    XMLHttpRequest.prototype.setRequestHeader = function(key, value) {
+    XMLHttpRequest.prototype.setRequestHeader = function (key, value) {
         if (!this.headerObj) {
             this.headerObj = {};
         }
         this.headerObj[key] = value;
     }
 
-    XMLHttpRequest.prototype.open = function(method, url, _async) {
+    XMLHttpRequest.prototype.open = function (method, url, _async) {
         this._url = url;
 
         this._method = method;
@@ -466,7 +465,7 @@ var self = this;
         });
     }
 
-    XMLHttpRequest.prototype.send = function(data) {
+    XMLHttpRequest.prototype.send = function (data) {
         var self = this;
 
 
@@ -528,74 +527,62 @@ var self = this;
             if (this.headerObj) {
                 urlData.header = JSON.stringify(this.headerObj);
             }
-            egret_native.requireHttp(this._url, urlData, {
-                onSuccess: function(response) {
-                    self.response = response;
-                    self.responseText = response;
 
-                    self.states = 200;
-                    self.readyState = 4;
-                    self.onreadystatechange({
-                        target: self
-                    });
-                    self.onload({
-                        target: self
-                    });
+            var promise = egret.PromiseObject.create();
+            promise.onSuccessFunc = function (response) {
+                self.response = response;
+                self.responseText = response;
 
-                    var progressEvent = {};
-                    progressEvent.total = 1;
-                    progressEvent.loaded = 1;
-                    self.onprogress(progressEvent);
-                },
-                onError: function(errCode) {
-                    self.states = errCode;
-                    self.readyState = 4;
-                    self.onreadystatechange({
-                        target: self
-                    });
-                    errorEvent.colno = 0;
-                    errorEvent.error = errCode;
-                    errorEvent.filename = self._url;
-                    errorEvent.lineno = 0;
-                    errorEvent.message = null;
+                self.states = 200;
+                self.readyState = 4;
+                self.onreadystatechange({
+                    target: self
+                });
+                self.onload({
+                    target: self
+                });
 
-                    self.onerror(errorEvent);
-                },
+                var progressEvent = {};
+                progressEvent.total = 1;
+                progressEvent.loaded = 1;
+                self.onprogress(progressEvent);
+            }
+            promise.onErrorFunc = function (errCode) {
+                self.states = errCode;
+                self.readyState = 4;
+                self.onreadystatechange({
+                    target: self
+                });
+                errorEvent.colno = 0;
+                errorEvent.error = errCode;
+                errorEvent.filename = self._url;
+                errorEvent.lineno = 0;
+                errorEvent.message = null;
 
-                //TODO
-                downloadingSize: function() {
-                    self.status = 200;
-                    self.readyState = 3;
-                    self.onreadystatechange({
-                        target: self
-                    });
-
-                    var progressEvent = {};
-                    progressEvent.total = 1;
-                    progressEvent.loaded = 0;
-                    self.onprogress(progressEvent);
-                },
-                onResponseHeader: function(headers) {
-                    self.responseHeader = "";
-                    var obj = JSON.parse(headers);
-                    for (var key in obj) {
-                        self.responseHeader += key + ": " + obj[key] + "\r\n";
-                    }
-
-                    self.status = 0;
-                    self.readyState = 2;
-                    self.onreadystatechange({
-                        target: self
-                    });
+                self.onerror(errorEvent);
+            }
+            promise.onResponseHeaderFunc = function (headers) {
+                self.responseHeader = "";
+                var obj = JSON.parse(headers);
+                for (var key in obj) {
+                    self.responseHeader += key + ": " + obj[key] + "\r\n";
                 }
-            });
+
+                self.status = 0;
+                self.readyState = 2;
+                self.onreadystatechange({
+                    target: self
+                });
+            }
+
+            egret_native.requestHttp(this._url, urlData.type, urlData.header ? urlData.header : "", urlData.data ? urlData.data : "", urlData.binary, promise);
         } else {
-            var checkLocalUrl = function(url) {
+            var checkLocalUrl = function (url) {
                 return url.split('?')[0];
             }
             var localurl = checkLocalUrl(this._url);
             var promise = {
-                onSuccess: function(response) {
+                onSuccess: function (response) {
                     // self.status = 0;
                     // self.readyState = 2;
                     // self.onreadystatechange({target: self});
@@ -622,7 +609,7 @@ var self = this;
                     progressEvent.loaded = 1;
                     self.onprogress(progressEvent);
                 },
-                onError: function(errCode) {
+                onError: function (errCode) {
                     // self.status = 0;
                     // self.readyState = 2;
                     // self.onreadystatechange({target: self});
@@ -647,7 +634,7 @@ var self = this;
         }
     }
 
-    XMLHttpRequest.prototype.abort = function() {
+    XMLHttpRequest.prototype.abort = function () {
         this.responseHeader = "";
         this.response = null;
         this.responseText = "";
@@ -661,15 +648,15 @@ var self = this;
         this.headerObj = undefined;
     }
 
-    XMLHttpRequest.prototype.getResponseHeader = function(key, value) {
+    XMLHttpRequest.prototype.getResponseHeader = function (key, value) {
         return "";
     }
 
-    XMLHttpRequest.prototype.getAllResponseHeaders = function() {
+    XMLHttpRequest.prototype.getAllResponseHeaders = function () {
         return this.responseHeader;
     }
 
-    XMLHttpRequest.prototype.addEventListener = function(type, callback, useCapture) {
+    XMLHttpRequest.prototype.addEventListener = function (type, callback, useCapture) {
         switch (type) {
             case "readystatechange":
                 this.onreadystatechange = callback;
@@ -686,16 +673,16 @@ var self = this;
         }
     }
 
-    XMLHttpRequest.prototype.removeEventListener = function(type, callback, useCapture) {
+    XMLHttpRequest.prototype.removeEventListener = function (type, callback, useCapture) {
         switch (type) {
             case "readystatechange":
-                this.onreadystatechange = function() {};
+                this.onreadystatechange = function () { };
                 break;
             case "error":
-                this.onerror = function() {};
+                this.onerror = function () { };
                 break;
             case "progress":
-                this.onprogress = function() {};
+                this.onprogress = function () { };
                 break;
             default:
 
@@ -707,7 +694,7 @@ var self = this;
 })(window);
 
 
-(function(window) {
+(function (window) {
     var messageEvent = {
         data: null,
         origin: "local",
@@ -715,13 +702,13 @@ var self = this;
         source: window
     };
 
-    var WebSocket = function(url) {
+    var WebSocket = function (url) {
         this._socket = new egret_native.WebSocket(url);
         this.binaryType = "arraybuffer";
         this._bindEvent();
     };
 
-    WebSocket.prototype._bindEvent = function() {
+    WebSocket.prototype._bindEvent = function () {
         var that = this;
         var socket = this._socket;
         socket.onopen = function () {
@@ -751,7 +738,7 @@ var self = this;
         this._socket.send(message);
     };
 
-    WebSocket.prototype.close = function() {
+    WebSocket.prototype.close = function () {
         this._socket.close();
     };
 
@@ -759,15 +746,15 @@ var self = this;
 })(window);
 
 // extends requestAnimationFrame
-(function(window) {
+(function (window) {
     var loops = [];
-    window.requestAnimationFrame = function(callback) {
+    window.requestAnimationFrame = function (callback) {
         loops.push(callback);
     }
 
     var count = 0,
         _loops = [];
-    egret_native.setOnUpdate(function(dt) {
+    egret_native.setOnUpdate(function (dt) {
         count += dt;
 
         var temp = loops;

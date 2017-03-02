@@ -132,7 +132,7 @@ namespace egret.native {
                     self.urlData.binary = true;
                 }
                 else {
-                    self.urlData.header = false;
+                    self.urlData.binary = false;
                 }
                 //写入header信息
                 if (this.headerObj) {

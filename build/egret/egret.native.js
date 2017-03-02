@@ -2605,7 +2605,7 @@ var egret;
                         self.urlData.binary = true;
                     }
                     else {
-                        self.urlData.header = false;
+                        self.urlData.binary = false;
                     }
                     //写入header信息
                     if (this.headerObj) {
@@ -2614,7 +2614,7 @@ var egret;
                     else {
                         delete self.urlData.header;
                     }
-                    var promise = native2.PromiseObject.create();
+                    var promise = egret.PromiseObject.create();
                     promise.onSuccessFunc = function (getted_str) {
                         self._response = getted_str;
                         egret.$callAsync(egret.Event.dispatchEvent, egret.Event, self, egret.Event.COMPLETE);
@@ -2625,7 +2625,7 @@ var egret;
                     };
                     promise.onResponseHeaderFunc = this.onResponseHeader;
                     promise.onResponseHeaderThisObject = this;
-                    egret_native.requireHttp(self._url, self.urlData, promise);
+                    egret_native.requestHttp(self._url, self.urlData.type, self.urlData.header ? self.urlData.header : "", self.urlData.data ? self.urlData.data : "", self.urlData.binary, promise);
                 }
                 else if (!native2.FileManager.isFileExistSync(self._url)) {
                     download();

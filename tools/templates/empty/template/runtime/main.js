@@ -528,67 +528,53 @@ var self = this;
             if (this.headerObj) {
                 urlData.header = JSON.stringify(this.headerObj);
             }
-            egret_native.requireHttp(this._url, urlData, {
-                onSuccess: function(response) {
-                    self.response = response;
-                    self.responseText = response;
+            var promise = egret.PromiseObject.create();
+            promise.onSuccessFunc = function (response) {
+                self.response = response;
+                self.responseText = response;
 
-                    self.states = 200;
-                    self.readyState = 4;
-                    self.onreadystatechange({
-                        target: self
-                    });
-                    self.onload({
-                        target: self
-                    });
+                self.states = 200;
+                self.readyState = 4;
+                self.onreadystatechange({
+                    target: self
+                });
+                self.onload({
+                    target: self
+                });
 
-                    var progressEvent = {};
-                    progressEvent.total = 1;
-                    progressEvent.loaded = 1;
-                    self.onprogress(progressEvent);
-                },
-                onError: function(errCode) {
-                    self.states = errCode;
-                    self.readyState = 4;
-                    self.onreadystatechange({
-                        target: self
-                    });
-                    errorEvent.colno = 0;
-                    errorEvent.error = errCode;
-                    errorEvent.filename = self._url;
-                    errorEvent.lineno = 0;
-                    errorEvent.message = null;
+                var progressEvent = {};
+                progressEvent.total = 1;
+                progressEvent.loaded = 1;
+                self.onprogress(progressEvent);
+            }
+            promise.onErrorFunc = function (errCode) {
+                self.states = errCode;
+                self.readyState = 4;
+                self.onreadystatechange({
+                    target: self
+                });
+                errorEvent.colno = 0;
+                errorEvent.error = errCode;
+                errorEvent.filename = self._url;
+                errorEvent.lineno = 0;
+                errorEvent.message = null;
 
-                    self.onerror(errorEvent);
-                },
-
-                //TODO
-                downloadingSize: function() {
-                    self.status = 200;
-                    self.readyState = 3;
-                    self.onreadystatechange({
-                        target: self
-                    });
-
-                    var progressEvent = {};
-                    progressEvent.total = 1;
-                    progressEvent.loaded = 0;
-                    self.onprogress(progressEvent);
-                },
-                onResponseHeader: function(headers) {
-                    self.responseHeader = "";
-                    var obj = JSON.parse(headers);
-                    for (var key in obj) {
-                        self.responseHeader += key + ": " + obj[key] + "\r\n";
-                    }
-
-                    self.status = 0;
-                    self.readyState = 2;
-                    self.onreadystatechange({
-                        target: self
-                    });
+                self.onerror(errorEvent);
+            }
+            promise.onResponseHeaderFunc = function (headers) {
+                self.responseHeader = "";
+                var obj = JSON.parse(headers);
+                for (var key in obj) {
+                    self.responseHeader += key + ": " + obj[key] + "\r\n";
                 }
-            });
+
+                self.status = 0;
+                self.readyState = 2;
+                self.onreadystatechange({
+                    target: self
+                });
+            }
+            egret_native.requestHttp(this._url, urlData.type, urlData.header ? urlData.header : "", urlData.data ? urlData.data : "", urlData.binary, promise);
         } else {
             var checkLocalUrl = function(url) {
                 return url.split('?')[0];
