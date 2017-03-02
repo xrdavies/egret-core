@@ -1905,7 +1905,7 @@ var egret;
              */
             NativeSoundChannel.prototype.stop = function () {
                 //
-                return;
+                // return;
                 //
                 if (!this.audio)
                     return;

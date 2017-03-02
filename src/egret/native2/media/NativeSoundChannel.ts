@@ -113,7 +113,7 @@ namespace egret.native2 {
          */
         public stop() {
             //
-            return;
+            // return;
             //
 
             if (!this.audio)
