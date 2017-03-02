@@ -40,7 +40,7 @@ namespace egret.web {
         }
 
         private init(container:HTMLDivElement, options:{renderMode?:string;screenAdapter?:sys.IScreenAdapter}):void {
-            let option = this.readOption(container, options);
+            let option = this.readOption(container.parentNode, options);
             let stage = new egret.Stage();
             stage.$screen = this;
             stage.$scaleMode = option.scaleMode;
@@ -176,7 +176,10 @@ namespace egret.web {
             if (canvas['userTyping'])
                 return;
             let option = this.playerOption;
-            let screenRect = this.container.getBoundingClientRect();
+            let screenRect = (this.container.parentNode as HTMLDivElement).getBoundingClientRect();
+            this.container.style.width = screenRect.width + "px;"
+            this.container.style.height = screenRect.height + "px;"
+
             let shouldRotate = false;
 
             let orientation:string = this.stage.$orientation;

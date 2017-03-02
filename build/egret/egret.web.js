@@ -3986,7 +3986,19 @@ var egret;
             var length = list.length;
             for (var i = 0; i < length; i++) {
                 var container = list[i];
-                var player = new web.WebPlayer(container, options);
+                var canvasDiv = document.createElement("div");
+                var st = canvasDiv.style;
+                st.cursor = "inherit";
+                st.position = "absolute";
+                st.top = "0";
+                st.bottom = "0";
+                st.left = "0";
+                st.right = "0";
+                container.appendChild(this.canvasDiv);
+                var screenRect = container.getBoundingClientRect();
+                st.width = screenRect.width + "px";
+                st.height = screenRect.height + "px";
+                var player = new web.WebPlayer(canvasDiv, options);
                 container["egret-player"] = player;
                 //webgl模式关闭脏矩形
                 if (egret.Capabilities.$renderMode == "webgl") {
@@ -4637,7 +4649,9 @@ var egret;
                 if (canvas['userTyping'])
                     return;
                 var option = this.playerOption;
-                var screenRect = this.container.getBoundingClientRect();
+                var screenRect = this.container.parentNode.getBoundingClientRect();
+                this.container.style.width = screenRect.width + "px;";
+                this.container.style.height = screenRect.height + "px;";
                 var shouldRotate = false;
                 var orientation = this.stage.$orientation;
                 if (orientation != egret.OrientationMode.AUTO) {

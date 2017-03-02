@@ -120,8 +120,24 @@ namespace egret.web {
         let length = list.length;
         for (let i = 0; i < length; i++) {
             let container = <HTMLDivElement>list[i];
-            let player = new WebPlayer(container, options);
+
+            let canvasDiv = document.createElement("div");
+            let st = canvasDiv.style;
+            st.cursor = "inherit";
+            st.position = "absolute";
+            st.top = "0";
+            st.bottom = "0";
+            st.left = "0";
+            st.right = "0";
+            container.appendChild(this.canvasDiv);
+            var screenRect = container.getBoundingClientRect();
+            st.width = screenRect.width + "px";
+            st.height = screenRect.height + "px";
+
+
+            let player = new WebPlayer(canvasDiv, options);
             container["egret-player"] = player;
+
             //webgl模式关闭脏矩形
             if(Capabilities.$renderMode == "webgl") {
                player.stage.dirtyRegionPolicy = DirtyRegionPolicy.OFF;
