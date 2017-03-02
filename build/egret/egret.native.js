@@ -4548,12 +4548,13 @@ var egret;
                         gl.drawText(data.text, data.transformData, data.textColor, data.stroke, data.strokeColor);
                         return 0;
                     }
+                    var atlasAddr = data.texture["atlasAddr"];
                     for (var i = 0; i < data.texturesInfo.length; i++) {
                         // console.log(" +++++++ " + i + " " + data.count + " " + data.texturesInfo[i] + " " + size);
                         // var shader = this.shaderManager.fontShader;
                         // shader.setTextColor((255 - i * 50) / 255.0, (50 + i * 50) / 255.0, 0.0, 1.0);
                         // shader.syncUniforms();
-                        egret_native.Label["bindTexture"](i);
+                        egret_native.Label["bindTexture"](atlasAddr, i);
                         // if (data.texturesInfo[0] == 12 && data.texturesInfo[1] == 7)
                         gl.drawElements(gl.TRIANGLES, data.texturesInfo[i] * 6, gl.UNSIGNED_SHORT, (offset + size) * 2);
                         size += data.texturesInfo[i] * 6;
@@ -5005,7 +5006,7 @@ var egret;
                 this.vao.cacheArrays(transform, alpha, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, textureWidth, textureHeight, meshUVs, meshVertices, meshIndices);
             };
             // lj
-            WebGLRenderContext.prototype.drawText = function (text, size, x, y, textColor, stroke, strokeColor) {
+            WebGLRenderContext.prototype.drawText = function (text, size, x, y, textColor, stroke, strokeColor, atlasAddr) {
                 var buffer = this.currentBuffer;
                 if (this.contextLost || !buffer) {
                     return;
@@ -5024,6 +5025,7 @@ var egret;
                 var alpha = buffer.globalAlpha;
                 var texture = {};
                 texture["isForLabel"] = true;
+                texture["atlasAddr"] = atlasAddr;
                 var texturesInfo = egret_native.Label["getTextureInfo"]();
                 var tex = new Int32Array(texturesInfo);
                 this.drawCmdManager.pushDrawText(texture, count, textColor, stroke, strokeColor, tex);
@@ -6223,14 +6225,14 @@ var egret;
                     // context.strokeText(text, x, y);
                     // }
                     // context.fillText(text, x, y);
-                    egret_native.Label.createLabel("", size, "", stroke);
+                    var atlasAddr = egret_native.Label.createLabel("", size, "", stroke);
                     var transformDirty = false;
                     if (x != 0 || y != 0) {
                         transformDirty = true;
                         buffer.saveTransform();
                         buffer.transform(1, 0, 0, 1, x, y);
                     }
-                    buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor);
+                    buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor, atlasAddr);
                     if (transformDirty) {
                         buffer.restoreTransform();
                     }

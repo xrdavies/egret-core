@@ -771,7 +771,7 @@ namespace egret.native2 {
                     // context.strokeText(text, x, y);
                 // }
                 // context.fillText(text, x, y);
-                egret_native.Label.createLabel("", size, "", stroke);
+                var atlasAddr = egret_native.Label.createLabel("", size, "", stroke);
 
                 var transformDirty = false;
 
@@ -781,7 +781,7 @@ namespace egret.native2 {
                     buffer.transform(1, 0, 0, 1, x, y);
                 }
 
-                buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor);
+                buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor, atlasAddr);
 
                 if (transformDirty) {
                     buffer.restoreTransform();

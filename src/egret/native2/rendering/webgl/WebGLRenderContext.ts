@@ -671,7 +671,7 @@ namespace egret.native2 {
         }
         
         // lj
-        public drawText(text, size, x, y, textColor, stroke, strokeColor) {
+        public drawText(text, size, x, y, textColor, stroke, strokeColor, atlasAddr) {
             var buffer = this.currentBuffer;
             if (this.contextLost || !buffer) {
                 return;
@@ -694,6 +694,7 @@ namespace egret.native2 {
             var alpha = buffer.globalAlpha;
             var texture = {};
             texture["isForLabel"] = true;
+            texture["atlasAddr"] = atlasAddr;
 
             var texturesInfo = egret_native.Label["getTextureInfo"]();
             var tex = new Int32Array(texturesInfo);
@@ -1020,12 +1021,13 @@ namespace egret.native2 {
                 return 0;
             }
 
+            var atlasAddr = data.texture["atlasAddr"];
             for (var i = 0; i < data.texturesInfo.length; i++) {
                 // console.log(" +++++++ " + i + " " + data.count + " " + data.texturesInfo[i] + " " + size);
                 // var shader = this.shaderManager.fontShader;
                 // shader.setTextColor((255 - i * 50) / 255.0, (50 + i * 50) / 255.0, 0.0, 1.0);
                 // shader.syncUniforms();
-                egret_native.Label["bindTexture"](i);
+                egret_native.Label["bindTexture"](atlasAddr, i);
                 // if (data.texturesInfo[0] == 12 && data.texturesInfo[1] == 7)
                 gl.drawElements(gl.TRIANGLES, data.texturesInfo[i] * 6, gl.UNSIGNED_SHORT, (offset + size) * 2);
                 size += data.texturesInfo[i] * 6;
