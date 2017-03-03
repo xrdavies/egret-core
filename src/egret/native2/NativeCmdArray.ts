@@ -414,14 +414,14 @@ module egret.native2 {
 
         // 0x29 clear(mask: number): void;
         public clear(mask: number) {
-            if(this.arrayBufferLen + 6 > this.maxArrayBufferLen) {
+            if(this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x29);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x29, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, mask, true);
             arrayBufferLen += 4; 
 
@@ -430,14 +430,14 @@ module egret.native2 {
 
         // 0x48 enable(cap: number): void;
         public enable(cap: number) {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x48);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x48, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, cap, true);
             arrayBufferLen += 4; 
 
@@ -446,14 +446,14 @@ module egret.native2 {
 
         // 0x44 disable(cap: number): void;
         public disable(cap: number) {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x44);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x44, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, cap, true);
             arrayBufferLen += 4; 
 
@@ -462,14 +462,14 @@ module egret.native2 {
 
         // 0x45 disableVertexAttribArray(index: number): void;
         public disableVertexAttribArray(index: CmdCacheObject) {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x45);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x45, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, index.hashCode, true);
             arrayBufferLen += 4;
 
@@ -478,14 +478,14 @@ module egret.native2 {
 
         // 0x77 scissor(x: number, y: number, width: number, height: number): void;
         public scissor(x: number, y: number, width: number, height: number) {
-            if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x77);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x77, true);
+            arrayBufferLen += 4;
             dataView.setInt32(arrayBufferLen, x, true);
             arrayBufferLen += 4; 
             dataView.setInt32(arrayBufferLen, y, true);
@@ -506,14 +506,14 @@ module egret.native2 {
 
         // 0x75 renderbufferStorage(target: number, internalformat: number, width: number, height: number): void;
         public renderbufferStorage(target: number, internalformat: number, width: number, height: number) {
-            if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x75);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x75, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4; 
             dataView.setUint32(arrayBufferLen, internalformat, true);
@@ -528,14 +528,14 @@ module egret.native2 {
 
         // 0x4C framebufferRenderbuffer(target: number, attachment: number, renderbuffertarget: number, renderbuffer: WebGLRenderbuffer | null): void;
         public framebufferRenderbuffer(target: number, attachment: number, renderbuffertarget: number, renderbuffer: CmdCacheObject) {
-            if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x4C);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x4C, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4; 
             dataView.setUint32(arrayBufferLen, attachment, true);
@@ -550,14 +550,14 @@ module egret.native2 {
 
         // 0x4D framebufferTexture2D(target: number, attachment: number, textarget: number, texture: WebGLTexture | null, level: number): void;
         public framebufferTexture2D(target: number, attachment: number, textarget: number, texture: CmdCacheObject, level: number) {
-            if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 24 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x4D);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x4D, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4; 
             dataView.setUint32(arrayBufferLen, attachment, true);
@@ -574,14 +574,14 @@ module egret.native2 {
 
         // 0x24 blendFunc(sfactor: number, dfactor: number): void;
         public blendFunc(sfactor: number, dfactor: number) {
-            if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x24);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x24, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, sfactor, true);
             arrayBufferLen += 4; 
             dataView.setUint32(arrayBufferLen, dfactor, true);
@@ -611,42 +611,42 @@ module egret.native2 {
 
         // 0x4A finish(): void;
         public finish() {
-            if (this.arrayBufferLen + 1 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 4 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x4A);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x4A, true);
+            arrayBufferLen += 4;
 
             this.arrayBufferLen = arrayBufferLen;
         }
 
         // 0x4B flush(): void;
         public flush() {
-            if (this.arrayBufferLen + 1 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 4 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x4B);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x4B, true);
+            arrayBufferLen += 4;
 
             this.arrayBufferLen = arrayBufferLen;
         }
 
         // 0x2A clearColor(red: number, green: number, blue: number, alpha: number): void;
         public clearColor(red: number, green: number, blue: number, alpha: number){
-            if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x2A);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x2A, true);
+            arrayBufferLen += 4;
             dataView.setFloat32(arrayBufferLen, red, true);
             arrayBufferLen += 4; 
             dataView.setFloat32(arrayBufferLen, green, true);
@@ -661,36 +661,36 @@ module egret.native2 {
 
         // 0x2D colorMask(red: boolean, green: boolean, blue: boolean, alpha: boolean): void;
         public colorMask(red: boolean, green: boolean, blue: boolean, alpha: boolean) {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x2D);
-            arrayBufferLen += 1;
-            dataView.setUint8(arrayBufferLen, red ? 1 : 0);
-            arrayBufferLen += 1;
-            dataView.setUint8(arrayBufferLen, green ? 1 : 0);
-            arrayBufferLen += 1;
-            dataView.setUint8(arrayBufferLen, blue ? 1 : 0);
-            arrayBufferLen += 1;
-            dataView.setUint8(arrayBufferLen, alpha ? 1 : 0);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x2D, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, (red ? 1 : 0), true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, (green ? 1 : 0), true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, (blue ? 1 : 0), true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, (alpha ? 1 : 0), true);
+            arrayBufferLen += 4;
 
             this.arrayBufferLen = arrayBufferLen;
         }
 
         // 0xA3 viewport(x: number, y: number, width: number, height: number): void;
         public viewport(x: number, y: number, width: number, height: number) {
-            if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0xA3);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0xA3, true);
+            arrayBufferLen += 4;
             dataView.setInt32(arrayBufferLen, x, true);
             arrayBufferLen += 4; 
             dataView.setInt32(arrayBufferLen, y, true);
@@ -705,7 +705,7 @@ module egret.native2 {
 
         // 0x33 createBuffer(): WebGLBuffer | null;
         public createBuffer() {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
@@ -713,8 +713,8 @@ module egret.native2 {
             var webGLObject = new CmdCacheObject();
             webGLObject.$objType = 0x02;
 
-            dataView.setUint8(arrayBufferLen, 0x33);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x33, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
             arrayBufferLen += 4; 
 
@@ -724,7 +724,7 @@ module egret.native2 {
 
         // 0x34 createFramebuffer(): WebGLFramebuffer | null;
         public createFramebuffer() {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
@@ -732,8 +732,8 @@ module egret.native2 {
 
             var webGLObject = new CmdCacheObject();
             webGLObject.$objType = 0x03;
-            dataView.setUint8(arrayBufferLen, 0x34);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x34, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
             arrayBufferLen += 4;
 
@@ -743,7 +743,7 @@ module egret.native2 {
 
         // 0x36 createRenderbuffer(): WebGLRenderbuffer | null;
         public createRenderbuffer() {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
@@ -751,8 +751,8 @@ module egret.native2 {
 
             var webGLObject = new CmdCacheObject();
             webGLObject.$objType = 0x05;
-            dataView.setUint8(arrayBufferLen, 0x36);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x36, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
             arrayBufferLen += 4;
 
@@ -763,14 +763,14 @@ module egret.native2 {
 
         // 0x1D bindBuffer(target: number, buffer: WebGLBuffer | null): void;
         public bindBuffer(target: number, bufferObj: CmdCacheObject) {
-            if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x1D);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x1D, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, bufferObj.hashCode, true);
@@ -781,14 +781,14 @@ module egret.native2 {
 
         // 0x1E bindFramebuffer(target: number, framebuffer: WebGLFramebuffer | null): void;
         public bindFramebuffer(target: number, framebuffer: CmdCacheObject) {
-            if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x1E);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x1E, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4;
             if(framebuffer == null) {  //TODO || pixels == 0) {
@@ -805,14 +805,14 @@ module egret.native2 {
 
         // 0x1F bindRenderbuffer(target: number, renderbuffer: WebGLRenderbuffer | null): void;
         public bindRenderbuffer(target: number, renderbuffer: CmdCacheObject) {
-            if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x1F);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x1F, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4;
             if(renderbuffer == null || renderbuffer.hashCode == 0) {
@@ -829,15 +829,15 @@ module egret.native2 {
 
         // 0x35 createProgram(): WebGLProgram | null;
         public createProgram() {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
             var webGLObject = new CmdCacheObject();
             webGLObject.$objType = 0x04;
-            dataView.setUint8(arrayBufferLen, 0x35);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x35, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
             arrayBufferLen += 4;
 
@@ -847,14 +847,14 @@ module egret.native2 {
 
         // 0x98 useProgram(program: WebGLProgram | null): void;
         public useProgram(program: CmdCacheObject) {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x98);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x98, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, program.hashCode, true);
             arrayBufferLen += 4;
 
@@ -863,15 +863,15 @@ module egret.native2 {
 
         //0x37 createShader(type: number): WebGLShader | null;
         public createShader(type: number) {
-            if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
             var webGLObject = new CmdCacheObject();
             webGLObject.$objType = 0x07;
-            dataView.setUint8(arrayBufferLen, 0x37);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x37, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, type, true);
@@ -883,14 +883,14 @@ module egret.native2 {
 
         // 0x2E compileShader(shader: WebGLShader | null): void;
         public compileShader(shader: CmdCacheObject) {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x2E);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x2E, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, shader.hashCode, true);
             arrayBufferLen += 4;
 
@@ -899,15 +899,15 @@ module egret.native2 {
 
         // 0x60 shaderSource(shader: WebGLShader | null, source: string): void;
         public shaderSource(shader: CmdCacheObject, source: string) {
-            if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
             var sourceid = this.pushString(source);
-            dataView.setUint8(arrayBufferLen, 0x60);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x60, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, shader.hashCode, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, sourceid, true);
@@ -934,14 +934,14 @@ module egret.native2 {
 
         // 0x1B attachShader(program: WebGLProgram | null, shader: WebGLShader | null): void;
         public attachShader(program: CmdCacheObject, shader: CmdCacheObject) {
-            if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x1B);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x1B, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, program.hashCode, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, shader.hashCode, true);
@@ -952,14 +952,14 @@ module egret.native2 {
 
         // 0x71 linkProgram(program: WebGLProgram | null): void;
         public linkProgram(program: CmdCacheObject) {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x71);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x71, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, program.hashCode, true);
             arrayBufferLen += 4;
 
@@ -968,14 +968,14 @@ module egret.native2 {
 
         // 0x72 pixelStorei(pname: number, param: number): void;
         public pixelStorei(pname: number, param: number) {
-            if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x72);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x72, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, pname, true);
             arrayBufferLen += 4;
             dataView.setInt32(arrayBufferLen, param, true);
@@ -986,15 +986,15 @@ module egret.native2 {
 
         // 0x38 createTexture(): WebGLTexture | null;
         public createTexture() {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
             var webGLObject = new CmdCacheObject();
             webGLObject.$objType = 0x07;
-            dataView.setUint8(arrayBufferLen, 0x38);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x38, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
             arrayBufferLen += 4;
 
@@ -1007,13 +1007,13 @@ module egret.native2 {
             if(buffer == null || buffer.hashCode <= 0) {
                 return;
             }
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
-            dataView.setUint8(arrayBufferLen, 0x3A);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x3A, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, buffer.hashCode, true);
             arrayBufferLen += 4;
 
@@ -1024,13 +1024,13 @@ module egret.native2 {
             if(framebuffer == null || framebuffer.hashCode <= 0) {
                 return;
             }
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
-            dataView.setUint8(arrayBufferLen, 0x3B);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x3B, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, framebuffer.hashCode, true);
             arrayBufferLen += 4;
 
@@ -1042,13 +1042,13 @@ module egret.native2 {
             if(program == null || program.hashCode <= 0) {
                 return;
             }
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
-            dataView.setUint8(arrayBufferLen, 0x3C);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x3C, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, program.hashCode, true);
             arrayBufferLen += 4;
 
@@ -1060,13 +1060,13 @@ module egret.native2 {
                 if(renderbuffer == null || renderbuffer.hashCode <= 0) {
                 return;
             }
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
-            dataView.setUint8(arrayBufferLen, 0x3D);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x3D, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, renderbuffer.hashCode, true);
             arrayBufferLen += 4;
 
@@ -1077,13 +1077,13 @@ module egret.native2 {
             if(texture == null || texture.hashCode <= 0) {
                 return;
             }
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
-            dataView.setUint8(arrayBufferLen, 0x3E);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x3E, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, texture.hashCode, true);
             arrayBufferLen += 4;
 
@@ -1095,13 +1095,13 @@ module egret.native2 {
             if(texture == null || texture.hashCode <= 0) {
                 return;
             }
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
-            dataView.setUint8(arrayBufferLen, 0x3F);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x3F, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, texture.hashCode, true);
             arrayBufferLen += 4;
 
@@ -1110,14 +1110,14 @@ module egret.native2 {
 
         // 0x1A activeTexture(texture: number): void;
         public activeTexture(texture: number) {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x1A);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x1A, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, texture, true);
             arrayBufferLen += 4;
 
@@ -1126,14 +1126,14 @@ module egret.native2 {
 
         // 0x20 bindTexture(target: number, texture: WebGLTexture | null): void;
         public bindTexture(target: number, texture: CmdCacheObject) {
-            if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x20);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x20, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4;
             if(texture == null) {
@@ -1153,14 +1153,14 @@ module egret.native2 {
             if(program == null) {
                 return;
             }
-            if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x64);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x64, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, program.hashCode, true);
             arrayBufferLen += 4;
             var nameid = this.pushString(name);
@@ -1177,15 +1177,15 @@ module egret.native2 {
 
         // 0x53 getAttribLocation(program: WebGLProgram | null, name: string): number;
         public getAttribLocation(program: CmdCacheObject, name: string) {
-            if(this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+            if(this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
 
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x53);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x53, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, program.hashCode, true);
             arrayBufferLen += 4;
 
@@ -1215,14 +1215,14 @@ module egret.native2 {
 
         // 0x49 enableVertexAttribArray(index: number): void;
         public enableVertexAttribArray(indx: CmdCacheObject) {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x49);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x49, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, indx.hashCode, true);
             arrayBufferLen += 4;
 
@@ -1231,14 +1231,14 @@ module egret.native2 {
 
         // 0xA2 vertexAttribPointer(indx: number, size: number, type: number, normalized: boolean, stride: number, offset: number): void;
         public vertexAttribPointer(indx: CmdCacheObject, size: number, type: number, normalized: boolean, stride: number, offset: number) {
-            if (this.arrayBufferLen + 25 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 28 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0xA2);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0xA2, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, indx.hashCode, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, size, true);
@@ -1256,14 +1256,14 @@ module egret.native2 {
         }
 
         public uniformxv(location: CmdCacheObject, v: any, type: number) {
-            if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, type);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, type);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             var arrayid = this.pushTypedArrays(v);
             arrayBufferLen += 4;
@@ -1315,14 +1315,14 @@ module egret.native2 {
 
         // 0x85 uniform1f(location: WebGLUniformLocation | null, x: number): void;
         public uniform1f(location: CmdCacheObject, x: number){
-            if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x85);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x85, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             arrayBufferLen += 4;
             dataView.setFloat32(arrayBufferLen, x, true);
@@ -1333,14 +1333,14 @@ module egret.native2 {
 
         // 0x87 uniform1i(location: WebGLUniformLocation | null, x: number): void;
         public uniform1i(location: CmdCacheObject, x: number){
-            if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x87);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x87, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             arrayBufferLen += 4;
             dataView.setInt32(arrayBufferLen, x, true);
@@ -1351,14 +1351,14 @@ module egret.native2 {
 
         // 0x89 uniform2f(location: WebGLUniformLocation | null, x: number, y: number): void;
         public uniform2f(location: CmdCacheObject, x: number, y: number) {
-            if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x89);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x89, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             arrayBufferLen += 4;
             dataView.setFloat32(arrayBufferLen, x, true);
@@ -1371,14 +1371,14 @@ module egret.native2 {
 
         // 0x8B uniform2i(location: WebGLUniformLocation | null, x: number, y: number): void;
         public uniform2i(location: CmdCacheObject, x: number, y: number) {
-            if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x8B);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x8B, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             arrayBufferLen += 4;
             dataView.setInt32(arrayBufferLen, x, true);
@@ -1391,14 +1391,14 @@ module egret.native2 {
 
         // 0x8D uniform3f(location: WebGLUniformLocation | null, x: number, y: number, z: number): void;
         public uniform3f(location: CmdCacheObject, x: number, y: number, z: number) {
-            if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x8D);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x8D, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             arrayBufferLen += 4;
             dataView.setFloat32(arrayBufferLen, x, true);
@@ -1413,14 +1413,14 @@ module egret.native2 {
 
         // 0x8F uniform3i(location: WebGLUniformLocation | null, x: number, y: number, z: number): void;
         public uniform3i(location: CmdCacheObject, x: number, y: number, z: number) {
-            if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x8F);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x8F, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             arrayBufferLen += 4;
             dataView.setInt32(arrayBufferLen, x, true);
@@ -1434,14 +1434,14 @@ module egret.native2 {
         }
         // 0x91 uniform4f(location: WebGLUniformLocation | null, x: number, y: number, z: number, w: number): void;
         public uniform4f(location: CmdCacheObject, x: number, y: number, z: number, w: number) {
-            if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 24 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x91);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x91, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             arrayBufferLen += 4;
             dataView.setFloat32(arrayBufferLen, x, true);
@@ -1457,14 +1457,14 @@ module egret.native2 {
         }
         // 0x93 uniform4i(location: WebGLUniformLocation | null, x: number, y: number, z: number, w: number): void;
         public uniform4i(location: CmdCacheObject, x: number, y: number, z: number, w: number) {
-            if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 24 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x93);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x93, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             arrayBufferLen += 4;
             dataView.setInt32(arrayBufferLen, x, true);
@@ -1481,14 +1481,14 @@ module egret.native2 {
 
         // 0x95 uniformMatrix2fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | number[]): void;
         public uniformMatrix2fv(location: CmdCacheObject, transpose: boolean, value: Float32Array) {
-            if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x95);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x95, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, transpose ? 1 : 0, true);
@@ -1509,14 +1509,14 @@ module egret.native2 {
 
         // 0x96 uniformMatrix3fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | number[]): void;
         public uniformMatrix3fv(location: CmdCacheObject, transpose: boolean, value: Float32Array) {
-            if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x96);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x96, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, transpose ? 1 : 0, true);
@@ -1537,14 +1537,14 @@ module egret.native2 {
 
         // 0x97 uniformMatrix4fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | number[]): void;
         public uniformMatrix4fv(location: CmdCacheObject, transpose: boolean, value: Float32Array) {
-            if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x97);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x97, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, transpose ? 1 : 0, true);
@@ -1565,14 +1565,14 @@ module egret.native2 {
 
         // 0x7F texImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, format: number, type: number, pixels?: ArrayBufferView): void;
         public texImage2Di(target: number, level: number, internalformat: number, width: number, height: number, border: number, format: number, type: number, pixels?: ArrayBufferView) {
-            if (this.arrayBufferLen + 37 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 40 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x7F);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x7F, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, level, true);
@@ -1607,14 +1607,14 @@ module egret.native2 {
         // 0x80 texImage2D(target: number, level: number, internalformat: number, format: number, type: number, pixels?: ImageData | HTMLVideoElement | HTMLImageElement | HTMLCanvasElement): void;
         // TODO HTMLCanvasElement
         public texImage2D(target: number, level: number, internalformat: number, format: number, type: number, pixels?: BitmapData) {
-            if (this.arrayBufferLen + 29 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 32 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x80);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x80, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, level, true);
@@ -1648,14 +1648,14 @@ module egret.native2 {
 
         // 0x81 texParameterf(target: number, pname: number, param: number): void;
         public texParameterf(target: number, pname: number, param: number) {
-            if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x81);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x81, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, pname, true);
@@ -1668,14 +1668,14 @@ module egret.native2 {
 
         // 0x82 texParameteri(target: number, pname: number, param: number): void;
         public texParameteri(target: number, pname: number, param: number) {
-            if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x82);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x82, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, pname, true);
@@ -1688,14 +1688,14 @@ module egret.native2 {
 
         //0x4F generateMipmap(target: number): void;
         public generateMipmap(target: number) {
-            if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x4F);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x4F, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4;
             
@@ -1704,14 +1704,14 @@ module egret.native2 {
 
         // 0x26 bufferData(target: number, arrayData number | ArrayBufferView | ArrayBuffer, usage: number): void;
         public bufferData(target: number, arrayData: any,  usage: number) { 
-            if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x26);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x26, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4;
             if(arrayData) {
@@ -1733,14 +1733,14 @@ module egret.native2 {
 
         // 0x27 bufferSubData(target: number, offset: number, data: ArrayBufferView | ArrayBuffer): void;
         public bufferSubData(target: number, offset: number, arrayData: any) {
-            if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x27);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x27, true);
+            arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, target, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, offset, true);
@@ -1762,14 +1762,14 @@ module egret.native2 {
 
         // 0x46 drawArrays(mode: number, first: number, count: number): void;
         public drawArrays(mode: number, first: number, count: number) {
-            if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x46);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x46, true);
+            arrayBufferLen += 4;
 
             dataView.setUint32(arrayBufferLen, mode, true);
             arrayBufferLen += 4;
@@ -1783,14 +1783,14 @@ module egret.native2 {
 
         // 0x47 drawElements(mode: number, count: number, type: number, offset: number): void;
         public drawElements(mode: number, count: number, type: number, offset: number) {
-            if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0x47);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0x47, true);
+            arrayBufferLen += 4;
 
             dataView.setUint32(arrayBufferLen, mode, true);
             arrayBufferLen += 4;
@@ -1806,14 +1806,14 @@ module egret.native2 {
 
         // 0xFF drawText(str: string, transform: Float32Array, textColor: number, stroke: boolean, strokeColor: number)
         public drawText(str: string, transform: Float32Array, textColor: number, stroke: boolean, strokeColor: number) {
-            if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+            if (this.arrayBufferLen + 24 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint8(arrayBufferLen, 0xFF);
-            arrayBufferLen += 1;
+            dataView.setUint32(arrayBufferLen, 0xFF, true);
+            arrayBufferLen += 4;
             
             var strId = this.pushString(str); 
             dataView.setUint32(arrayBufferLen, strId, true);
