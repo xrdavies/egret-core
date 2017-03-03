@@ -3747,6 +3747,7 @@ var egret;
                 this.drawDataLen++;
             };
             //-lj
+            // TODO 
             WebGLDrawCmdManager.prototype.pushDrawTextForCmdBatch = function (text, length, x, y, textColor, stroke, strokeColor, alpha, transform /*, texturesInfo */) {
                 var data = this.drawData[this.drawDataLen] || {};
                 data.type = 10 /* FONT */;
@@ -4545,8 +4546,6 @@ var egret;
                     var gl = this.context;
                     if (WebGLRenderContext.$supportCmdBatch) {
                         gl = this.glCmdManager;
-                        gl.drawText(data.text, data.transformData, data.textColor, data.stroke, data.strokeColor);
-                        return 0;
                     }
                     var atlasAddr = data.texture["atlasAddr"];
                     for (var i = 0; i < data.texturesInfo.length; i++) {
@@ -4743,6 +4742,7 @@ var egret;
                 }
                 if (options.cmdbatch == true) {
                     this.glCmdManager = new native2.WebGLCmdArrayManager(this.surface);
+                    this.glCmdManager.initCacheContext();
                 }
                 this.setContext(gl);
             };
@@ -5011,11 +5011,6 @@ var egret;
                 if (this.contextLost || !buffer) {
                     return;
                 }
-                // TODO
-                // if(WebGLRenderContext.$supportCmdBatch) {
-                //     this.drawTextForCmdBatch(text, size, x, y, textColor, stroke, strokeColor);
-                //     return;
-                // }
                 var textData = egret_native.Label["setupTextQuads"](text, text.length, x, y);
                 var t = new Float32Array(textData);
                 for (var i = 0; i < text.length; i++) {
@@ -5032,6 +5027,7 @@ var egret;
                 this.vao.cacheArraysForText(transform, alpha, t, text.length, size);
             };
             //-lj
+            // TODO
             WebGLRenderContext.prototype.drawTextForCmdBatch = function (text, size, x, y, textColor, stroke, strokeColor) {
                 var buffer = this.currentBuffer;
                 if (this.contextLost || !buffer) {
@@ -7636,6 +7632,16 @@ var egret;
                 this.typedArrays = new Array();
                 this._canvas = canvas;
             }
+            WebGLCmdArrayManager.prototype.initCacheContext = function () {
+                var that = this;
+                egret_native.Label["bindTexture"] = function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    that.bindLabelTexture.apply(that, args);
+                };
+            };
             /*
              * 上传绘制命令到C
              */
@@ -8872,6 +8878,23 @@ var egret;
                 dataView.setUint32(arrayBufferLen, stroke ? 1 : 0, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, strokeColor, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0xFE bindLabelTexture(fontatlasId: number, textureId: number)
+            WebGLCmdArrayManager.prototype.bindLabelTexture = function (fontatlasAddr, textureId) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint32(arrayBufferLen, 0xFE, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, (fontatlasAddr / 4294967296) >>> 0, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, (fontatlasAddr & 4294967295) >>> 0, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, textureId);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };

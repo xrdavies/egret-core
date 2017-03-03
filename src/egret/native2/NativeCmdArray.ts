@@ -379,6 +379,13 @@ module egret.native2 {
             this._canvas = canvas;
         }
 
+        public initCacheContext() {
+            var that = this;
+            egret_native.Label["bindTexture"] = function (...args) {
+                that.bindLabelTexture.apply(that, args);
+            }
+        }
+
         /*
          * 上传绘制命令到C
          */
@@ -1826,6 +1833,26 @@ module egret.native2 {
             dataView.setUint32(arrayBufferLen, stroke ? 1 : 0, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, strokeColor, true);
+            arrayBufferLen += 4;
+
+            this.arrayBufferLen = arrayBufferLen;
+        }
+
+        // 0xFE bindLabelTexture(fontatlasId: number, textureId: number)
+        public bindLabelTexture(fontatlasAddr: number, textureId: number) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
+                this.flushCmd();
+            }
+            var dataView = this.dataView;
+            var arrayBufferLen = this.arrayBufferLen;
+
+            dataView.setUint32(arrayBufferLen, 0xFE, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, (fontatlasAddr/ 4294967296) >>> 0, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, (fontatlasAddr& 4294967295) >>> 0, true);
+            arrayBufferLen += 4;
+            dataView.setInt32(arrayBufferLen, textureId, true);
             arrayBufferLen += 4;
 
             this.arrayBufferLen = arrayBufferLen;

@@ -355,6 +355,7 @@ namespace egret.native2 {
             if(options.cmdbatch == true)
             {
                 this.glCmdManager = new WebGLCmdArrayManager(this.surface);
+                this.glCmdManager.initCacheContext();
             }
             this.setContext(gl);
         }
@@ -677,12 +678,6 @@ namespace egret.native2 {
                 return;
             }
 
-            // TODO
-            // if(WebGLRenderContext.$supportCmdBatch) {
-            //     this.drawTextForCmdBatch(text, size, x, y, textColor, stroke, strokeColor);
-            //     return;
-            // }
-
             var textData = egret_native.Label["setupTextQuads"](text, text.length, x, y);
             var t = new Float32Array(textData);
             for (var i = 0; i < text.length; i++) {
@@ -704,6 +699,7 @@ namespace egret.native2 {
         }
         //-lj
 
+        // TODO
         private drawTextForCmdBatch(text, size, x, y, textColor, stroke, strokeColor) {
             var buffer = this.currentBuffer;
             if (this.contextLost || !buffer) {
@@ -1017,8 +1013,7 @@ namespace egret.native2 {
             let gl:any = this.context;
             if(WebGLRenderContext.$supportCmdBatch) {
                 gl = this.glCmdManager;
-                gl.drawText(data.text, data.transformData, data.textColor, data.stroke, data.strokeColor);
-                return 0;
+                // gl.drawText(data.text, data.transformData, data.textColor, data.stroke, data.strokeColor);
             }
 
             var atlasAddr = data.texture["atlasAddr"];
