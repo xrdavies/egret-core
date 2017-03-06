@@ -851,6 +851,9 @@ namespace egret.native2 {
                 this.uploadIndicesArray(this.vao.getIndices());
             }
 
+            if(WebGLRenderContext.$supportCmdBatch) {
+                this.glCmdManager.flushCmd();
+            }
             // 清空数据
             this.drawCmdManager.clear();
             this.vao.clear();

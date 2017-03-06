@@ -5151,6 +5151,9 @@ var egret;
                 if (this.vao.isMesh()) {
                     this.uploadIndicesArray(this.vao.getIndices());
                 }
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    this.glCmdManager.flushCmd();
+                }
                 // 清空数据
                 this.drawCmdManager.clear();
                 this.vao.clear();
@@ -8894,7 +8897,7 @@ var egret;
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, (fontatlasAddr & 4294967295) >>> 0, true);
                 arrayBufferLen += 4;
-                dataView.setInt32(arrayBufferLen, textureId);
+                dataView.setInt32(arrayBufferLen, textureId, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
