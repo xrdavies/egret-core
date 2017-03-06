@@ -47,7 +47,7 @@ namespace egret.web {
             gl.bindBuffer(gl.ARRAY_BUFFER, context["vertexBuffer"]);
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, context["indexBuffer"]);
             gl.activeTexture(gl.TEXTURE0);
-            context.shaderManager.currentShader = null;
+            context.currentProgram = null;
             context["bindIndices"] = false;
             let buffer = context.$bufferStack[1];
             context["activateBuffer"](buffer);
@@ -129,7 +129,7 @@ namespace egret.web {
             st.bottom = "0";
             st.left = "0";
             st.right = "0";
-            container.appendChild(this.canvasDiv);
+            container.appendChild(canvasDiv);
             var screenRect = container.getBoundingClientRect();
             st.width = screenRect.width + "px";
             st.height = screenRect.height + "px";

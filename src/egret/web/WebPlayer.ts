@@ -40,7 +40,7 @@ namespace egret.web {
         }
 
         private init(container:HTMLDivElement, options:{renderMode?:string;screenAdapter?:sys.IScreenAdapter}):void {
-            let option = this.readOption(container.parentNode, options);
+            let option = this.readOption(container.parentNode as HTMLDivElement, options);
             let stage = new egret.Stage();
             stage.$screen = this;
             stage.$scaleMode = option.scaleMode;
