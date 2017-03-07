@@ -76,7 +76,7 @@ namespace egret.native2 {
             if (self.isNetUrl(url)) {//网络请求
                 self.download(url);
             }
-            else if (!egret_native.isFileExists(url)) {
+            else if (!egret_native.isFileExists(native2.FileManager.makeFullPath(url))) {
                 self.download(url);
             }
             else {

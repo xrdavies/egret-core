@@ -1906,7 +1906,7 @@ var egret;
              */
             NativeSoundChannel.prototype.stop = function () {
                 //
-                return;
+                // return;
                 //
                 if (!this.audio)
                     return;
@@ -2792,7 +2792,7 @@ var egret;
                 if (self.isNetUrl(url)) {
                     self.download(url);
                 }
-                else if (!egret_native.isFileExists(url)) {
+                else if (!egret_native.isFileExists(native2.FileManager.makeFullPath(url))) {
                     self.download(url);
                 }
                 else {
@@ -4549,12 +4549,13 @@ var egret;
                         gl.drawText(data.text, data.transformData, data.textColor, data.stroke, data.strokeColor);
                         return 0;
                     }
+                    var atlasAddr = data.texture["atlasAddr"];
                     for (var i = 0; i < data.texturesInfo.length; i++) {
                         // console.log(" +++++++ " + i + " " + data.count + " " + data.texturesInfo[i] + " " + size);
                         // var shader = this.shaderManager.fontShader;
                         // shader.setTextColor((255 - i * 50) / 255.0, (50 + i * 50) / 255.0, 0.0, 1.0);
                         // shader.syncUniforms();
-                        egret_native.Label["bindTexture"](i);
+                        egret_native.Label["bindTexture"](atlasAddr, i);
                         // if (data.texturesInfo[0] == 12 && data.texturesInfo[1] == 7)
                         gl.drawElements(gl.TRIANGLES, data.texturesInfo[i] * 6, gl.UNSIGNED_SHORT, (offset + size) * 2);
                         size += data.texturesInfo[i] * 6;
@@ -5006,7 +5007,7 @@ var egret;
                 this.vao.cacheArrays(transform, alpha, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, textureWidth, textureHeight, meshUVs, meshVertices, meshIndices);
             };
             // lj
-            WebGLRenderContext.prototype.drawText = function (text, size, x, y, textColor, stroke, strokeColor) {
+            WebGLRenderContext.prototype.drawText = function (text, size, x, y, textColor, stroke, strokeColor, atlasAddr) {
                 var buffer = this.currentBuffer;
                 if (this.contextLost || !buffer) {
                     return;
@@ -5025,6 +5026,7 @@ var egret;
                 var alpha = buffer.globalAlpha;
                 var texture = {};
                 texture["isForLabel"] = true;
+                texture["atlasAddr"] = atlasAddr;
                 var texturesInfo = egret_native.Label["getTextureInfo"]();
                 var tex = new Int32Array(texturesInfo);
                 this.drawCmdManager.pushDrawText(texture, count, textColor, stroke, strokeColor, tex);
@@ -6224,14 +6226,14 @@ var egret;
                     // context.strokeText(text, x, y);
                     // }
                     // context.fillText(text, x, y);
-                    egret_native.Label.createLabel("", size, "", stroke);
+                    var atlasAddr = egret_native.Label.createLabel("", size, "", stroke);
                     var transformDirty = false;
                     if (x != 0 || y != 0) {
                         transformDirty = true;
                         buffer.saveTransform();
                         buffer.transform(1, 0, 0, 1, x, y);
                     }
-                    buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor);
+                    buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor, atlasAddr);
                     if (transformDirty) {
                         buffer.restoreTransform();
                     }
@@ -7667,65 +7669,65 @@ var egret;
             };
             // 0x29 clear(mask: number): void;
             WebGLCmdArrayManager.prototype.clear = function (mask) {
-                if (this.arrayBufferLen + 6 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x29);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x29, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, mask, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x48 enable(cap: number): void;
             WebGLCmdArrayManager.prototype.enable = function (cap) {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x48);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x48, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, cap, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x44 disable(cap: number): void;
             WebGLCmdArrayManager.prototype.disable = function (cap) {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x44);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x44, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, cap, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x45 disableVertexAttribArray(index: number): void;
             WebGLCmdArrayManager.prototype.disableVertexAttribArray = function (index) {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x45);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x45, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, index.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x77 scissor(x: number, y: number, width: number, height: number): void;
             WebGLCmdArrayManager.prototype.scissor = function (x, y, width, height) {
-                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x77);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x77, true);
+                arrayBufferLen += 4;
                 dataView.setInt32(arrayBufferLen, x, true);
                 arrayBufferLen += 4;
                 dataView.setInt32(arrayBufferLen, y, true);
@@ -7742,13 +7744,13 @@ var egret;
             };
             // 0x75 renderbufferStorage(target: number, internalformat: number, width: number, height: number): void;
             WebGLCmdArrayManager.prototype.renderbufferStorage = function (target, internalformat, width, height) {
-                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x75);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x75, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, internalformat, true);
@@ -7761,13 +7763,13 @@ var egret;
             };
             // 0x4C framebufferRenderbuffer(target: number, attachment: number, renderbuffertarget: number, renderbuffer: WebGLRenderbuffer | null): void;
             WebGLCmdArrayManager.prototype.framebufferRenderbuffer = function (target, attachment, renderbuffertarget, renderbuffer) {
-                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x4C);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x4C, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, attachment, true);
@@ -7780,13 +7782,13 @@ var egret;
             };
             // 0x4D framebufferTexture2D(target: number, attachment: number, textarget: number, texture: WebGLTexture | null, level: number): void;
             WebGLCmdArrayManager.prototype.framebufferTexture2D = function (target, attachment, textarget, texture, level) {
-                if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 24 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x4D);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x4D, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, attachment, true);
@@ -7801,13 +7803,13 @@ var egret;
             };
             // 0x24 blendFunc(sfactor: number, dfactor: number): void;
             WebGLCmdArrayManager.prototype.blendFunc = function (sfactor, dfactor) {
-                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x24);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x24, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, sfactor, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, dfactor, true);
@@ -7828,35 +7830,35 @@ var egret;
             };
             // 0x4A finish(): void;
             WebGLCmdArrayManager.prototype.finish = function () {
-                if (this.arrayBufferLen + 1 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 4 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x4A);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x4A, true);
+                arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x4B flush(): void;
             WebGLCmdArrayManager.prototype.flush = function () {
-                if (this.arrayBufferLen + 1 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 4 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x4B);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x4B, true);
+                arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x2A clearColor(red: number, green: number, blue: number, alpha: number): void;
             WebGLCmdArrayManager.prototype.clearColor = function (red, green, blue, alpha) {
-                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x2A);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x2A, true);
+                arrayBufferLen += 4;
                 dataView.setFloat32(arrayBufferLen, red, true);
                 arrayBufferLen += 4;
                 dataView.setFloat32(arrayBufferLen, green, true);
@@ -7869,32 +7871,32 @@ var egret;
             };
             // 0x2D colorMask(red: boolean, green: boolean, blue: boolean, alpha: boolean): void;
             WebGLCmdArrayManager.prototype.colorMask = function (red, green, blue, alpha) {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x2D);
-                arrayBufferLen += 1;
-                dataView.setUint8(arrayBufferLen, red ? 1 : 0);
-                arrayBufferLen += 1;
-                dataView.setUint8(arrayBufferLen, green ? 1 : 0);
-                arrayBufferLen += 1;
-                dataView.setUint8(arrayBufferLen, blue ? 1 : 0);
-                arrayBufferLen += 1;
-                dataView.setUint8(arrayBufferLen, alpha ? 1 : 0);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x2D, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, (red ? 1 : 0), true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, (green ? 1 : 0), true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, (blue ? 1 : 0), true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, (alpha ? 1 : 0), true);
+                arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0xA3 viewport(x: number, y: number, width: number, height: number): void;
             WebGLCmdArrayManager.prototype.viewport = function (x, y, width, height) {
-                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0xA3);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0xA3, true);
+                arrayBufferLen += 4;
                 dataView.setInt32(arrayBufferLen, x, true);
                 arrayBufferLen += 4;
                 dataView.setInt32(arrayBufferLen, y, true);
@@ -7907,15 +7909,15 @@ var egret;
             };
             // 0x33 createBuffer(): WebGLBuffer | null;
             WebGLCmdArrayManager.prototype.createBuffer = function () {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
                 var webGLObject = new CmdCacheObject();
                 webGLObject.$objType = 0x02;
-                dataView.setUint8(arrayBufferLen, 0x33);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x33, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
@@ -7923,15 +7925,15 @@ var egret;
             };
             // 0x34 createFramebuffer(): WebGLFramebuffer | null;
             WebGLCmdArrayManager.prototype.createFramebuffer = function () {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
                 var webGLObject = new CmdCacheObject();
                 webGLObject.$objType = 0x03;
-                dataView.setUint8(arrayBufferLen, 0x34);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x34, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
@@ -7939,15 +7941,15 @@ var egret;
             };
             // 0x36 createRenderbuffer(): WebGLRenderbuffer | null;
             WebGLCmdArrayManager.prototype.createRenderbuffer = function () {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
                 var webGLObject = new CmdCacheObject();
                 webGLObject.$objType = 0x05;
-                dataView.setUint8(arrayBufferLen, 0x36);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x36, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
@@ -7955,13 +7957,13 @@ var egret;
             };
             // 0x1D bindBuffer(target: number, buffer: WebGLBuffer | null): void;
             WebGLCmdArrayManager.prototype.bindBuffer = function (target, bufferObj) {
-                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x1D);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x1D, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, bufferObj.hashCode, true);
@@ -7970,13 +7972,13 @@ var egret;
             };
             // 0x1E bindFramebuffer(target: number, framebuffer: WebGLFramebuffer | null): void;
             WebGLCmdArrayManager.prototype.bindFramebuffer = function (target, framebuffer) {
-                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x1E);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x1E, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 if (framebuffer == null) {
@@ -7990,13 +7992,13 @@ var egret;
             };
             // 0x1F bindRenderbuffer(target: number, renderbuffer: WebGLRenderbuffer | null): void;
             WebGLCmdArrayManager.prototype.bindRenderbuffer = function (target, renderbuffer) {
-                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x1F);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x1F, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 if (renderbuffer == null || renderbuffer.hashCode == 0) {
@@ -8010,15 +8012,15 @@ var egret;
             };
             // 0x35 createProgram(): WebGLProgram | null;
             WebGLCmdArrayManager.prototype.createProgram = function () {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
                 var webGLObject = new CmdCacheObject();
                 webGLObject.$objType = 0x04;
-                dataView.setUint8(arrayBufferLen, 0x35);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x35, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
@@ -8026,28 +8028,28 @@ var egret;
             };
             // 0x98 useProgram(program: WebGLProgram | null): void;
             WebGLCmdArrayManager.prototype.useProgram = function (program) {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x98);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x98, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, program.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             //0x37 createShader(type: number): WebGLShader | null;
             WebGLCmdArrayManager.prototype.createShader = function (type) {
-                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
                 var webGLObject = new CmdCacheObject();
                 webGLObject.$objType = 0x07;
-                dataView.setUint8(arrayBufferLen, 0x37);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x37, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, type, true);
@@ -8057,27 +8059,27 @@ var egret;
             };
             // 0x2E compileShader(shader: WebGLShader | null): void;
             WebGLCmdArrayManager.prototype.compileShader = function (shader) {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x2E);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x2E, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, shader.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x60 shaderSource(shader: WebGLShader | null, source: string): void;
             WebGLCmdArrayManager.prototype.shaderSource = function (shader, source) {
-                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
                 var sourceid = this.pushString(source);
-                dataView.setUint8(arrayBufferLen, 0x60);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x60, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, shader.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, sourceid, true);
@@ -8101,13 +8103,13 @@ var egret;
             };
             // 0x1B attachShader(program: WebGLProgram | null, shader: WebGLShader | null): void;
             WebGLCmdArrayManager.prototype.attachShader = function (program, shader) {
-                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x1B);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x1B, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, program.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, shader.hashCode, true);
@@ -8116,26 +8118,26 @@ var egret;
             };
             // 0x71 linkProgram(program: WebGLProgram | null): void;
             WebGLCmdArrayManager.prototype.linkProgram = function (program) {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x71);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x71, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, program.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x72 pixelStorei(pname: number, param: number): void;
             WebGLCmdArrayManager.prototype.pixelStorei = function (pname, param) {
-                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x72);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x72, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, pname, true);
                 arrayBufferLen += 4;
                 dataView.setInt32(arrayBufferLen, param, true);
@@ -8144,15 +8146,15 @@ var egret;
             };
             // 0x38 createTexture(): WebGLTexture | null;
             WebGLCmdArrayManager.prototype.createTexture = function () {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
                 var webGLObject = new CmdCacheObject();
                 webGLObject.$objType = 0x07;
-                dataView.setUint8(arrayBufferLen, 0x38);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x38, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
@@ -8163,13 +8165,13 @@ var egret;
                 if (buffer == null || buffer.hashCode <= 0) {
                     return;
                 }
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x3A);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x3A, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, buffer.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
@@ -8179,13 +8181,13 @@ var egret;
                 if (framebuffer == null || framebuffer.hashCode <= 0) {
                     return;
                 }
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x3B);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x3B, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, framebuffer.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
@@ -8195,13 +8197,13 @@ var egret;
                 if (program == null || program.hashCode <= 0) {
                     return;
                 }
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x3C);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x3C, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, program.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
@@ -8211,13 +8213,13 @@ var egret;
                 if (renderbuffer == null || renderbuffer.hashCode <= 0) {
                     return;
                 }
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x3D);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x3D, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, renderbuffer.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
@@ -8227,13 +8229,13 @@ var egret;
                 if (texture == null || texture.hashCode <= 0) {
                     return;
                 }
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x3E);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x3E, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, texture.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
@@ -8243,39 +8245,39 @@ var egret;
                 if (texture == null || texture.hashCode <= 0) {
                     return;
                 }
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x3F);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x3F, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, texture.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x1A activeTexture(texture: number): void;
             WebGLCmdArrayManager.prototype.activeTexture = function (texture) {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x1A);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x1A, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, texture, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x20 bindTexture(target: number, texture: WebGLTexture | null): void;
             WebGLCmdArrayManager.prototype.bindTexture = function (target, texture) {
-                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x20);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x20, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 if (texture == null) {
@@ -8293,13 +8295,13 @@ var egret;
                 if (program == null) {
                     return;
                 }
-                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x64);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x64, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, program.hashCode, true);
                 arrayBufferLen += 4;
                 var nameid = this.pushString(name);
@@ -8314,13 +8316,13 @@ var egret;
             };
             // 0x53 getAttribLocation(program: WebGLProgram | null, name: string): number;
             WebGLCmdArrayManager.prototype.getAttribLocation = function (program, name) {
-                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x53);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x53, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, program.hashCode, true);
                 arrayBufferLen += 4;
                 var nameid = this.pushString(name);
@@ -8344,26 +8346,26 @@ var egret;
             };
             // 0x49 enableVertexAttribArray(index: number): void;
             WebGLCmdArrayManager.prototype.enableVertexAttribArray = function (indx) {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x49);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x49, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, indx.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0xA2 vertexAttribPointer(indx: number, size: number, type: number, normalized: boolean, stride: number, offset: number): void;
             WebGLCmdArrayManager.prototype.vertexAttribPointer = function (indx, size, type, normalized, stride, offset) {
-                if (this.arrayBufferLen + 25 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 28 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0xA2);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0xA2, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, indx.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, size, true);
@@ -8379,13 +8381,13 @@ var egret;
                 this.arrayBufferLen = arrayBufferLen;
             };
             WebGLCmdArrayManager.prototype.uniformxv = function (location, v, type) {
-                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, type);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, type);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 var arrayid = this.pushTypedArrays(v);
                 arrayBufferLen += 4;
@@ -8427,13 +8429,13 @@ var egret;
             };
             // 0x85 uniform1f(location: WebGLUniformLocation | null, x: number): void;
             WebGLCmdArrayManager.prototype.uniform1f = function (location, x) {
-                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x85);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x85, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setFloat32(arrayBufferLen, x, true);
@@ -8442,13 +8444,13 @@ var egret;
             };
             // 0x87 uniform1i(location: WebGLUniformLocation | null, x: number): void;
             WebGLCmdArrayManager.prototype.uniform1i = function (location, x) {
-                if (this.arrayBufferLen + 9 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x87);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x87, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setInt32(arrayBufferLen, x, true);
@@ -8457,13 +8459,13 @@ var egret;
             };
             // 0x89 uniform2f(location: WebGLUniformLocation | null, x: number, y: number): void;
             WebGLCmdArrayManager.prototype.uniform2f = function (location, x, y) {
-                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x89);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x89, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setFloat32(arrayBufferLen, x, true);
@@ -8474,13 +8476,13 @@ var egret;
             };
             // 0x8B uniform2i(location: WebGLUniformLocation | null, x: number, y: number): void;
             WebGLCmdArrayManager.prototype.uniform2i = function (location, x, y) {
-                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x8B);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x8B, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setInt32(arrayBufferLen, x, true);
@@ -8491,13 +8493,13 @@ var egret;
             };
             // 0x8D uniform3f(location: WebGLUniformLocation | null, x: number, y: number, z: number): void;
             WebGLCmdArrayManager.prototype.uniform3f = function (location, x, y, z) {
-                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x8D);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x8D, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setFloat32(arrayBufferLen, x, true);
@@ -8510,13 +8512,13 @@ var egret;
             };
             // 0x8F uniform3i(location: WebGLUniformLocation | null, x: number, y: number, z: number): void;
             WebGLCmdArrayManager.prototype.uniform3i = function (location, x, y, z) {
-                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x8F);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x8F, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setInt32(arrayBufferLen, x, true);
@@ -8529,13 +8531,13 @@ var egret;
             };
             // 0x91 uniform4f(location: WebGLUniformLocation | null, x: number, y: number, z: number, w: number): void;
             WebGLCmdArrayManager.prototype.uniform4f = function (location, x, y, z, w) {
-                if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 24 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x91);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x91, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setFloat32(arrayBufferLen, x, true);
@@ -8550,13 +8552,13 @@ var egret;
             };
             // 0x93 uniform4i(location: WebGLUniformLocation | null, x: number, y: number, z: number, w: number): void;
             WebGLCmdArrayManager.prototype.uniform4i = function (location, x, y, z, w) {
-                if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 24 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x93);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x93, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setInt32(arrayBufferLen, x, true);
@@ -8571,13 +8573,13 @@ var egret;
             };
             // 0x95 uniformMatrix2fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | number[]): void;
             WebGLCmdArrayManager.prototype.uniformMatrix2fv = function (location, transpose, value) {
-                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x95);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x95, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, transpose ? 1 : 0, true);
@@ -8596,13 +8598,13 @@ var egret;
             };
             // 0x96 uniformMatrix3fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | number[]): void;
             WebGLCmdArrayManager.prototype.uniformMatrix3fv = function (location, transpose, value) {
-                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x96);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x96, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, transpose ? 1 : 0, true);
@@ -8621,13 +8623,13 @@ var egret;
             };
             // 0x97 uniformMatrix4fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | number[]): void;
             WebGLCmdArrayManager.prototype.uniformMatrix4fv = function (location, transpose, value) {
-                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x97);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x97, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, transpose ? 1 : 0, true);
@@ -8646,13 +8648,13 @@ var egret;
             };
             // 0x7F texImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, format: number, type: number, pixels?: ArrayBufferView): void;
             WebGLCmdArrayManager.prototype.texImage2Di = function (target, level, internalformat, width, height, border, format, type, pixels) {
-                if (this.arrayBufferLen + 37 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 40 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x7F);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x7F, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, level, true);
@@ -8682,13 +8684,13 @@ var egret;
             // 0x80 texImage2D(target: number, level: number, internalformat: number, format: number, type: number, pixels?: ImageData | HTMLVideoElement | HTMLImageElement | HTMLCanvasElement): void;
             // TODO HTMLCanvasElement
             WebGLCmdArrayManager.prototype.texImage2D = function (target, level, internalformat, format, type, pixels) {
-                if (this.arrayBufferLen + 29 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 32 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x80);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x80, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, level, true);
@@ -8719,13 +8721,13 @@ var egret;
             };
             // 0x81 texParameterf(target: number, pname: number, param: number): void;
             WebGLCmdArrayManager.prototype.texParameterf = function (target, pname, param) {
-                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x81);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x81, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, pname, true);
@@ -8736,13 +8738,13 @@ var egret;
             };
             // 0x82 texParameteri(target: number, pname: number, param: number): void;
             WebGLCmdArrayManager.prototype.texParameteri = function (target, pname, param) {
-                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x82);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x82, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, pname, true);
@@ -8753,26 +8755,26 @@ var egret;
             };
             //0x4F generateMipmap(target: number): void;
             WebGLCmdArrayManager.prototype.generateMipmap = function (target) {
-                if (this.arrayBufferLen + 5 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x4F);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x4F, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x26 bufferData(target: number, arrayData number | ArrayBufferView | ArrayBuffer, usage: number): void;
             WebGLCmdArrayManager.prototype.bufferData = function (target, arrayData, usage) {
-                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x26);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x26, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 if (arrayData) {
@@ -8791,13 +8793,13 @@ var egret;
             };
             // 0x27 bufferSubData(target: number, offset: number, data: ArrayBufferView | ArrayBuffer): void;
             WebGLCmdArrayManager.prototype.bufferSubData = function (target, offset, arrayData) {
-                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x27);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x27, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, offset, true);
@@ -8817,13 +8819,13 @@ var egret;
             };
             // 0x46 drawArrays(mode: number, first: number, count: number): void;
             WebGLCmdArrayManager.prototype.drawArrays = function (mode, first, count) {
-                if (this.arrayBufferLen + 13 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x46);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x46, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, mode, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, first, true);
@@ -8834,13 +8836,13 @@ var egret;
             };
             // 0x47 drawElements(mode: number, count: number, type: number, offset: number): void;
             WebGLCmdArrayManager.prototype.drawElements = function (mode, count, type, offset) {
-                if (this.arrayBufferLen + 17 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 20 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0x47);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0x47, true);
+                arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, mode, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, count, true);
@@ -8853,13 +8855,13 @@ var egret;
             };
             // 0xFF drawText(str: string, transform: Float32Array, textColor: number, stroke: boolean, strokeColor: number)
             WebGLCmdArrayManager.prototype.drawText = function (str, transform, textColor, stroke, strokeColor) {
-                if (this.arrayBufferLen + 21 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 24 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint8(arrayBufferLen, 0xFF);
-                arrayBufferLen += 1;
+                dataView.setUint32(arrayBufferLen, 0xFF, true);
+                arrayBufferLen += 4;
                 var strId = this.pushString(str);
                 dataView.setUint32(arrayBufferLen, strId, true);
                 arrayBufferLen += 4;
