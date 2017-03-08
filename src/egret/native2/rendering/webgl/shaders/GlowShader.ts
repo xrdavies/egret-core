@@ -38,7 +38,7 @@ namespace egret.native2 {
 
             'uniform sampler2D uSampler;',
 
-            'uniform float distance;',
+            'uniform float dist;',
             'uniform float angle;',
             'uniform vec4 color;',
             'uniform float alpha;',
@@ -51,7 +51,6 @@ namespace egret.native2 {
             'uniform float hideObject;',
 
             "uniform vec2 uTextureSize;"+
-            'vec2 px = vec2(1.0 / uTextureSize.x, 1.0 / uTextureSize.y);',
 
             'float random(vec3 scale, float seed)',
             '{',
@@ -59,6 +58,7 @@ namespace egret.native2 {
             '}',
 
             'void main(void) {',
+                'vec2 px = vec2(1.0 / uTextureSize.x, 1.0 / uTextureSize.y);',
                 // TODO 自动调节采样次数？
                 'const float linearSamplingTimes = 7.0;',
                 'const float circleSamplingTimes = 12.0;',
@@ -68,8 +68,8 @@ namespace egret.native2 {
                 'float maxTotalAlpha = 0.0;',
                 'float curDistanceX = 0.0;',
                 'float curDistanceY = 0.0;',
-                'float offsetX = distance * cos(angle) * px.x;',
-                'float offsetY = distance * sin(angle) * px.y;',
+                'float offsetX = dist * cos(angle) * px.x;',
+                'float offsetY = dist * sin(angle) * px.y;',
 
                 'const float PI = 3.14159265358979323846264;',
                 'float cosAngle;',
@@ -108,7 +108,7 @@ namespace egret.native2 {
         public uniforms = {
             projectionVector: {type: '2f', value: {x: 0, y: 0}, dirty: true},
 
-            distance: {type: '1f', value: 15, dirty: true},
+            dist: {type: '1f', value: 15, dirty: true},
             angle: {type: '1f', value: 1, dirty: true},
             color: {type: '4f', value: {x: 1, y: 0, z: 0, w: 0}, dirty: true},
             alpha: {type: '1f', value: 1, dirty: true},
@@ -123,7 +123,7 @@ namespace egret.native2 {
         };
 
         public setDistance(distance:number):void {
-            let uniform = this.uniforms.distance;
+            let uniform = this.uniforms.dist;
 
             if(uniform.value != distance) {
                 uniform.value = distance;
