@@ -48,7 +48,7 @@ namespace egret.web {
      */
     export class WebGLRenderContext {
 
-        public static antialias:boolean;
+        public static antialias: boolean;
 
         /**
          * 渲染上下文
@@ -69,6 +69,11 @@ namespace egret.web {
             }
             this.instance = new WebGLRenderContext(width, height);
             return this.instance;
+        }
+
+        public static getMaxTextureSize(): number {
+            let gl: WebGLRenderingContext = WebGLRenderContext.getInstance(1, 1).context;
+            return gl.getParameter(gl.MAX_TEXTURE_SIZE);
         }
 
         /**
@@ -260,7 +265,7 @@ namespace egret.web {
 
         public projectionX: number = NaN;
         public projectionY: number = NaN;
-        
+
         public contextLost: boolean = false;
 
         private initWebGL(): void {
@@ -338,7 +343,7 @@ namespace egret.web {
         /**
          * 开启scissor检测
          */
-        public enableScissorTest(rect:egret.Rectangle): void {
+        public enableScissorTest(rect: egret.Rectangle): void {
             let gl: any = this.context;
             gl.enable(gl.SCISSOR_TEST);
             gl.scissor(rect.x, rect.y, rect.width, rect.height);
@@ -408,10 +413,10 @@ namespace egret.web {
          */
         public getWebGLTexture(bitmapData: BitmapData): WebGLTexture {
             if (!bitmapData.webGLTexture) {
-                if(bitmapData.format == "image") {
+                if (bitmapData.format == "image") {
                     bitmapData.webGLTexture = this.createTexture(bitmapData.source);
                 }
-                else if(bitmapData.format == "pvr") {//todo 需要支持其他格式
+                else if (bitmapData.format == "pvr") {//todo 需要支持其他格式
                     bitmapData.webGLTexture = this.createTextureFromCompressedData(bitmapData.source.pvrtcData, bitmapData.width, bitmapData.height, bitmapData.source.mipmapsCount, bitmapData.source.format);
                 }
                 if (bitmapData.$deleteSource && bitmapData.webGLTexture) {
@@ -427,13 +432,13 @@ namespace egret.web {
         public clearRect(x: number, y: number, width: number, height: number): void {
             if (x != 0 || y != 0 || width != this.surface.width || height != this.surface.height) {
                 let buffer = this.currentBuffer;
-                if(buffer.$hasScissor) {
+                if (buffer.$hasScissor) {
                     this.setGlobalCompositeOperation("destination-out");
                     this.drawRect(x, y, width, height);
                     this.setGlobalCompositeOperation("source-over");
                 } else {
                     let m = buffer.globalMatrix;
-                    if(m.b == 0 && m.c == 0) {
+                    if (m.b == 0 && m.c == 0) {
                         x = x * m.a + m.tx;
                         y = y * m.d + m.ty;
                         width = width * m.a;
@@ -445,7 +450,7 @@ namespace egret.web {
                         this.setGlobalCompositeOperation("destination-out");
                         this.drawRect(x, y, width, height);
                         this.setGlobalCompositeOperation("source-over");
-                    } 
+                    }
                 }
             } else {
                 this.clear();
@@ -653,11 +658,11 @@ namespace egret.web {
             this.drawCmdManager.pushClearColor();
         }
 
-        public $scissorState:boolean = false;
+        public $scissorState: boolean = false;
         /**
          * 开启scissor test
          */
-        public enableScissor(x:number, y:number, width:number, height:number): void {
+        public enableScissor(x: number, y: number, width: number, height: number): void {
             let buffer = this.currentBuffer;
             this.drawCmdManager.pushEnableScissor(x, y, width, height);
             buffer.$hasScissor = true;
@@ -723,21 +728,21 @@ namespace egret.web {
             }
 
             let gl = this.context;
-            let program:EgretWebGLProgram;
+            let program: EgretWebGLProgram;
             let filter = data.filter;
 
             switch (data.type) {
                 case DRAWABLE_TYPE.TEXTURE:
                     if (filter) {
-                        if(filter.type === "custom") {
+                        if (filter.type === "custom") {
                             program = EgretWebGLProgram.getProgram(gl, filter.$vertexSrc, filter.$fragmentSrc, filter.$shaderKey);
-                        } else if(filter.type === "colorTransform") {
+                        } else if (filter.type === "colorTransform") {
                             program = EgretWebGLProgram.getProgram(gl, EgretShaderLib.default_vert, EgretShaderLib.colorTransform_frag, "colorTransform");
-                        } else if(filter.type === "blurX") {
+                        } else if (filter.type === "blurX") {
                             program = EgretWebGLProgram.getProgram(gl, EgretShaderLib.default_vert, EgretShaderLib.blur_frag, "blur");
-                        } else if(filter.type === "blurY") {
+                        } else if (filter.type === "blurY") {
                             program = EgretWebGLProgram.getProgram(gl, EgretShaderLib.default_vert, EgretShaderLib.blur_frag, "blur");
-                        } else if(filter.type === "glow") {
+                        } else if (filter.type === "glow") {
                             program = EgretWebGLProgram.getProgram(gl, EgretShaderLib.default_vert, EgretShaderLib.glow_frag, "glow");
                         }
                     } else {
@@ -746,7 +751,7 @@ namespace egret.web {
 
                     this.activeProgram(gl, program);
                     this.syncUniforms(program, filter, data.textureWidth, data.textureHeight);
-                    
+
                     offset += this.drawTextureElements(data, offset);
                     break;
                 case DRAWABLE_TYPE.RECT:
@@ -810,9 +815,9 @@ namespace egret.web {
             return offset;
         }
 
-        public currentProgram:EgretWebGLProgram;
-        private activeProgram(gl:WebGLRenderingContext, program:EgretWebGLProgram):void {
-            if(program != this.currentProgram) {
+        public currentProgram: EgretWebGLProgram;
+        private activeProgram(gl: WebGLRenderingContext, program: EgretWebGLProgram): void {
+            if (program != this.currentProgram) {
                 gl.useProgram(program.id);
 
                 // 目前所有attribute buffer的绑定方法都是一致的
@@ -828,24 +833,24 @@ namespace egret.web {
             }
         }
 
-        private syncUniforms(program:EgretWebGLProgram, filter:Filter, textureWidth:number, textureHeight:number):void {
+        private syncUniforms(program: EgretWebGLProgram, filter: Filter, textureWidth: number, textureHeight: number): void {
             let uniforms = program.uniforms;
-            let isCustomFilter:boolean = filter && filter.type === "custom";
-            for(let key in uniforms) {
-                if(key === "projectionVector") {
-                    uniforms[key].setValue({x: this.projectionX, y: this.projectionY});
-                } else if(key === "uTextureSize") {
-                    uniforms[key].setValue({x: textureWidth, y: textureHeight});
-                } else if(key === "uSampler") {
+            let isCustomFilter: boolean = filter && filter.type === "custom";
+            for (let key in uniforms) {
+                if (key === "projectionVector") {
+                    uniforms[key].setValue({ x: this.projectionX, y: this.projectionY });
+                } else if (key === "uTextureSize") {
+                    uniforms[key].setValue({ x: textureWidth, y: textureHeight });
+                } else if (key === "uSampler") {
 
                 } else {
                     let value = filter.$uniforms[key];
-                    if(value !== undefined) {
+                    if (value !== undefined) {
                         uniforms[key].setValue(value);
                     } else {
                         // egret.warn("filter custom: uniform " + key + " not defined!");
                     }
-                }                
+                }
             }
         }
 
