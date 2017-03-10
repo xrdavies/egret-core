@@ -91,7 +91,7 @@ namespace egret.web {
         audioType?:number;
         screenAdapter?:sys.IScreenAdapter;
         antialias?:boolean;
-        scale?:boolean
+        retina?:boolean
     }):void {
         if (isRunning) {
             return;
@@ -115,7 +115,7 @@ namespace egret.web {
         setRenderMode(options.renderMode);
 
 
-        if(options.scale) {
+        if(options.retina) {
             //based on : https://github.com/jondavidjohn/hidpi-canvas-polyfill
             let context = sys.canvasHitTestBuffer.context;
             let backingStore = context.backingStorePixelRatio ||

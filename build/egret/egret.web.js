@@ -3847,7 +3847,7 @@ var egret;
             }
             egret.sys.CanvasRenderBuffer = web.CanvasRenderBuffer;
             setRenderMode(options.renderMode);
-            if (options.scale) {
+            if (options.retina) {
                 //based on : https://github.com/jondavidjohn/hidpi-canvas-polyfill
                 var context_1 = egret.sys.canvasHitTestBuffer.context;
                 var backingStore = context_1.backingStorePixelRatio ||

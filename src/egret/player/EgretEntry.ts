@@ -43,7 +43,7 @@ namespace egret {
         audioType?:number;
         screenAdapter?:sys.IScreenAdapter;
         antialias:boolean,
-        scale:boolean
+        retina:boolean
     }):void;
     /**
      * Refresh the screen display
