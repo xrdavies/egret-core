@@ -384,7 +384,8 @@ var egret;
                 this.playerOption = option;
                 this.$stage = stage;
                 this.player = player;
-                this.nativeTouchHandler = touch;
+                this.nativeTouch = touch;
+                this.webTouchHandler = touch;
                 //this.nativeInput = nativeInput;
                 this.updateScreenSize();
                 this.updateMaxTouches();
@@ -406,8 +407,8 @@ var egret;
                 egret_native.setVisibleRect(left, top, displayWidth, displayHeight);
                 egret_native.setDesignSize(stageWidth, stageHeight);
                 var scalex = displayWidth / stageWidth, scaley = displayHeight / stageHeight;
-                this.nativeTouchHandler.updateScaleMode(scalex, scaley, 0);
-                this.nativeTouchHandler.updateTouchOffset(stageWidth / screenWidth, stageHeight / screenHeight, top, left);
+                this.webTouchHandler.updateScaleMode(scalex, scaley, 0);
+                this.webTouchHandler.updateTouchOffset(stageWidth / screenWidth, stageHeight / screenHeight, top, left);
                 this.player.updateStageSize(stageWidth, stageHeight);
             };
             NativePlayer.prototype.setContentSize = function (width, height) {
@@ -430,7 +431,7 @@ var egret;
              * 更新触摸数量
              */
             NativePlayer.prototype.updateMaxTouches = function () {
-                this.nativeTouchHandler.$updateMaxTouches();
+                this.webTouchHandler.$updateMaxTouches();
             };
             return NativePlayer;
         }(egret.HashObject));
