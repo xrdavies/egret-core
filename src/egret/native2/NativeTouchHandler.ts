@@ -38,43 +38,51 @@ namespace egret.native2 {
             super();
             this.$touch = new egret.sys.TouchHandler(stage);
 
-            let self = this;
+            let _that = this;
             window.addEventListener("touchstart", function(event:any) {
                 let l = event.changedTouches.length;
                 for (let i:number = 0; i < l; i++) {
                     var touch = event.changedTouches[i];
-                    self.$touch.onTouchBegin(touch.pageX, touch.pageY, touch.identifier);
+                    var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
+                    var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                    _that.$touch.onTouchBegin(locationX, locationY, touch.identifier);
                 }
             });
             window.addEventListener("touchmove", function(event:any) {
                 let l = event.changedTouches.length;
                 for (let i:number = 0; i < l; i++) {
                     var touch = event.changedTouches[i];
-                    self.$touch.onTouchMove(touch.pageX, touch.pageY, touch.identifier);
+                    var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
+                    var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                    _that.$touch.onTouchMove(locationX, locationY, touch.identifier);
                 }
             });
             window.addEventListener("touchend", function(event:any) {
                 let l = event.changedTouches.length;
                 for (let i:number = 0; i < l; i++) {
                     var touch = event.changedTouches[i];
-                    self.$touch.onTouchEnd(touch.pageX, touch.pageY, touch.identifier);
+                    var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
+                    var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                    _that.$touch.onTouchEnd(locationX, locationY, touch.identifier);
                 }
             });
             window.addEventListener("touchcancel", function(event:any) {
                 let l = event.changedTouches.length;
                 for (let i:number = 0; i < l; i++) {
                     var touch = event.changedTouches[i];
-                    self.$touch.onTouchEnd(touch.pageX, touch.pageY, touch.identifier);
+                    var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
+                    var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                    _that.$touch.onTouchEnd(locationX, locationY, touch.identifier);
                 }
             });
             // egret_native.touchDown = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-            //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchBegin);
+            //     _that.$executeTouchCallback(num, ids, xs_array, ys_array, _that.$touch.onTouchBegin);
             // };
             // egret_native.touchMove = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-            //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchMove);
+            //     _that.$executeTouchCallback(num, ids, xs_array, ys_array, _that.$touch.onTouchMove);
             // };
             // egret_native.touchUp = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-            //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchEnd);
+            //     _that.$executeTouchCallback(num, ids, xs_array, ys_array, _that.$touch.onTouchEnd);
             // };
             // egret_native.touchCancel = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
 
@@ -102,7 +110,14 @@ namespace egret.native2 {
          * @private
          */
         private rotation:number = 0;
-
+        /**
+         * @private 更新Stage相对于屏幕的缩放比例，用于计算准确的点击位置。
+         * @platform Native
+         */
+        private touchScaleX:number = 1;
+        private touchScaleY:number = 1;
+        private touchOffsetX:number = 0;
+        private touchOffsetY:number = 0;
         /**
          * @private
          * 更新屏幕当前的缩放比例，用于计算准确的点击位置。
@@ -113,6 +128,13 @@ namespace egret.native2 {
             this.scaleX = scaleX;
             this.scaleY = scaleY;
             this.rotation = rotation;
+        }
+
+        public updateTouchOffset(scalex:number, scaley:number, top:number, left:number) {
+                this.touchScaleX = scalex;
+                this.touchScaleY = scaley;
+                this.touchOffsetX = top;
+                this.touchOffsetY = left;
         }
 
         /**

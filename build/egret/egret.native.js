@@ -384,8 +384,7 @@ var egret;
                 this.playerOption = option;
                 this.$stage = stage;
                 this.player = player;
-                this.nativeTouch = touch;
-                this.webTouchHandler = touch;
+                this.nativeTouchHandler = touch;
                 //this.nativeInput = nativeInput;
                 this.updateScreenSize();
                 this.updateMaxTouches();
@@ -407,7 +406,8 @@ var egret;
                 egret_native.setVisibleRect(left, top, displayWidth, displayHeight);
                 egret_native.setDesignSize(stageWidth, stageHeight);
                 var scalex = displayWidth / stageWidth, scaley = displayHeight / stageHeight;
-                this.webTouchHandler.updateScaleMode(scalex, scaley, 0);
+                this.nativeTouchHandler.updateScaleMode(scalex, scaley, 0);
+                this.nativeTouchHandler.updateTouchOffset(stageWidth / screenWidth, stageHeight / screenHeight, top, left);
                 this.player.updateStageSize(stageWidth, stageHeight);
             };
             NativePlayer.prototype.setContentSize = function (width, height) {
@@ -430,7 +430,7 @@ var egret;
              * 更新触摸数量
              */
             NativePlayer.prototype.updateMaxTouches = function () {
-                this.nativeTouch.$updateMaxTouches();
+                this.nativeTouchHandler.$updateMaxTouches();
             };
             return NativePlayer;
         }(egret.HashObject));
@@ -723,45 +723,61 @@ var egret;
                  * @private
                  */
                 _this.rotation = 0;
+                /**
+                 * @private 更新Stage相对于屏幕的缩放比例，用于计算准确的点击位置。
+                 * @platform Native
+                 */
+                _this.touchScaleX = 1;
+                _this.touchScaleY = 1;
+                _this.touchOffsetX = 0;
+                _this.touchOffsetY = 0;
                 _this.$touch = new egret.sys.TouchHandler(stage);
-                var self = _this;
+                var _that = _this;
                 window.addEventListener("touchstart", function (event) {
                     var l = event.changedTouches.length;
                     for (var i = 0; i < l; i++) {
                         var touch = event.changedTouches[i];
-                        self.$touch.onTouchBegin(touch.pageX, touch.pageY, touch.identifier);
+                        var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
+                        var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                        _that.$touch.onTouchBegin(locationX, locationY, touch.identifier);
                     }
                 });
                 window.addEventListener("touchmove", function (event) {
                     var l = event.changedTouches.length;
                     for (var i = 0; i < l; i++) {
                         var touch = event.changedTouches[i];
-                        self.$touch.onTouchMove(touch.pageX, touch.pageY, touch.identifier);
+                        var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
+                        var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                        _that.$touch.onTouchMove(locationX, locationY, touch.identifier);
                     }
                 });
                 window.addEventListener("touchend", function (event) {
                     var l = event.changedTouches.length;
                     for (var i = 0; i < l; i++) {
                         var touch = event.changedTouches[i];
-                        self.$touch.onTouchEnd(touch.pageX, touch.pageY, touch.identifier);
+                        var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
+                        var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                        _that.$touch.onTouchEnd(locationX, locationY, touch.identifier);
                     }
                 });
                 window.addEventListener("touchcancel", function (event) {
                     var l = event.changedTouches.length;
                     for (var i = 0; i < l; i++) {
                         var touch = event.changedTouches[i];
-                        self.$touch.onTouchEnd(touch.pageX, touch.pageY, touch.identifier);
+                        var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
+                        var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                        _that.$touch.onTouchEnd(locationX, locationY, touch.identifier);
                     }
                 });
                 return _this;
                 // egret_native.touchDown = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-                //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchBegin);
+                //     _that.$executeTouchCallback(num, ids, xs_array, ys_array, _that.$touch.onTouchBegin);
                 // };
                 // egret_native.touchMove = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-                //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchMove);
+                //     _that.$executeTouchCallback(num, ids, xs_array, ys_array, _that.$touch.onTouchMove);
                 // };
                 // egret_native.touchUp = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-                //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchEnd);
+                //     _that.$executeTouchCallback(num, ids, xs_array, ys_array, _that.$touch.onTouchEnd);
                 // };
                 // egret_native.touchCancel = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
                 // };
@@ -776,6 +792,12 @@ var egret;
                 this.scaleX = scaleX;
                 this.scaleY = scaleY;
                 this.rotation = rotation;
+            };
+            NativeTouchHandler.prototype.updateTouchOffset = function (scalex, scaley, top, left) {
+                this.touchScaleX = scalex;
+                this.touchScaleY = scaley;
+                this.touchOffsetX = top;
+                this.touchOffsetY = left;
             };
             /**
              * @private
