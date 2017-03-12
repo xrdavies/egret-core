@@ -354,7 +354,7 @@ namespace egret.native2 {
             }
             if(options.cmdbatch == true)
             {
-                this.glCmdManager = new WebGLCmdArrayManager(this.surface);
+                this.glCmdManager = new WebGLCmdArrayManager(this.surface, gl);
                 this.glCmdManager.initCacheContext();
             }
             this.setContext(gl);
