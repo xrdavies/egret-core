@@ -9,13 +9,25 @@ console.log("native version" + egret_native.getVersion());
 var window = this;
 var self = this;
 
-// log window
-// console.log("window ->");
-// console.log("{")
-// for(var key in window) {
-//     console.log(key + ":" + window[key]);
-// }
-// console.log("}")
+function setTimeout(callback, time)
+{
+    egret_native.addTimer(callback, time, false);
+}
+
+function setInterval(callback, time)
+{
+    egret_native.addTimer(callback, time, true);
+}
+
+function clearTimeout(id)
+{
+    egret_native.removeTimer(id);
+}
+
+function clearInterval(id)
+{
+    egret_native.removeTimer(id);
+}
 
 // fake HTMLElement
 (function(window) {

@@ -12351,6 +12351,15 @@ var egret;
 })(egret || (egret = {}));
 var egret;
 (function (egret) {
+    function isString(value) {
+        if (typeof value === 'string' || value instanceof String) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    egret.isString = isString;
     var native2;
     (function (native2) {
         var FileManager = (function () {
@@ -12359,23 +12368,30 @@ var egret;
             FileManager.makeFullPath = function (url) {
                 console.log("makeFullPath = " + url);
                 var fullPath = "";
-                if (!egret_native.fs.isAbsolutePathSync(url)) {
-                    console.log("========" + egret.Capabilities.os);
-                    if (egret.Capabilities.os == "Android") {
-                        fullPath = "egret-game/1/" + url;
+                if (isString(url)) {
+                    if (!egret_native.fs.isAbsolutePathSync(url)) {
+                        console.log("========" + egret.Capabilities.os);
+                        if (egret.Capabilities.os == "Android") {
+                            fullPath = "egret-game/1/" + url;
+                        }
+                        else {
+                            var workPath = egret_native.fs.getAssetDirectorySync();
+                            //console.log("url = " + url);
+                            //console.log("workPath = " + workPath);
+                            if (workPath.lastIndexOf("/") !== workPath.length) {
+                                workPath += "/";
+                            }
+                            fullPath = workPath + "egret-game/1/" + url;
+                        }
                     }
                     else {
-                        var workPath = egret_native.fs.getAssetDirectorySync();
-                        //console.log("url = " + url);
-                        //console.log("workPath = " + workPath);
-                        if (workPath.lastIndexOf("/") !== workPath.length) {
-                            workPath += "/";
-                        }
-                        fullPath = workPath + "egret-game/1/" + url;
+                        fullPath = url;
                     }
                 }
                 else {
-                    fullPath = url;
+                    var blob = url;
+                    var base64 = egret.Base64Util.encode(blob.data);
+                    fullPath = "data:" + blob.type + ";base64," + base64;
                 }
                 console.log("fullPath = " + fullPath);
                 return fullPath;

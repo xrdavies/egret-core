@@ -6,31 +6,56 @@ declare namespace egret_native {
         function getAssetDirectorySync(): string;
     }
 }
+
 namespace egret {
+    
+    export function isString(value: any): value is string {
+        if (typeof value === 'string' || value instanceof String) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    export interface NativeBlob
+    {
+        type:string;
+        data:ArrayBuffer;
+    }    
+
     export namespace native2 {
         export class FileManager {
-            static makeFullPath(url: string): string {
+            static makeFullPath(url: string | NativeBlob): string {
                 console.log("makeFullPath = " + url);
                 let fullPath = "";
-                if (!egret_native.fs.isAbsolutePathSync(url)) {
-                    console.log("========" + egret.Capabilities.os);
-                    if (egret.Capabilities.os == "Android") {
-                        fullPath = "egret-game/1/" + url;
+                if (isString(url)) {
+                    if (!egret_native.fs.isAbsolutePathSync(url)) {
+                        console.log("========" + egret.Capabilities.os);
+                        if (egret.Capabilities.os == "Android") {
+                            fullPath = "egret-game/1/" + url;
+                        }
+                        else {
+                            let workPath = egret_native.fs.getAssetDirectorySync();
+                            //console.log("url = " + url);
+                            //console.log("workPath = " + workPath);
+                            if (workPath.lastIndexOf("/") !== workPath.length) {
+                                workPath += "/";
+                            }
+                            fullPath = workPath + "egret-game/1/" + url;
+
+                        }
                     }
                     else {
-                        let workPath = egret_native.fs.getAssetDirectorySync();
-                        //console.log("url = " + url);
-                        //console.log("workPath = " + workPath);
-                        if (workPath.lastIndexOf("/") !== workPath.length) {
-                            workPath += "/";
-                        }
-                        fullPath = workPath + "egret-game/1/" + url;
-
+                        fullPath = url;
                     }
                 }
-                else {
-                    fullPath = url;
+                else{
+                    var blob = url;
+                    var base64 = egret.Base64Util.encode(blob.data);
+                    fullPath = "data:" + blob.type + ";base64," + base64;
                 }
+
                 console.log("fullPath = " + fullPath);
                 return fullPath;
             }

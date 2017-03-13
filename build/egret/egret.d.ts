@@ -8495,9 +8495,14 @@ declare namespace egret_native {
     }
 }
 declare namespace egret {
+    function isString(value: any): value is string;
+    interface NativeBlob {
+        type: string;
+        data: ArrayBuffer;
+    }
     namespace native2 {
         class FileManager {
-            static makeFullPath(url: string): string;
+            static makeFullPath(url: string | NativeBlob): string;
             static createImage(url: string, promise: any): void;
             static readFileAsync(url: string, promise: any, type: "String" | "ArrayBuffer"): void;
             static isFileExistSync(url: string): boolean;
