@@ -47,6 +47,7 @@ namespace egret.native2 {
 
         private webTouchHandler:NativeTouchHandler;
 
+
         public constructor() {
             super();
             this.init(NativePlayer.option);
@@ -119,6 +120,7 @@ namespace egret.native2 {
                 scaley = displayHeight / stageHeight;
 
             this.webTouchHandler.updateScaleMode(scalex, scaley, 0);
+            this.webTouchHandler.updateTouchOffset(stageWidth/screenWidth, stageHeight/screenHeight, top, left);
 
             this.player.updateStageSize(stageWidth, stageHeight);
         }
@@ -150,7 +152,7 @@ namespace egret.native2 {
          * 更新触摸数量
          */
         public updateMaxTouches() {
-            this.nativeTouch.$updateMaxTouches();
+            this.webTouchHandler.$updateMaxTouches();
         }
     }
 }

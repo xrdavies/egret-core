@@ -17865,8 +17865,10 @@ var egret3d;
         * @platform Web,Native
         */
         Context3DProxy.prototype.getUniformLocation = function (programe3D, name) {
-            return Context3DProxy.gl.getUniformLocation(programe3D.program, name);
+            var testval = Context3DProxy.gl.getUniformLocation(programe3D.program, name);
+            return testval;         
         };
+
         /**
         * @language zh_CN
         * 传值给shader一个float
@@ -30940,8 +30942,10 @@ var egret3d;
             // if (active) {
             for (var i = 0; i < passUsage["attributeList"].length; i++) {
                 var attribute = passUsage["attributeList"][i];
-                if (attribute.uniformIndex >= 0)
+                // if (attribute.uniformIndex >= 0) {
+                if(attribute.uniformIndex >= 0 || (attribute.uniformIndex instanceof Object) ) {
                     contextProxy.vertexAttribPointer(attribute.uniformIndex, attribute.size, attribute.dataType, attribute.normalized, attribute.stride, attribute.offsetBytes);
+                }
             }
             //}
         };
@@ -60591,7 +60595,8 @@ var egret3d;
             contextProxy.bindIndexBuffer(self._indexBuffer3D);
             for (var i = 0; i < self._attList.length; ++i) {
                 var attribute = self._attList[i];
-                if (attribute.uniformIndex >= 0) {
+                // if (attribute.uniformIndex >= 0) {
+                if(attribute.uniformIndex >= 0 || (attribute.uniformIndex instanceof Object) ) {
                     contextProxy.vertexAttribPointer(attribute.uniformIndex, attribute.size, attribute.dataType, attribute.normalized, attribute.stride, attribute.offset);
                 }
             }
@@ -61597,10 +61602,17 @@ var egret3d;
             };
             Egret3DCanvas.context3DProxy = new egret3d.Context3DProxy();
             egret3d.Context3DProxy.gl = this.canvas.getContext("webgl");
-            if (!egret3d.Context3DProxy.gl)
+            if (!egret3d.Context3DProxy.gl) {
                 egret3d.Context3DProxy.gl = this.canvas.getContext("experimental-webgl");
-            if (!egret3d.Context3DProxy.gl)
+            }
+            if (!egret3d.Context3DProxy.gl) {
                 alert("you drivers not suport webgl");
+            }
+
+            if (egret.native && egret.native.$supportGLCmdBatch) {
+                var context2d = egret.native2.WebGLRenderContext.getInstance(0, 0);
+                egret3d.Context3DProxy.gl = context2d.glCmdManager;
+            }
             //getExtension
             //this.getExtension("WEBGL_draw_buffers"); 
             //this.getExtension("OES_element_index_uint"); 
@@ -61848,6 +61860,7 @@ var egret3d;
             if (this.afterRender) {
                 this.afterRender();
             }
+
             // 渲染end 
             // 恢复2D上下文
             // Egret3DCanvas.context3DProxy.disableCullFace();

@@ -374,9 +374,21 @@ module egret.native2 {
          * native上下文
          */
         private _canvas:any;
+        /*
+        * 引用webglContext
+        */
+        private _glContext:any;
 
-        public constructor(canvas: any) {
+        public constructor(canvas: any, gl: any) {
             this._canvas = canvas;
+            this._glContext = gl;
+        }
+
+        public initCacheContext() {
+            var that = this;
+            egret_native.Label["bindTexture"] = function (...args) {
+                that.bindLabelTexture.apply(that, args);
+            }
         }
 
         /*
@@ -462,6 +474,10 @@ module egret.native2 {
 
         // 0x45 disableVertexAttribArray(index: number): void;
         public disableVertexAttribArray(index: CmdCacheObject) {
+            if(typeof(index) == "number") {
+                this._glContext.disableVertexAttribArray(index);
+                return;
+            }
             if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
@@ -591,23 +607,17 @@ module egret.native2 {
         }
 
         // 0x79 stencilFunc(func: number, ref: number, mask: number): void;
-        public stencilFunc(func: number, ref: number, mask: number) {
-
-        }
+        // public stencilFunc(func: number, ref: number, mask: number) {
 
         // 0x7A stencilFuncSeparate(face: number, func: number, ref: number, mask: number): void;
-        public stencilFuncSeparate(face: number, func: number, ref: number, mask: number) {
+        // public stencilFuncSeparate(face: number, func: number, ref: number, mask: number) {
 
-        }
 
         // 0x7D stencilOp(fail: number, zfail: number, zpass: number): void;
-        public stencilOp(fail: number, zfail: number, zpass: number) {
+        // public stencilOp(fail: number, zfail: number, zpass: number) {
 
-        }
         // 0x7E stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number): void;
-        public stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number) {
-
-        }
+        // public stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number) {
 
         // 0x4A finish(): void;
         public finish() {
@@ -869,7 +879,7 @@ module egret.native2 {
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
             var webGLObject = new CmdCacheObject();
-            webGLObject.$objType = 0x07;
+            webGLObject.$objType = 0x06;
             dataView.setUint32(arrayBufferLen, 0x37, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
@@ -1215,6 +1225,10 @@ module egret.native2 {
 
         // 0x49 enableVertexAttribArray(index: number): void;
         public enableVertexAttribArray(indx: CmdCacheObject) {
+            if(typeof(indx) == "number") {
+                this._glContext.enableVertexAttribArray(indx);
+                return;
+            }
             if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
@@ -1226,6 +1240,25 @@ module egret.native2 {
             dataView.setUint32(arrayBufferLen, indx.hashCode, true);
             arrayBufferLen += 4;
 
+            this.arrayBufferLen = arrayBufferLen;
+        }
+
+        // 0xA1 vertexAttrib4fv(indx: number, values: Float32Array | number[]): void;
+        public vertexAttrib4fv(indx: CmdCacheObject, values: Float32Array | number[]) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
+                this.flushCmd();
+            }
+            var dataView = this.dataView;
+            var arrayBufferLen = this.arrayBufferLen;
+
+            dataView.setUint32(arrayBufferLen, 0xA1, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, indx.hashCode, true);
+            arrayBufferLen += 4;
+            var valId = this.pushTypedArrays(values);
+            dataView.setUint32(arrayBufferLen, valId, true);
+            arrayBufferLen += 4;
+            
             this.arrayBufferLen = arrayBufferLen;
         }
 
@@ -1262,7 +1295,7 @@ module egret.native2 {
             var dataView = this.dataView;
             var arrayBufferLen = this.arrayBufferLen;
 
-            dataView.setUint32(arrayBufferLen, type);
+            dataView.setUint32(arrayBufferLen, type, true);
             arrayBufferLen += 4;
             dataView.setUint32(arrayBufferLen, location.hashCode, true);
             var arrayid = this.pushTypedArrays(v);
@@ -1537,6 +1570,10 @@ module egret.native2 {
 
         // 0x97 uniformMatrix4fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | number[]): void;
         public uniformMatrix4fv(location: CmdCacheObject, transpose: boolean, value: Float32Array) {
+            if(value == null || value == undefined) {
+                console.log("js warning uniformMatrix4fv");
+                return;
+            }
             if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
@@ -1606,7 +1643,13 @@ module egret.native2 {
 
         // 0x80 texImage2D(target: number, level: number, internalformat: number, format: number, type: number, pixels?: ImageData | HTMLVideoElement | HTMLImageElement | HTMLCanvasElement): void;
         // TODO HTMLCanvasElement
-        public texImage2D(target: number, level: number, internalformat: number, format: number, type: number, pixels?: BitmapData) {
+        public texImage2D(target: number, level: number, internalformat: number, format: number, type: number, pixels?: any /*BitmapData*/) {
+            if(arguments.length == 9)
+            {
+                this.texImage2Di(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4],  
+                    arguments[5],  arguments[6],  arguments[7],  arguments[8]);
+                return;
+            }
             if (this.arrayBufferLen + 32 > this.maxArrayBufferLen) {
                 this.flushCmd();
             }
@@ -1631,18 +1674,124 @@ module egret.native2 {
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, 0, true);
                 arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+                return;
             }
-            else if (pixels.source == null || pixels.source == undefined) {
-                console.log("js error pixels =" + pixels + ".format =" + pixels.format);
-            }
-            else if(pixels.source.___native_p__) {
-                var addr = pixels.source.___native_p__;
+            var addr = (pixels.___native_p__ ? pixels.___native_p__ : pixels.source.___native_p__);
+            if(addr) {
                 dataView.setUint32(arrayBufferLen, (addr / 4294967296) >>> 0, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, (addr & 4294967295) >>> 0, true);
                 arrayBufferLen += 4;
             }
+            else {
+                console.log("js error pixels =" + pixels + ".format =" + pixels.format);
+            }
             
+            this.arrayBufferLen = arrayBufferLen;
+        }
+
+        // 0x2F compressedTexImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, data: ArrayBufferView): void;
+        public compressedTexImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, data: ArrayBufferView) {
+            if (this.arrayBufferLen + 32 > this.maxArrayBufferLen) {
+                this.flushCmd();
+            }
+            var dataView = this.dataView;
+            var arrayBufferLen = this.arrayBufferLen;
+
+            dataView.setUint32(arrayBufferLen, 0x2F, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, target, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, level, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, internalformat, true);
+            arrayBufferLen += 4;
+
+            dataView.setInt32(arrayBufferLen, width, true);
+            arrayBufferLen += 4;
+            dataView.setInt32(arrayBufferLen, height, true);
+            arrayBufferLen += 4;
+            dataView.setInt32(arrayBufferLen, border, true);
+            arrayBufferLen += 4;
+
+            if(data == null) {  //TODO || data == 0) {
+                dataView.setUint32(arrayBufferLen, 0xFFFFFFFF, true);
+            }
+            else {
+                var arrayid = this.pushTypedArrays(data);
+                dataView.setUint32(arrayBufferLen, arrayid, true);
+            }
+            arrayBufferLen += 4;
+            
+            this.arrayBufferLen = arrayBufferLen;
+        }
+        // TODO
+        // 0x30 compressedTexSubImage2D(target: number, level: number, xoffset: number, yoffset: number, width: number, height: number, format: number, data: ArrayBufferView): void;
+
+        // 0x39 cullFace(mode: number): void;
+        public cullFace(mode: number) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
+                this.flushCmd();
+            }
+            var dataView = this.dataView;
+            var arrayBufferLen = this.arrayBufferLen;
+
+            dataView.setUint32(arrayBufferLen, 0x39, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, mode, true);
+            arrayBufferLen += 4; 
+
+            this.arrayBufferLen = arrayBufferLen;
+        }
+
+        // 0x40 depthFunc(func: number): void;
+        public depthFunc(func: number) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
+                this.flushCmd();
+            }
+            var dataView = this.dataView;
+            var arrayBufferLen = this.arrayBufferLen;
+
+            dataView.setUint32(arrayBufferLen, 0x40, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, func, true);
+            arrayBufferLen += 4; 
+
+            this.arrayBufferLen = arrayBufferLen;
+        }
+
+        // 0x41 depthMask(flag: boolean): void;
+        public depthMask(flag: boolean) {
+            if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
+                this.flushCmd();
+            }
+            var dataView = this.dataView;
+            var arrayBufferLen = this.arrayBufferLen;
+
+            dataView.setUint32(arrayBufferLen, 0x41, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, (flag ? 1 : 0), true);
+            arrayBufferLen += 4; 
+
+            this.arrayBufferLen = arrayBufferLen;
+        }
+
+        // 0x42 depthRange(zNear: number, zFar: number): void;
+        public depthRange(zNear: number, zFar: number) {
+            if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
+                this.flushCmd();
+            }
+            var dataView = this.dataView;
+            var arrayBufferLen = this.arrayBufferLen;
+
+            dataView.setUint32(arrayBufferLen, 0x42, true);
+            arrayBufferLen += 4;
+            dataView.setFloat32(arrayBufferLen, zNear, true);
+            arrayBufferLen += 4; 
+            dataView.setFloat32(arrayBufferLen, zFar, true);
+            arrayBufferLen += 4; 
+
             this.arrayBufferLen = arrayBufferLen;
         }
 
@@ -1829,6 +1978,31 @@ module egret.native2 {
             arrayBufferLen += 4;
 
             this.arrayBufferLen = arrayBufferLen;
+        }
+
+        // 0xFE bindLabelTexture(fontatlasId: number, textureId: number)
+        public bindLabelTexture(fontatlasAddr: number, textureId: number) {
+            if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
+                this.flushCmd();
+            }
+            var dataView = this.dataView;
+            var arrayBufferLen = this.arrayBufferLen;
+
+            dataView.setUint32(arrayBufferLen, 0xFE, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, (fontatlasAddr/ 4294967296) >>> 0, true);
+            arrayBufferLen += 4;
+            dataView.setUint32(arrayBufferLen, (fontatlasAddr& 4294967295) >>> 0, true);
+            arrayBufferLen += 4;
+            dataView.setInt32(arrayBufferLen, textureId, true);
+            arrayBufferLen += 4;
+
+            this.arrayBufferLen = arrayBufferLen;
+        }
+
+        // 0x57 getExtension(name: string): any;
+        public getExtension(name: string): any{
+            return this._glContext.getExtension(name);
         }
 
     }

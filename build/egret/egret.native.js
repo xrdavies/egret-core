@@ -409,6 +409,7 @@ var egret;
                 egret_native.setDesignSize(stageWidth, stageHeight);
                 var scalex = displayWidth / stageWidth, scaley = displayHeight / stageHeight;
                 this.webTouchHandler.updateScaleMode(scalex, scaley, 0);
+                this.webTouchHandler.updateTouchOffset(stageWidth / screenWidth, stageHeight / screenHeight, top, left);
                 this.player.updateStageSize(stageWidth, stageHeight);
             };
             NativePlayer.prototype.setContentSize = function (width, height) {
@@ -431,7 +432,7 @@ var egret;
              * 更新触摸数量
              */
             NativePlayer.prototype.updateMaxTouches = function () {
-                this.nativeTouch.$updateMaxTouches();
+                this.webTouchHandler.$updateMaxTouches();
             };
             return NativePlayer;
         }(egret.HashObject));
@@ -516,15 +517,6 @@ var egret;
                     this.downloadFileError();
                     return;
                 }
-                //if (egret_native.isRecordExists(this._path)) {//卡里
-                //    this.loadOver();
-                //    return;
-                //}
-                //else if (egret_native.isFileExists(this._path)){
-                //    this.loadOver();
-                //    return;
-                //}
-                //else {
                 this._downCount++;
                 var promise = egret.PromiseObject.create();
                 var self = this;
@@ -724,45 +716,61 @@ var egret;
                  * @private
                  */
                 _this.rotation = 0;
+                /**
+                 * @private 更新Stage相对于屏幕的缩放比例，用于计算准确的点击位置。
+                 * @platform Native
+                 */
+                _this.touchScaleX = 1;
+                _this.touchScaleY = 1;
+                _this.touchOffsetX = 0;
+                _this.touchOffsetY = 0;
                 _this.$touch = new egret.sys.TouchHandler(stage);
-                var self = _this;
+                var _that = _this;
                 window.addEventListener("touchstart", function (event) {
                     var l = event.changedTouches.length;
                     for (var i = 0; i < l; i++) {
                         var touch = event.changedTouches[i];
-                        self.$touch.onTouchBegin(touch.pageX, touch.pageY, touch.identifier);
+                        var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
+                        var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                        _that.$touch.onTouchBegin(locationX, locationY, touch.identifier);
                     }
                 });
                 window.addEventListener("touchmove", function (event) {
                     var l = event.changedTouches.length;
                     for (var i = 0; i < l; i++) {
                         var touch = event.changedTouches[i];
-                        self.$touch.onTouchMove(touch.pageX, touch.pageY, touch.identifier);
+                        var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
+                        var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                        _that.$touch.onTouchMove(locationX, locationY, touch.identifier);
                     }
                 });
                 window.addEventListener("touchend", function (event) {
                     var l = event.changedTouches.length;
                     for (var i = 0; i < l; i++) {
                         var touch = event.changedTouches[i];
-                        self.$touch.onTouchEnd(touch.pageX, touch.pageY, touch.identifier);
+                        var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
+                        var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                        _that.$touch.onTouchEnd(locationX, locationY, touch.identifier);
                     }
                 });
                 window.addEventListener("touchcancel", function (event) {
                     var l = event.changedTouches.length;
                     for (var i = 0; i < l; i++) {
                         var touch = event.changedTouches[i];
-                        self.$touch.onTouchEnd(touch.pageX, touch.pageY, touch.identifier);
+                        var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
+                        var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                        _that.$touch.onTouchEnd(locationX, locationY, touch.identifier);
                     }
                 });
                 return _this;
                 // egret_native.touchDown = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-                //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchBegin);
+                //     _that.$executeTouchCallback(num, ids, xs_array, ys_array, _that.$touch.onTouchBegin);
                 // };
                 // egret_native.touchMove = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-                //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchMove);
+                //     _that.$executeTouchCallback(num, ids, xs_array, ys_array, _that.$touch.onTouchMove);
                 // };
                 // egret_native.touchUp = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
-                //     self.$executeTouchCallback(num, ids, xs_array, ys_array, self.$touch.onTouchEnd);
+                //     _that.$executeTouchCallback(num, ids, xs_array, ys_array, _that.$touch.onTouchEnd);
                 // };
                 // egret_native.touchCancel = function (num:number, ids:Array<any>, xs_array:Array<any>, ys_array:Array<any>) {
                 // };
@@ -777,6 +785,12 @@ var egret;
                 this.scaleX = scaleX;
                 this.scaleY = scaleY;
                 this.rotation = rotation;
+            };
+            NativeTouchHandler.prototype.updateTouchOffset = function (scalex, scaley, top, left) {
+                this.touchScaleX = scalex;
+                this.touchScaleY = scaley;
+                this.touchOffsetX = top;
+                this.touchOffsetY = left;
             };
             /**
              * @private
@@ -1377,7 +1391,7 @@ var egret;
                 if (true && !url) {
                     egret.$error(3002);
                 }
-                if (!egret_native.isFileExists(url)) {
+                if (!egret_native.fs.isFileExistSync(url)) {
                     download();
                 }
                 else {
@@ -1683,7 +1697,7 @@ var egret;
                 audio.addEventListener("canplaythrough", onCanPlay);
                 audio.addEventListener("error", onAudioError);
                 this.originAudio = audio;
-                if (!egret_native.isFileExists(url)) {
+                if (!egret_native.fs.isFileExistSync(url)) {
                     download();
                 }
                 else {
@@ -2083,7 +2097,7 @@ var egret;
                 this.src = url;
                 this.loading = true;
                 this.loaded = false;
-                if (cache && !egret_native.isFileExists(url)) {
+                if (cache && !egret_native.fs.isFileExistSync(url)) {
                     var self_1 = this;
                     var promise = egret.PromiseObject.create();
                     promise.onSuccessFunc = function () {
@@ -2792,7 +2806,7 @@ var egret;
                 if (self.isNetUrl(url)) {
                     self.download(url);
                 }
-                else if (!egret_native.isFileExists(native2.FileManager.makeFullPath(url))) {
+                else if (!egret_native.fs.isFileExistSync(native2.FileManager.makeFullPath(url))) {
                     self.download(url);
                 }
                 else {
@@ -3305,6 +3319,7 @@ var egret;
          * @private
          */
         native2.$supportCanvas = egret_native.Canvas ? true : false;
+        native2.$glCmdBatch = false;
         var isRunning = false;
         var playerList = [];
         function runEgret(options) {
@@ -3319,7 +3334,7 @@ var egret;
              * @private
              * 设置当前runtime版本是否支持cmdBatch
              */
-            native2.WebGLRenderContext.$supportCmdBatch = false;
+            native2.WebGLRenderContext.$supportCmdBatch = native2.$glCmdBatch;
             setRenderMode(options.renderMode);
             if (true) {
                 //todo 获得系统语言版本
@@ -3423,6 +3438,13 @@ var egret;
     (function (native) {
         native.$supportCanvas = true;
         egret.native.$supportCanvas = egret.native2.$supportCanvas;
+    })(native = egret.native || (egret.native = {}));
+})(egret || (egret = {}));
+(function (egret) {
+    var native;
+    (function (native) {
+        native.$supportGLCmdBatch = false;
+        egret.native.$supportGLCmdBatch = egret.native2.$glCmdBatch;
     })(native = egret.native || (egret.native = {}));
 })(egret || (egret = {}));
 //////////////////////////////////////////////////////////////////////////////////////
@@ -3748,6 +3770,7 @@ var egret;
                 this.drawDataLen++;
             };
             //-lj
+            // TODO 
             WebGLDrawCmdManager.prototype.pushDrawTextForCmdBatch = function (text, length, x, y, textColor, stroke, strokeColor, alpha, transform /*, texturesInfo */) {
                 var data = this.drawData[this.drawDataLen] || {};
                 data.type = 10 /* FONT */;
@@ -4546,8 +4569,6 @@ var egret;
                     var gl = this.context;
                     if (WebGLRenderContext.$supportCmdBatch) {
                         gl = this.glCmdManager;
-                        gl.drawText(data.text, data.transformData, data.textColor, data.stroke, data.strokeColor);
-                        return 0;
                     }
                     var atlasAddr = data.texture["atlasAddr"];
                     for (var i = 0; i < data.texturesInfo.length; i++) {
@@ -4743,7 +4764,8 @@ var egret;
                     egret.$error(1021);
                 }
                 if (options.cmdbatch == true) {
-                    this.glCmdManager = new native2.WebGLCmdArrayManager(this.surface);
+                    this.glCmdManager = new native2.WebGLCmdArrayManager(this.surface, gl);
+                    this.glCmdManager.initCacheContext();
                 }
                 this.setContext(gl);
             };
@@ -5012,11 +5034,6 @@ var egret;
                 if (this.contextLost || !buffer) {
                     return;
                 }
-                // TODO
-                // if(WebGLRenderContext.$supportCmdBatch) {
-                //     this.drawTextForCmdBatch(text, size, x, y, textColor, stroke, strokeColor);
-                //     return;
-                // }
                 var textData = egret_native.Label["setupTextQuads"](text, text.length, x, y);
                 var t = new Float32Array(textData);
                 for (var i = 0; i < text.length; i++) {
@@ -5033,6 +5050,7 @@ var egret;
                 this.vao.cacheArraysForText(transform, alpha, t, text.length, size);
             };
             //-lj
+            // TODO
             WebGLRenderContext.prototype.drawTextForCmdBatch = function (text, size, x, y, textColor, stroke, strokeColor) {
                 var buffer = this.currentBuffer;
                 if (this.contextLost || !buffer) {
@@ -5155,6 +5173,9 @@ var egret;
                 // 切换回默认indices
                 if (this.vao.isMesh()) {
                     this.uploadIndicesArray(this.vao.getIndices());
+                }
+                if (WebGLRenderContext.$supportCmdBatch) {
+                    this.glCmdManager.flushCmd();
                 }
                 // 清空数据
                 this.drawCmdManager.clear();
@@ -7325,7 +7346,7 @@ var egret;
          * 缓存WebGL命令管理器
          */
         var WebGLCmdArrayManager = (function () {
-            function WebGLCmdArrayManager(canvas) {
+            function WebGLCmdArrayManager(canvas, gl) {
                 /*
                  * 存储绘制命令的 array buffer
                  **/
@@ -7636,7 +7657,18 @@ var egret;
                 this.strArray = new Array();
                 this.typedArrays = new Array();
                 this._canvas = canvas;
+                this._glContext = gl;
             }
+            WebGLCmdArrayManager.prototype.initCacheContext = function () {
+                var that = this;
+                egret_native.Label["bindTexture"] = function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i] = arguments[_i];
+                    }
+                    that.bindLabelTexture.apply(that, args);
+                };
+            };
             /*
              * 上传绘制命令到C
              */
@@ -7708,6 +7740,10 @@ var egret;
             };
             // 0x45 disableVertexAttribArray(index: number): void;
             WebGLCmdArrayManager.prototype.disableVertexAttribArray = function (index) {
+                if (typeof (index) == "number") {
+                    this._glContext.disableVertexAttribArray(index);
+                    return;
+                }
                 if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
@@ -7817,17 +7853,13 @@ var egret;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x79 stencilFunc(func: number, ref: number, mask: number): void;
-            WebGLCmdArrayManager.prototype.stencilFunc = function (func, ref, mask) {
-            };
+            // public stencilFunc(func: number, ref: number, mask: number) {
             // 0x7A stencilFuncSeparate(face: number, func: number, ref: number, mask: number): void;
-            WebGLCmdArrayManager.prototype.stencilFuncSeparate = function (face, func, ref, mask) {
-            };
+            // public stencilFuncSeparate(face: number, func: number, ref: number, mask: number) {
             // 0x7D stencilOp(fail: number, zfail: number, zpass: number): void;
-            WebGLCmdArrayManager.prototype.stencilOp = function (fail, zfail, zpass) {
-            };
+            // public stencilOp(fail: number, zfail: number, zpass: number) {
             // 0x7E stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number): void;
-            WebGLCmdArrayManager.prototype.stencilOpSeparate = function (face, fail, zfail, zpass) {
-            };
+            // public stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number) {
             // 0x4A finish(): void;
             WebGLCmdArrayManager.prototype.finish = function () {
                 if (this.arrayBufferLen + 4 > this.maxArrayBufferLen) {
@@ -8047,7 +8079,7 @@ var egret;
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
                 var webGLObject = new CmdCacheObject();
-                webGLObject.$objType = 0x07;
+                webGLObject.$objType = 0x06;
                 dataView.setUint32(arrayBufferLen, 0x37, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, webGLObject.hashCode, true);
@@ -8346,6 +8378,10 @@ var egret;
             };
             // 0x49 enableVertexAttribArray(index: number): void;
             WebGLCmdArrayManager.prototype.enableVertexAttribArray = function (indx) {
+                if (typeof (indx) == "number") {
+                    this._glContext.enableVertexAttribArray(indx);
+                    return;
+                }
                 if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
@@ -8354,6 +8390,22 @@ var egret;
                 dataView.setUint32(arrayBufferLen, 0x49, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, indx.hashCode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0xA1 vertexAttrib4fv(indx: number, values: Float32Array | number[]): void;
+            WebGLCmdArrayManager.prototype.vertexAttrib4fv = function (indx, values) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint32(arrayBufferLen, 0xA1, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, indx.hashCode, true);
+                arrayBufferLen += 4;
+                var valId = this.pushTypedArrays(values);
+                dataView.setUint32(arrayBufferLen, valId, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
@@ -8386,7 +8438,7 @@ var egret;
                 }
                 var dataView = this.dataView;
                 var arrayBufferLen = this.arrayBufferLen;
-                dataView.setUint32(arrayBufferLen, type);
+                dataView.setUint32(arrayBufferLen, type, true);
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, location.hashCode, true);
                 var arrayid = this.pushTypedArrays(v);
@@ -8623,6 +8675,10 @@ var egret;
             };
             // 0x97 uniformMatrix4fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array | number[]): void;
             WebGLCmdArrayManager.prototype.uniformMatrix4fv = function (location, transpose, value) {
+                if (value == null || value == undefined) {
+                    console.log("js warning uniformMatrix4fv");
+                    return;
+                }
                 if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
@@ -8683,7 +8739,11 @@ var egret;
             };
             // 0x80 texImage2D(target: number, level: number, internalformat: number, format: number, type: number, pixels?: ImageData | HTMLVideoElement | HTMLImageElement | HTMLCanvasElement): void;
             // TODO HTMLCanvasElement
-            WebGLCmdArrayManager.prototype.texImage2D = function (target, level, internalformat, format, type, pixels) {
+            WebGLCmdArrayManager.prototype.texImage2D = function (target, level, internalformat, format, type, pixels /*BitmapData*/) {
+                if (arguments.length == 9) {
+                    this.texImage2Di(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8]);
+                    return;
+                }
                 if (this.arrayBufferLen + 32 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
@@ -8706,17 +8766,106 @@ var egret;
                     arrayBufferLen += 4;
                     dataView.setUint32(arrayBufferLen, 0, true);
                     arrayBufferLen += 4;
+                    this.arrayBufferLen = arrayBufferLen;
+                    return;
                 }
-                else if (pixels.source == null || pixels.source == undefined) {
-                    console.log("js error pixels =" + pixels + ".format =" + pixels.format);
-                }
-                else if (pixels.source.___native_p__) {
-                    var addr = pixels.source.___native_p__;
+                var addr = (pixels.___native_p__ ? pixels.___native_p__ : pixels.source.___native_p__);
+                if (addr) {
                     dataView.setUint32(arrayBufferLen, (addr / 4294967296) >>> 0, true);
                     arrayBufferLen += 4;
                     dataView.setUint32(arrayBufferLen, (addr & 4294967295) >>> 0, true);
                     arrayBufferLen += 4;
                 }
+                else {
+                    console.log("js error pixels =" + pixels + ".format =" + pixels.format);
+                }
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x2F compressedTexImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, data: ArrayBufferView): void;
+            WebGLCmdArrayManager.prototype.compressedTexImage2D = function (target, level, internalformat, width, height, border, data) {
+                if (this.arrayBufferLen + 32 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint32(arrayBufferLen, 0x2F, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, target, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, level, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, internalformat, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, width, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, height, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, border, true);
+                arrayBufferLen += 4;
+                if (data == null) {
+                    dataView.setUint32(arrayBufferLen, 0xFFFFFFFF, true);
+                }
+                else {
+                    var arrayid = this.pushTypedArrays(data);
+                    dataView.setUint32(arrayBufferLen, arrayid, true);
+                }
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // TODO
+            // 0x30 compressedTexSubImage2D(target: number, level: number, xoffset: number, yoffset: number, width: number, height: number, format: number, data: ArrayBufferView): void;
+            // 0x39 cullFace(mode: number): void;
+            WebGLCmdArrayManager.prototype.cullFace = function (mode) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint32(arrayBufferLen, 0x39, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, mode, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x40 depthFunc(func: number): void;
+            WebGLCmdArrayManager.prototype.depthFunc = function (func) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint32(arrayBufferLen, 0x40, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, func, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x41 depthMask(flag: boolean): void;
+            WebGLCmdArrayManager.prototype.depthMask = function (flag) {
+                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint32(arrayBufferLen, 0x41, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, (flag ? 1 : 0), true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x42 depthRange(zNear: number, zFar: number): void;
+            WebGLCmdArrayManager.prototype.depthRange = function (zNear, zFar) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint32(arrayBufferLen, 0x42, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, zNear, true);
+                arrayBufferLen += 4;
+                dataView.setFloat32(arrayBufferLen, zFar, true);
+                arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
             // 0x81 texParameterf(target: number, pname: number, param: number): void;
@@ -8876,6 +9025,27 @@ var egret;
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
             };
+            // 0xFE bindLabelTexture(fontatlasId: number, textureId: number)
+            WebGLCmdArrayManager.prototype.bindLabelTexture = function (fontatlasAddr, textureId) {
+                if (this.arrayBufferLen + 16 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint32(arrayBufferLen, 0xFE, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, (fontatlasAddr / 4294967296) >>> 0, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, (fontatlasAddr & 4294967295) >>> 0, true);
+                arrayBufferLen += 4;
+                dataView.setInt32(arrayBufferLen, textureId, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+            };
+            // 0x57 getExtension(name: string): any;
+            WebGLCmdArrayManager.prototype.getExtension = function (name) {
+                return this._glContext.getExtension(name);
+            };
             return WebGLCmdArrayManager;
         }());
         WebGLCmdArrayManager.SIZE_OF_UINT16 = 2;
@@ -8928,7 +9098,7 @@ var egret;
                     'precision mediump float;',
                     'varying vec2 vTextureCoord;',
                     'uniform sampler2D uSampler;',
-                    'uniform float distance;',
+                    'uniform float dist;',
                     'uniform float angle;',
                     'uniform vec4 color;',
                     'uniform float alpha;',
@@ -8939,8 +9109,8 @@ var egret;
                     'uniform float inner;',
                     'uniform float knockout;',
                     'uniform float hideObject;',
-                    "uniform vec2 uTextureSize;",
-                    'float random(vec3 scale, float seed)',
+                    "uniform vec2 uTextureSize;" +
+                        'float random(vec3 scale, float seed)',
                     '{',
                     'return fract(sin(dot(gl_FragCoord.xyz + seed, scale)) * 43758.5453 + seed);',
                     '}',
@@ -8955,8 +9125,8 @@ var egret;
                     'float maxTotalAlpha = 0.0;',
                     'float curDistanceX = 0.0;',
                     'float curDistanceY = 0.0;',
-                    'float offsetX = distance * cos(angle) * px.x;',
-                    'float offsetY = distance * sin(angle) * px.y;',
+                    'float offsetX = dist * cos(angle) * px.x;',
+                    'float offsetY = dist * sin(angle) * px.y;',
                     'const float PI = 3.14159265358979323846264;',
                     'float cosAngle;',
                     'float sinAngle;',
@@ -8987,7 +9157,7 @@ var egret;
                 ].join("\n");
                 _this.uniforms = {
                     projectionVector: { type: '2f', value: { x: 0, y: 0 }, dirty: true },
-                    distance: { type: '1f', value: 15, dirty: true },
+                    dist: { type: '1f', value: 15, dirty: true },
                     angle: { type: '1f', value: 1, dirty: true },
                     color: { type: '4f', value: { x: 1, y: 0, z: 0, w: 0 }, dirty: true },
                     alpha: { type: '1f', value: 1, dirty: true },
@@ -9002,7 +9172,7 @@ var egret;
                 return _this;
             }
             GlowShader.prototype.setDistance = function (distance) {
-                var uniform = this.uniforms.distance;
+                var uniform = this.uniforms.dist;
                 if (uniform.value != distance) {
                     uniform.value = distance;
                     uniform.dirty = true;

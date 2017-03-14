@@ -124,6 +124,7 @@ namespace egret.native2 {
         }
         //-lj
 
+        // TODO 
         public pushDrawTextForCmdBatch(text, length, x, y, textColor, stroke, strokeColor, alpha, transform /*, texturesInfo */) {
             var data = this.drawData[this.drawDataLen] || {};
             data.type = DRAWABLE_TYPE.FONT;

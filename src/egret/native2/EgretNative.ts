@@ -69,6 +69,7 @@ module egret.native2 {
      * @private
      */
     export var $supportCanvas = egret_native.Canvas ? true : false;
+    export var $glCmdBatch = false;
 
     var isRunning:boolean = false;
     var playerList:Array<NativePlayer> = [];
@@ -86,7 +87,7 @@ module egret.native2 {
          * @private
          * 设置当前runtime版本是否支持cmdBatch
          */
-        WebGLRenderContext.$supportCmdBatch = false;
+        WebGLRenderContext.$supportCmdBatch = $glCmdBatch;
         setRenderMode(options.renderMode);
         if (DEBUG) {
             //todo 获得系统语言版本
@@ -197,4 +198,9 @@ module egret.native2 {
 module egret.native {
     export  var $supportCanvas:boolean = true;
     egret.native.$supportCanvas = egret.native2.$supportCanvas;
+}
+
+module egret.native {
+    export  var $supportGLCmdBatch:boolean = false;
+    egret.native.$supportGLCmdBatch = egret.native2.$glCmdBatch;
 }
