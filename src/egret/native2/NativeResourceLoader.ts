@@ -72,15 +72,6 @@ namespace egret.native2 {
                 return;
             }
 
-            //if (egret_native.isRecordExists(this._path)) {//卡里
-            //    this.loadOver();
-            //    return;
-            //}
-            //else if (egret_native.isFileExists(this._path)){
-            //    this.loadOver();
-            //    return;
-            //}
-            //else {
             this._downCount++;
             let promise = egret.PromiseObject.create();
             let self = this;

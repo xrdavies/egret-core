@@ -107,7 +107,7 @@ namespace egret.native2 {
                 egret.$error(3002);
             }
 
-            if (!egret_native.isFileExists(url)) {
+            if (!egret_native.fs.isFileExistSync(url)) {
                 download();
             }
             else {

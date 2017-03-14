@@ -84,7 +84,7 @@ namespace egret.native2 {
             this.loading = true;
             this.loaded = false;
 
-            if (cache && !egret_native.isFileExists(url)) {
+            if (cache && !egret_native.fs.isFileExistSync(url)) {
                 let self = this;
                 let promise = egret.PromiseObject.create();
                 promise.onSuccessFunc = function () {
