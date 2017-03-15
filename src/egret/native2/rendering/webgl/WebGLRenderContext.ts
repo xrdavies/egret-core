@@ -670,34 +670,6 @@ namespace egret.native2 {
             this.vao.cacheArrays(transform, alpha, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, textureWidth, textureHeight,
                 meshUVs, meshVertices, meshIndices);
         }
-        
-        // lj
-        public drawText(text, size, x, y, textColor, stroke, strokeColor, atlasAddr) {
-            var buffer = this.currentBuffer;
-            if (this.contextLost || !buffer) {
-                return;
-            }
-
-            var textData = egret_native.Label["setupTextQuads"](text, text.length, x, y);
-            var t = new Float32Array(textData);
-            for (var i = 0; i < text.length; i++) {
-                // console.log(i + " " + t[i * 4] + " " + t[i * 4 + 1]
-                //      + " " + t[i * 4 + 2] + " " + t[i * 4 + 3]);
-            }
-            var count = text.length * 2;
-            var transform = buffer.globalMatrix;
-            var alpha = buffer.globalAlpha;
-            var texture = {};
-            texture["isForLabel"] = true;
-            texture["atlasAddr"] = atlasAddr;
-
-            var texturesInfo = egret_native.Label["getTextureInfo"]();
-            var tex = new Int32Array(texturesInfo);
-
-            this.drawCmdManager.pushDrawText(texture, count, textColor, stroke, strokeColor, tex);
-            this.vao.cacheArraysForText(transform, alpha, t, text.length, size);
-        }
-        //-lj
 
         // TODO
         private drawTextForCmdBatch(text, size, x, y, textColor, stroke, strokeColor) {
@@ -960,85 +932,12 @@ namespace egret.native2 {
                         buffer.disableScissor();
                     }
                     break;
-                // lj
-                case DRAWABLE_TYPE.FONT /* TEXT */:
-                    shader = this.shaderManager.fontShader;
-
-                    var tc = data.textColor;
-                    var r, g, b, a;
-                    if (tc > 16777215) {
-                        a = tc & 0xff; tc >>>= 8;
-                        b = tc & 0xff; tc >>>= 8;
-                        g = tc & 0xff; tc >>>= 8;
-                        r = tc & 0xff;
-                    } else {
-                        a = 255;
-                        b = tc & 0xff; tc >>>= 8;
-                        g = tc & 0xff; tc >>>= 8;
-                        r = tc & 0xff;
-                    }
-                    shader.setTextColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
-
-                    if (data.stroke) {
-                        var tc = data.strokeColor;
-                        var r, g, b, a;
-                        if (tc > 16777215) {
-                            a = tc & 0xff; tc >>>= 8;
-                            b = tc & 0xff; tc >>>= 8;
-                            g = tc & 0xff; tc >>>= 8;
-                            r = tc & 0xff;
-                        } else {
-                            a = 255;
-                            b = tc & 0xff; tc >>>= 8;
-                            g = tc & 0xff; tc >>>= 8;
-                            r = tc & 0xff;
-                        }
-                        shader.setStrokeColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
-                    }
-
-                    shader.setProjection(this.projectionX, this.projectionY);
-                    this.shaderManager.activateShader(shader, this.vertSize * 4);
-                    shader.syncUniforms();
-                    offset += this.drawPushText(data, offset);
-                    break;
-                    //-lj
                 default:
                     break;
             }
 
             return offset;
         }
-
-        // lj
-        private drawPushText = function (data, offset) {
-            // console.log(data.count);
-            let size = 0;
-            let gl:any = this.context;
-            if(WebGLRenderContext.$supportCmdBatch) {
-                gl = this.glCmdManager;
-                // gl.drawText(data.text, data.transformData, data.textColor, data.stroke, data.strokeColor);
-            }
-
-            var atlasAddr = data.texture["atlasAddr"];
-            for (var i = 0; i < data.texturesInfo.length; i++) {
-                // console.log(" +++++++ " + i + " " + data.count + " " + data.texturesInfo[i] + " " + size);
-                // var shader = this.shaderManager.fontShader;
-                // shader.setTextColor((255 - i * 50) / 255.0, (50 + i * 50) / 255.0, 0.0, 1.0);
-                // shader.syncUniforms();
-                egret_native.Label["bindTexture"](atlasAddr, i);
-                // if (data.texturesInfo[0] == 12 && data.texturesInfo[1] == 7)
-                gl.drawElements(gl.TRIANGLES, data.texturesInfo[i] * 6, gl.UNSIGNED_SHORT, (offset + size) * 2);
-                size += data.texturesInfo[i] * 6;
-            }
-
-            // egret_native.Label.bindTexture();
-            // var arr = this.vao.getVertices();
-            // console.log(" +++++++ ");
-            // var size = data.count * 3;
-            // gl.drawElements(gl.TRIANGLES, size, gl.UNSIGNED_SHORT, offset * 2);
-            return size;
-        }
-        //-lj
 
         /**
          * 画texture

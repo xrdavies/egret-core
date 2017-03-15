@@ -741,98 +741,100 @@ namespace egret.native2 {
          * @private
          */
         private renderText(node: sys.TextNode, buffer: WebGLRenderBuffer): void {
-            // lj
-            // console.log(" +++++++++++++++++++++++++++++++++++++++ - ");
-            // console.log("textAlign\t " + node["textAlign"]);
-            // console.log("width\t " + node["textFieldWidth"]);
-            // console.log("height\t " + node["textFieldHeight"]);
-            // console.log(" +++++++++++++++++++++++++++++++++++++++ = " + node.drawData.length);
 
-            // context.textAlign = "left";
-            // context.textBaseline = "middle";
-            // context.lineJoin = "round"; //确保描边样式是圆角
-            var drawData = node.drawData;
-            var length = drawData.length;
-            var pos = 0;
-            while (pos < length) {
-                var x = drawData[pos++];
-                var y = drawData[pos++];
-                var text = drawData[pos++];
-                var format = drawData[pos++];
-                // context.font = getFontString(node, format);
-                var textColor = format.textColor == null ? node.textColor : format.textColor;
-                var strokeColor = format.strokeColor == null ? node.strokeColor : format.strokeColor;
-                var stroke = format.stroke == null ? node.stroke : format.stroke;
-                var size = format.size == null ? node.size : format.size;
-                // context.fillStyle = egret.toColorString(textColor);
-                // context.strokeStyle = egret.toColorString(strokeColor);
-                // if (stroke) {
-                    // context.lineWidth = stroke * 2;
-                    // context.strokeText(text, x, y);
-                // }
-                // context.fillText(text, x, y);
-                var atlasAddr = egret_native.Label.createLabel("", size, "", stroke);
+            let width = node.width - node.x;
+            let height = node.height - node.y;
 
-                var transformDirty = false;
-
-                if (x != 0 || y != 0) {
-                    transformDirty = true;
-                    buffer.saveTransform();
-                    buffer.transform(1, 0, 0, 1, x, y);
-                }
-
-                buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor, atlasAddr);
-
-                if (transformDirty) {
-                    buffer.restoreTransform();
-                }
+            if (node.x || node.y) {
+                buffer.transform(1, 0, 0, 1, node.x, node.y);
             }
 
-            // egret_native.Label.createLabel("", node.size, "", node.stroke);
+            if (!node.$texture) {
+                var canvas = window["canvas"];
+                var context = canvas.getContext("webgl");
+                             
+                var gl = context;
+                var texture = gl.createTexture();
+                if (!texture) {
+                    //先创建texture失败,然后lost事件才发出来..
+                    console.log("------ !texture");
+                    return;
+                }
+                
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+                
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                             
+                egret_native.Label.bindTexture(texture, width, height);
+                             
+                node.$texture = texture;
+                var drawData = node.drawData;
+                var length = drawData.length;
+                var pos = 0;
+                while (pos < length) {
+                    var x = drawData[pos++];
+                    var y = drawData[pos++];
+                    var text = drawData[pos++];
+                    var format = drawData[pos++];
+                    var size = format.size == null ? node.size : format.size;
+                    var textColor = format.textColor == null ? node.textColor : format.textColor;
+                    egret_native.Label.drawText(x, y, text, size, textColor);
+                }
+                egret_native.Label.generateTexture();
+                node.$textureWidth = width;
+                node.$textureHeight = height;
+            }
+//
+            var textureWidth = node.$textureWidth;
+            var textureHeight = node.$textureHeight;
+            buffer.context.drawTexture(node.$texture, 0, 0, textureWidth, textureHeight, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
+                             
+            if (node.x || node.y) {
+                buffer.transform(1, 0, 0, 1, -node.x, -node.y);
+            }
+                             
+            return;
 
-            // var width = node.width - node.x;
-            // var height = node.height - node.y;
+            // // lj
+            // var drawData = node.drawData;
+            // var length = drawData.length;
+            // var pos = 0;
+            // while (pos < length) {
+            //     var x = drawData[pos++];
+            //     var y = drawData[pos++];
+            //     var text = drawData[pos++];
+            //     var format = drawData[pos++];
+            //     // context.font = getFontString(node, format);
+            //     var textColor = format.textColor == null ? node.textColor : format.textColor;
+            //     var strokeColor = format.strokeColor == null ? node.strokeColor : format.strokeColor;
+            //     var stroke = format.stroke == null ? node.stroke : format.stroke;
+            //     var size = format.size == null ? node.size : format.size;
+            //     // context.fillStyle = egret.toColorString(textColor);
+            //     // context.strokeStyle = egret.toColorString(strokeColor);
+            //     // if (stroke) {
+            //         // context.lineWidth = stroke * 2;
+            //         // context.strokeText(text, x, y);
+            //     // }
+            //     // context.fillText(text, x, y);
+            //     var atlasAddr = egret_native.Label.createLabel("", size, "", stroke);
 
-            // var textFieldWidth = node["textFieldWidth"];
-            // var textFieldHeight = node["textFieldHeight"];
+            //     var transformDirty = false;
 
-            // var dx = 0;
-            // var dy = 0;
-            // var textSize = egret_native.Label.getTextSize(node["text"]);
-            // var textWidth = textSize[0];
-            // var textHeight = textSize[1];
+            //     if (x != 0 || y != 0) {
+            //         transformDirty = true;
+            //         buffer.saveTransform();
+            //         buffer.transform(1, 0, 0, 1, x, y);
+            //     }
 
-            // var transformDirty = false;
+            //     buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor, atlasAddr);
 
-            // if (node["textAlign"] == "right" && textFieldWidth) {
-            //     dx = textFieldWidth - textWidth;
+            //     if (transformDirty) {
+            //         buffer.restoreTransform();
+            //     }
             // }
-            // else if (node["textAlign"] == "center" && textFieldWidth) {
-            //     dx =  (textFieldWidth - textWidth) / 2;
-            // }
-
-            // if (node["verticalAlign"] == "bottom" && textFieldHeight) {
-            //     dy = textFieldHeight - textHeight;
-            // }
-            // else if (node["verticalAlign"] == "middle" && textFieldHeight) {
-            //     dy = (textFieldHeight - textHeight) / 2;
-            // }
-
-            // if (dx != 0 || dy != 0) {
-            //     transformDirty = true;
-            //     console.log(dx + " " + dy);
-            //     buffer.transform(1, 0, 0, 1, dx, dy);
-            // }
-
-            // buffer.context.drawText(node["text"], node.size, 0, 0, node["textColor"], node.stroke, node.strokeColor);
-
-            // if (transformDirty) {
-            //     buffer.restoreTransform();
-            // }
-
-            // console.log(" +++++++++++++++++++++++++++++++++++++++ render text end ");
-            //-lj
-            
         }
 
         /**

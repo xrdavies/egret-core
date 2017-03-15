@@ -198,20 +198,15 @@ declare namespace egret_native {
     }
 
     namespace Label {
-
-        function createLabel(font: string, size: number, defaultString: string, defaultStroke: number): void;
-
-        function setTextColor(color: number): void;
-
-        function setStrokeColor(color: number): void;
-
-        function drawText(text: string, x: number, y: number): void;
+        function drawText(text: string, x: number, y: number, size: number, textColor: number): void;
 
         function setTextAlignment(type: string): void;
 
-        function getTextSize(text: string): number[];
+        function getTextWidth(text: string, size: number): number;
 
+        function bindTexture(texture: any, width: number, height: number): void;
 
+        function generateTexture(): void;
     }
 
 

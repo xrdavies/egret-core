@@ -280,34 +280,35 @@ var egret;
          * @param italic 是否斜体
          */
         function measureText(text, fontFamily, fontSize, bold, italic) {
-            return 0; //Refactor
-            var font;
-            var arr;
-            if (fontFamily.indexOf(", ") != -1) {
-                arr = fontFamily.split(", ");
-            }
-            else if (fontFamily.indexOf(",") != -1) {
-                arr = fontFamily.split(",");
-            }
-            if (arr) {
-                var length_1 = arr.length;
-                for (var i = 0; i < length_1; i++) {
-                    var fontFamily_1 = arr[i];
-                    //暂时先不考虑带有引号的情况
-                    if (egret.fontMapping[fontFamily_1]) {
-                        font = egret.fontMapping[fontFamily_1];
-                        break;
-                    }
-                }
-            }
-            else {
-                font = egret.fontMapping[fontFamily];
-            }
-            if (!font) {
-                font = "/system/fonts/DroidSansFallback.ttf";
-            }
-            egret_native.Label.createLabel(font, fontSize, "", 0);
-            return egret_native.Label.getTextSize(text)[0];
+            return egret_native.Label.getTextWidth(text, fontSize);
+            ;
+            // let font:string;
+            // var arr:string[];
+            // if(fontFamily.indexOf(", ") != -1) {
+            //     arr = fontFamily.split(", ");
+            // }
+            // else if(fontFamily.indexOf(",") != -1) {
+            //     arr = fontFamily.split(",");
+            // }
+            // if(arr) {
+            //     let length:number = arr.length;
+            //     for(let i = 0 ; i < length ; i++) {
+            //         let fontFamily = arr[i];
+            //         //暂时先不考虑带有引号的情况
+            //         if(fontMapping[fontFamily]) {
+            //             font = fontMapping[fontFamily];
+            //             break;
+            //         }
+            //     }
+            // }
+            // else {
+            //     font = fontMapping[fontFamily];
+            // }
+            // if(!font) {
+            //     font= "/system/fonts/DroidSansFallback.ttf";
+            // }
+            // egret_native.Label.createLabel(font, fontSize, "", 0);
+            // return egret_native.Label.getTextSize(text)[0];
         }
         egret.sys.measureText = measureText;
     })(native2 = egret.native2 || (egret.native2 = {}));
@@ -4562,32 +4563,6 @@ var egret;
                 this.shaderManager = null;
                 this.contextLost = false;
                 this.$scissorState = false;
-                // lj
-                this.drawPushText = function (data, offset) {
-                    // console.log(data.count);
-                    var size = 0;
-                    var gl = this.context;
-                    if (WebGLRenderContext.$supportCmdBatch) {
-                        gl = this.glCmdManager;
-                    }
-                    var atlasAddr = data.texture["atlasAddr"];
-                    for (var i = 0; i < data.texturesInfo.length; i++) {
-                        // console.log(" +++++++ " + i + " " + data.count + " " + data.texturesInfo[i] + " " + size);
-                        // var shader = this.shaderManager.fontShader;
-                        // shader.setTextColor((255 - i * 50) / 255.0, (50 + i * 50) / 255.0, 0.0, 1.0);
-                        // shader.syncUniforms();
-                        egret_native.Label["bindTexture"](atlasAddr, i);
-                        // if (data.texturesInfo[0] == 12 && data.texturesInfo[1] == 7)
-                        gl.drawElements(gl.TRIANGLES, data.texturesInfo[i] * 6, gl.UNSIGNED_SHORT, (offset + size) * 2);
-                        size += data.texturesInfo[i] * 6;
-                    }
-                    // egret_native.Label.bindTexture();
-                    // var arr = this.vao.getVertices();
-                    // console.log(" +++++++ ");
-                    // var size = data.count * 3;
-                    // gl.drawElements(gl.TRIANGLES, size, gl.UNSIGNED_SHORT, offset * 2);
-                    return size;
-                };
                 this.vertSize = 5;
                 this.blurFilter = null;
                 this.surface = createCanvas(width, height);
@@ -5028,28 +5003,6 @@ var egret;
                 this.drawCmdManager.pushDrawTexture(texture, count, this.$filter);
                 this.vao.cacheArrays(transform, alpha, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, textureWidth, textureHeight, meshUVs, meshVertices, meshIndices);
             };
-            // lj
-            WebGLRenderContext.prototype.drawText = function (text, size, x, y, textColor, stroke, strokeColor, atlasAddr) {
-                var buffer = this.currentBuffer;
-                if (this.contextLost || !buffer) {
-                    return;
-                }
-                var textData = egret_native.Label["setupTextQuads"](text, text.length, x, y);
-                var t = new Float32Array(textData);
-                for (var i = 0; i < text.length; i++) {
-                }
-                var count = text.length * 2;
-                var transform = buffer.globalMatrix;
-                var alpha = buffer.globalAlpha;
-                var texture = {};
-                texture["isForLabel"] = true;
-                texture["atlasAddr"] = atlasAddr;
-                var texturesInfo = egret_native.Label["getTextureInfo"]();
-                var tex = new Int32Array(texturesInfo);
-                this.drawCmdManager.pushDrawText(texture, count, textColor, stroke, strokeColor, tex);
-                this.vao.cacheArraysForText(transform, alpha, t, text.length, size);
-            };
-            //-lj
             // TODO
             WebGLRenderContext.prototype.drawTextForCmdBatch = function (text, size, x, y, textColor, stroke, strokeColor) {
                 var buffer = this.currentBuffer;
@@ -5276,63 +5229,11 @@ var egret;
                             buffer.disableScissor();
                         }
                         break;
-                    // lj
-                    case 10 /* FONT */ /* TEXT */:
-                        shader = this.shaderManager.fontShader;
-                        var tc = data.textColor;
-                        var r, g, b, a;
-                        if (tc > 16777215) {
-                            a = tc & 0xff;
-                            tc >>>= 8;
-                            b = tc & 0xff;
-                            tc >>>= 8;
-                            g = tc & 0xff;
-                            tc >>>= 8;
-                            r = tc & 0xff;
-                        }
-                        else {
-                            a = 255;
-                            b = tc & 0xff;
-                            tc >>>= 8;
-                            g = tc & 0xff;
-                            tc >>>= 8;
-                            r = tc & 0xff;
-                        }
-                        shader.setTextColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
-                        if (data.stroke) {
-                            var tc = data.strokeColor;
-                            var r, g, b, a;
-                            if (tc > 16777215) {
-                                a = tc & 0xff;
-                                tc >>>= 8;
-                                b = tc & 0xff;
-                                tc >>>= 8;
-                                g = tc & 0xff;
-                                tc >>>= 8;
-                                r = tc & 0xff;
-                            }
-                            else {
-                                a = 255;
-                                b = tc & 0xff;
-                                tc >>>= 8;
-                                g = tc & 0xff;
-                                tc >>>= 8;
-                                r = tc & 0xff;
-                            }
-                            shader.setStrokeColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
-                        }
-                        shader.setProjection(this.projectionX, this.projectionY);
-                        this.shaderManager.activateShader(shader, this.vertSize * 4);
-                        shader.syncUniforms();
-                        offset += this.drawPushText(data, offset);
-                        break;
-                    //-lj
                     default:
                         break;
                 }
                 return offset;
             };
-            //-lj
             /**
              * 画texture
              **/
@@ -5618,8 +5519,8 @@ var egret;
                     if (renderBufferPool.length > 6) {
                         renderBufferPool.length = 6;
                     }
-                    var length_2 = renderBufferPool.length;
-                    for (var i = 0; i < length_2; i++) {
+                    var length_1 = renderBufferPool.length;
+                    for (var i = 0; i < length_1; i++) {
                         renderBufferPool[i].resize(0, 0);
                     }
                 }
@@ -5689,8 +5590,8 @@ var egret;
                 }
                 var children = displayObject.$children;
                 if (children) {
-                    var length_3 = children.length;
-                    for (var i = 0; i < length_3; i++) {
+                    var length_2 = children.length;
+                    for (var i = 0; i < length_2; i++) {
                         var child = children[i];
                         if (!child.$visible || child.$alpha <= 0 || child.$maskedObject) {
                             continue;
@@ -6218,81 +6119,85 @@ var egret;
              * @private
              */
             WebGLRenderer.prototype.renderText = function (node, buffer) {
-                // lj
-                // console.log(" +++++++++++++++++++++++++++++++++++++++ - ");
-                // console.log("textAlign\t " + node["textAlign"]);
-                // console.log("width\t " + node["textFieldWidth"]);
-                // console.log("height\t " + node["textFieldHeight"]);
-                // console.log(" +++++++++++++++++++++++++++++++++++++++ = " + node.drawData.length);
-                // context.textAlign = "left";
-                // context.textBaseline = "middle";
-                // context.lineJoin = "round"; //确保描边样式是圆角
-                var drawData = node.drawData;
-                var length = drawData.length;
-                var pos = 0;
-                while (pos < length) {
-                    var x = drawData[pos++];
-                    var y = drawData[pos++];
-                    var text = drawData[pos++];
-                    var format = drawData[pos++];
-                    // context.font = getFontString(node, format);
-                    var textColor = format.textColor == null ? node.textColor : format.textColor;
-                    var strokeColor = format.strokeColor == null ? node.strokeColor : format.strokeColor;
-                    var stroke = format.stroke == null ? node.stroke : format.stroke;
-                    var size = format.size == null ? node.size : format.size;
-                    // context.fillStyle = egret.toColorString(textColor);
-                    // context.strokeStyle = egret.toColorString(strokeColor);
-                    // if (stroke) {
-                    // context.lineWidth = stroke * 2;
-                    // context.strokeText(text, x, y);
-                    // }
-                    // context.fillText(text, x, y);
-                    var atlasAddr = egret_native.Label.createLabel("", size, "", stroke);
-                    var transformDirty = false;
-                    if (x != 0 || y != 0) {
-                        transformDirty = true;
-                        buffer.saveTransform();
-                        buffer.transform(1, 0, 0, 1, x, y);
-                    }
-                    buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor, atlasAddr);
-                    if (transformDirty) {
-                        buffer.restoreTransform();
-                    }
+                var width = node.width - node.x;
+                var height = node.height - node.y;
+                if (node.x || node.y) {
+                    buffer.transform(1, 0, 0, 1, node.x, node.y);
                 }
-                // egret_native.Label.createLabel("", node.size, "", node.stroke);
-                // var width = node.width - node.x;
-                // var height = node.height - node.y;
-                // var textFieldWidth = node["textFieldWidth"];
-                // var textFieldHeight = node["textFieldHeight"];
-                // var dx = 0;
-                // var dy = 0;
-                // var textSize = egret_native.Label.getTextSize(node["text"]);
-                // var textWidth = textSize[0];
-                // var textHeight = textSize[1];
-                // var transformDirty = false;
-                // if (node["textAlign"] == "right" && textFieldWidth) {
-                //     dx = textFieldWidth - textWidth;
+                if (!node.$texture) {
+                    var canvas = window["canvas"];
+                    var context = canvas.getContext("webgl");
+                    var gl = context;
+                    var texture = gl.createTexture();
+                    if (!texture) {
+                        //先创建texture失败,然后lost事件才发出来..
+                        console.log("------ !texture");
+                        return;
+                    }
+                    gl.bindTexture(gl.TEXTURE_2D, texture);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                    egret_native.Label.bindTexture(texture, width, height);
+                    node.$texture = texture;
+                    var drawData = node.drawData;
+                    var length = drawData.length;
+                    var pos = 0;
+                    while (pos < length) {
+                        var x = drawData[pos++];
+                        var y = drawData[pos++];
+                        var text = drawData[pos++];
+                        var format = drawData[pos++];
+                        var size = format.size == null ? node.size : format.size;
+                        var textColor = format.textColor == null ? node.textColor : format.textColor;
+                        egret_native.Label.drawText(x, y, text, size, textColor);
+                    }
+                    egret_native.Label.generateTexture();
+                    node.$textureWidth = width;
+                    node.$textureHeight = height;
+                }
+                //
+                var textureWidth = node.$textureWidth;
+                var textureHeight = node.$textureHeight;
+                buffer.context.drawTexture(node.$texture, 0, 0, textureWidth, textureHeight, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
+                if (node.x || node.y) {
+                    buffer.transform(1, 0, 0, 1, -node.x, -node.y);
+                }
+                return;
+                // // lj
+                // var drawData = node.drawData;
+                // var length = drawData.length;
+                // var pos = 0;
+                // while (pos < length) {
+                //     var x = drawData[pos++];
+                //     var y = drawData[pos++];
+                //     var text = drawData[pos++];
+                //     var format = drawData[pos++];
+                //     // context.font = getFontString(node, format);
+                //     var textColor = format.textColor == null ? node.textColor : format.textColor;
+                //     var strokeColor = format.strokeColor == null ? node.strokeColor : format.strokeColor;
+                //     var stroke = format.stroke == null ? node.stroke : format.stroke;
+                //     var size = format.size == null ? node.size : format.size;
+                //     // context.fillStyle = egret.toColorString(textColor);
+                //     // context.strokeStyle = egret.toColorString(strokeColor);
+                //     // if (stroke) {
+                //         // context.lineWidth = stroke * 2;
+                //         // context.strokeText(text, x, y);
+                //     // }
+                //     // context.fillText(text, x, y);
+                //     var atlasAddr = egret_native.Label.createLabel("", size, "", stroke);
+                //     var transformDirty = false;
+                //     if (x != 0 || y != 0) {
+                //         transformDirty = true;
+                //         buffer.saveTransform();
+                //         buffer.transform(1, 0, 0, 1, x, y);
+                //     }
+                //     buffer.context.drawText(text, size, 0, 0, textColor, stroke, strokeColor, atlasAddr);
+                //     if (transformDirty) {
+                //         buffer.restoreTransform();
+                //     }
                 // }
-                // else if (node["textAlign"] == "center" && textFieldWidth) {
-                //     dx =  (textFieldWidth - textWidth) / 2;
-                // }
-                // if (node["verticalAlign"] == "bottom" && textFieldHeight) {
-                //     dy = textFieldHeight - textHeight;
-                // }
-                // else if (node["verticalAlign"] == "middle" && textFieldHeight) {
-                //     dy = (textFieldHeight - textHeight) / 2;
-                // }
-                // if (dx != 0 || dy != 0) {
-                //     transformDirty = true;
-                //     console.log(dx + " " + dy);
-                //     buffer.transform(1, 0, 0, 1, dx, dy);
-                // }
-                // buffer.context.drawText(node["text"], node.size, 0, 0, node["textColor"], node.stroke, node.strokeColor);
-                // if (transformDirty) {
-                //     buffer.restoreTransform();
-                // }
-                // console.log(" +++++++++++++++++++++++++++++++++++++++ render text end ");
-                //-lj
             };
             /**
              * @private
