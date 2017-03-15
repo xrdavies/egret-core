@@ -767,10 +767,13 @@ namespace egret.native2 {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                             
-                egret_native.Label.bindTexture(texture, width, height);
-                             
+
                 node.$texture = texture;
+            }
+
+            if (node.dirtyRender) {
+                egret_native.Label.bindTexture(node.$texture, width, height);
+                             
                 var drawData = node.drawData;
                 var length = drawData.length;
                 var pos = 0;
@@ -795,6 +798,8 @@ namespace egret.native2 {
             if (node.x || node.y) {
                 buffer.transform(1, 0, 0, 1, -node.x, -node.y);
             }
+            
+            node.dirtyRender = false;
                              
             return;
 
