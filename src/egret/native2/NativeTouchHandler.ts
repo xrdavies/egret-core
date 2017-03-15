@@ -133,8 +133,8 @@ namespace egret.native2 {
         public updateTouchOffset(scalex:number, scaley:number, top:number, left:number) {
                 this.touchScaleX = scalex;
                 this.touchScaleY = scaley;
-                this.touchOffsetX = top;
-                this.touchOffsetY = left;
+                this.touchOffsetX = left;
+                this.touchOffsetY = top;
         }
 
         /**

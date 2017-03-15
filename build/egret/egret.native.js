@@ -797,8 +797,8 @@ var egret;
             NativeTouchHandler.prototype.updateTouchOffset = function (scalex, scaley, top, left) {
                 this.touchScaleX = scalex;
                 this.touchScaleY = scaley;
-                this.touchOffsetX = top;
-                this.touchOffsetY = left;
+                this.touchOffsetX = left;
+                this.touchOffsetY = top;
             };
             /**
              * @private
