@@ -43,8 +43,8 @@ namespace egret.native2 {
                 let l = event.changedTouches.length;
                 for (let i:number = 0; i < l; i++) {
                     var touch = event.changedTouches[i];
-                    var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
-                    var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                    var locationX = (touch.pageX - _that.touchOffsetX) / (_that.touchScaleX);
+                    var locationY = (touch.pageY - _that.touchOffsetY) / (_that.touchScaleY);
                     _that.$touch.onTouchBegin(locationX, locationY, touch.identifier);
                 }
             });
@@ -52,8 +52,8 @@ namespace egret.native2 {
                 let l = event.changedTouches.length;
                 for (let i:number = 0; i < l; i++) {
                     var touch = event.changedTouches[i];
-                    var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
-                    var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                    var locationX = (touch.pageX - _that.touchOffsetX) / (_that.touchScaleX);
+                    var locationY = (touch.pageY - _that.touchOffsetY) / (_that.touchScaleY);
                     _that.$touch.onTouchMove(locationX, locationY, touch.identifier);
                 }
             });
@@ -61,8 +61,8 @@ namespace egret.native2 {
                 let l = event.changedTouches.length;
                 for (let i:number = 0; i < l; i++) {
                     var touch = event.changedTouches[i];
-                    var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
-                    var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                    var locationX = (touch.pageX - _that.touchOffsetX) / (_that.touchScaleX);
+                    var locationY = (touch.pageY - _that.touchOffsetY) / (_that.touchScaleY);
                     _that.$touch.onTouchEnd(locationX, locationY, touch.identifier);
                 }
             });
@@ -70,8 +70,8 @@ namespace egret.native2 {
                 let l = event.changedTouches.length;
                 for (let i:number = 0; i < l; i++) {
                     var touch = event.changedTouches[i];
-                    var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
-                    var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                    var locationX = (touch.pageX - _that.touchOffsetX) / (_that.touchScaleX);
+                    var locationY = (touch.pageY - _that.touchOffsetY) / (_that.touchScaleY);
                     _that.$touch.onTouchEnd(locationX, locationY, touch.identifier);
                 }
             });

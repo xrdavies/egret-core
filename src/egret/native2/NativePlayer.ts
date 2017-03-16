@@ -120,7 +120,7 @@ namespace egret.native2 {
                 scaley = displayHeight / stageHeight;
 
             this.webTouchHandler.updateScaleMode(scalex, scaley, 0);
-            this.webTouchHandler.updateTouchOffset(stageWidth/screenWidth, stageHeight/screenHeight, top, left);
+            this.webTouchHandler.updateTouchOffset(scalex, scaley, top, left);
 
             this.player.updateStageSize(stageWidth, stageHeight);
         }

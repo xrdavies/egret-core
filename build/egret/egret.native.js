@@ -408,7 +408,7 @@ var egret;
                 egret_native.setDesignSize(stageWidth, stageHeight);
                 var scalex = displayWidth / stageWidth, scaley = displayHeight / stageHeight;
                 this.webTouchHandler.updateScaleMode(scalex, scaley, 0);
-                this.webTouchHandler.updateTouchOffset(stageWidth / screenWidth, stageHeight / screenHeight, top, left);
+                this.webTouchHandler.updateTouchOffset(scalex, scaley, top, left);
                 this.player.updateStageSize(stageWidth, stageHeight);
             };
             NativePlayer.prototype.setContentSize = function (width, height) {
@@ -738,8 +738,8 @@ var egret;
                     var l = event.changedTouches.length;
                     for (var i = 0; i < l; i++) {
                         var touch = event.changedTouches[i];
-                        var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
-                        var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                        var locationX = (touch.pageX - _that.touchOffsetX) / (_that.touchScaleX);
+                        var locationY = (touch.pageY - _that.touchOffsetY) / (_that.touchScaleY);
                         _that.$touch.onTouchBegin(locationX, locationY, touch.identifier);
                     }
                 });
@@ -747,8 +747,8 @@ var egret;
                     var l = event.changedTouches.length;
                     for (var i = 0; i < l; i++) {
                         var touch = event.changedTouches[i];
-                        var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
-                        var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                        var locationX = (touch.pageX - _that.touchOffsetX) / (_that.touchScaleX);
+                        var locationY = (touch.pageY - _that.touchOffsetY) / (_that.touchScaleY);
                         _that.$touch.onTouchMove(locationX, locationY, touch.identifier);
                     }
                 });
@@ -756,8 +756,8 @@ var egret;
                     var l = event.changedTouches.length;
                     for (var i = 0; i < l; i++) {
                         var touch = event.changedTouches[i];
-                        var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
-                        var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                        var locationX = (touch.pageX - _that.touchOffsetX) / (_that.touchScaleX);
+                        var locationY = (touch.pageY - _that.touchOffsetY) / (_that.touchScaleY);
                         _that.$touch.onTouchEnd(locationX, locationY, touch.identifier);
                     }
                 });
@@ -765,8 +765,8 @@ var egret;
                     var l = event.changedTouches.length;
                     for (var i = 0; i < l; i++) {
                         var touch = event.changedTouches[i];
-                        var locationX = (touch.pageX - _that.touchOffsetX) * (_that.touchScaleX);
-                        var locationY = (touch.pageY - _that.touchOffsetY) * (_that.touchScaleY);
+                        var locationX = (touch.pageX - _that.touchOffsetX) / (_that.touchScaleX);
+                        var locationY = (touch.pageY - _that.touchOffsetY) / (_that.touchScaleY);
                         _that.$touch.onTouchEnd(locationX, locationY, touch.identifier);
                     }
                 });
