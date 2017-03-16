@@ -784,7 +784,9 @@ namespace egret.native2 {
                     var format = drawData[pos++];
                     var size = format.size == null ? node.size : format.size;
                     var textColor = format.textColor == null ? node.textColor : format.textColor;
-                    egret_native.Label.drawText(x, y, text, size, textColor);
+                    var stroke = format.stroke == null ? node.stroke : format.stroke;
+                    var strokeColor = format.strokeColor == null ? node.strokeColor : format.strokeColor;
+                    egret_native.Label.drawText(x, y, text, size, textColor, stroke, strokeColor);
                 }
                 egret_native.Label.generateTexture();
                 node.$textureWidth = width;

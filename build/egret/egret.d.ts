@@ -8275,7 +8275,7 @@ declare namespace egret_native {
         function setTextureScaleFactor(value: number): void;
     }
     namespace Label {
-        function drawText(text: string, x: number, y: number, size: number, textColor: number): void;
+        function drawText(text: string, x: number, y: number, size: number, textColor: number, stroke: number, strokeColor: number): void;
         function setTextAlignment(type: string): void;
         function getTextWidth(text: string, size: number): number;
         function bindTexture(texture: any, width: number, height: number): void;
