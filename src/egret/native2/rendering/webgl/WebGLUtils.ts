@@ -62,7 +62,7 @@ namespace egret.native2 {
             gl.compileShader(shader);
 
             if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                //egret.info(gl.getShaderInfoLog(shader));
+                $warn(1020, gl.getShaderInfoLog(shader));
                 return null;
             }
             return shader;
