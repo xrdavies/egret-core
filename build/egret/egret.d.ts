@@ -3193,6 +3193,210 @@ declare namespace egret.sys {
      */
     function tr(code: number, ...args: any[]): string;
 }
+/**
+ * @private
+ */
+declare namespace egret_native {
+    let nativeType: string;
+    /**
+     * 游戏启动
+     * @private
+     */
+    function startGame(): void;
+    function _selectPhoto(promise: egret.PromiseObject): void;
+    function loglevel(logType: any): void;
+    function callRender(): void;
+    function getVersion(): any;
+    function setScreenCanvas(canvas: Canvas): void;
+    function setFrameRate(frameRate: number): void;
+    function onTouchesBegin(num: number, ids: any[], xs_array: any[], ys_array: any[]): any;
+    function onTouchesMove(num: number, ids: any[], xs_array: any[], ys_array: any[]): any;
+    function onTouchesEnd(num: number, ids: any[], xs_array: any[], ys_array: any[]): any;
+    function onTouchesCancel(num: number, ids: any[], xs_array: any[], ys_array: any[]): any;
+    function touchDown(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
+    function touchMove(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
+    function touchUp(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
+    function touchCancel(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
+    function sendToC(float32Array: Float32Array, arrayBufferLen: number, array: string[]): void;
+    function sendGLArray(arrayBuffer: ArrayBuffer, arrayBufferLen: number, array: Array<string>, typedArrays: Array<any>): void;
+    /**
+     * 启动主循环
+     * @param callback 主循环回调函数
+     * @param thisObject
+     */
+    function setOnUpdate(callback: Function, thisObject: any): void;
+    function executeMainLoop(callback: Function, thisObject: any): void;
+    function pauseApp(): void;
+    function resumeApp(): void;
+    function readXML(filepath: string): any;
+    function xmlStr2JsonStr(text: string): any;
+    function isFileExists(filepath: string): boolean;
+    function isRecordExists(filepath: string): boolean;
+    function readFileSync(filepath: string, type?: string): any;
+    function readResourceFileSync(filepath: string): any;
+    function readUpdateFileSync(filepath: string): any;
+    function deleteUpdateFile(filepath: string): void;
+    function readFileAsync(filepath: string, promise: egret.PromiseObject, type?: string): any;
+    function writeFileSync(filepath: string, fileContent: string): any;
+    function pickPhoto(promise: egret.PromiseObject): void;
+    function requireHttpSync(url: string, callback: Function): void;
+    function requireHttp(url: string, param: any, callback: Function): void;
+    function requestHttp(url: string, type: "GET" | "POST", stringfyHeaders: string, postData: string, forBinary: boolean, promise: egret.PromiseObject): void;
+    function sendInfoToPlugin(info: string): void;
+    function receivedPluginInfo(info: string): void;
+    function loadRecord(filepath: string): string;
+    function saveRecord(filepath: string, fileContent: string): void;
+    function getOption(type: string): string;
+    namespace Audio {
+        function preloadBackgroundMusic(path: string): void;
+        function playBackgroundMusic(path: string, loop: boolean): void;
+        function setBackgroundMusicVolume(value: number): void;
+        function setEffectsVolume(value: number): void;
+        function getBackgroundMusicVolume(): number;
+        function getEffectsVolume(): number;
+        function stopBackgroundMusic(isRelease: boolean): void;
+        function preloadEffect(path: string): void;
+        function preloadEffectAsync(path: string, promise: egret.PromiseObject): void;
+        function playEffect(path: string, loop: boolean): void;
+        function unloadEffect(path: string): void;
+        function stopEffect(effectId: number): void;
+        function pauseBackgroundMusic(): void;
+        function pauseAllEffects(): void;
+        function resumeBackgroundMusic(): void;
+        function resumeAllEffects(): void;
+    }
+    function download(url: string, savePath: string, promise: any): void;
+    namespace Graphics {
+        function clearScreen(r: number, g: number, b: number): void;
+        function drawImage(texture: any, sourceX: any, sourceY: any, sourceWidth: any, sourceHeight: any, destX: any, destY: any, destWidth: any, destHeight: any): void;
+        function drawImageScale9(texture: any, sourceX: any, sourceY: any, sourceWidth: any, sourceHeight: any, destX: any, destY: any, destWidth: any, destHeight: any, x: any, y: any, width: any, height: any): boolean;
+        function setTransform(a: number, b: number, c: number, d: number, tx: number, ty: number): void;
+        function setGlobalAlpha(alpha: number): void;
+        function pushClip(x: number, y: number, w: number, h: number): void;
+        function popClip(): void;
+        function setGlobalColorTransform(colorTransformMatrix: number[]): void;
+        function setGlobalColorTransformEnabled(bool: boolean): void;
+        function setGlobalShader(filterData: any): void;
+        function lineStyle(thickness: number, color: number): void;
+        function lineTo(x: number, y: number): void;
+        function moveTo(x: number, y: number): void;
+        function beginFill(color: number, alpha: number): void;
+        function endFill(): void;
+        function setBlendArg(src: number, des: number): void;
+        function setTextureScaleFactor(value: number): void;
+    }
+    namespace Label {
+        function drawText(text: string, x: number, y: number, size: number, textColor: number, stroke: number, strokeColor: number): void;
+        function setTextAlignment(type: string): void;
+        function getTextWidth(text: string, size: number): number;
+        function bindTexture(texture: any, width: number, height: number): void;
+        function generateTexture(): void;
+    }
+    namespace EGTXML {
+        function readXML(filepath: string): void;
+    }
+    function createRawImage(filePath: string, promise: any): any;
+    namespace Texture {
+        function create(filePath: string): any;
+        function addTexture(filePath: string): any;
+        function addTextureAsyn(filePath: string, promise: any): any;
+        function addTextureUnsyn(filePath: string, promise: any): any;
+        function removeTexture(filePath: string): void;
+        function createTextureFromArrayBuffer(arrayBuffer: ArrayBuffer): any;
+    }
+    namespace TextInputOp {
+        function setKeybordOpen(isOpen: boolean, jsonConfig?: Object): void;
+        function isFullScreenKeyBoard(): boolean;
+        function setInputTextMaxLenght(value: number): void;
+        function updateConfig(jsonConfig?: Object): void;
+    }
+    function EGT_TextInput(text: string): void;
+    function EGT_keyboardFinish(): void;
+    function EGT_deleteBackward(): void;
+    function EGT_keyboardDidHide(): void;
+    function EGT_keyboardDidShow(): void;
+    function EGT_getTextEditerContentText(): string;
+    function getDeviceWidth(): number;
+    function getDeviceHeight(): number;
+    function setVisibleRect(x: number, y: number, w: number, h: number): number;
+    function setDesignSize(w: number, h: number): number;
+    namespace EGTView {
+        function getFrameWidth(): number;
+        function getFrameHeight(): number;
+        function setVisibleRect(x: number, y: number, w: number, h: number): number;
+        function setDesignSize(w: number, h: number): number;
+    }
+    /**
+     * @private
+     */
+    class RenderTexture {
+        constructor(width: number, height: number);
+        begin(): any;
+        end(): any;
+        dispose(): any;
+        toDataURL(type: any): any;
+        saveToFile(type: string, filePath: string): any;
+    }
+    namespace rastergl {
+        function arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean): void;
+        function quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
+        function lineTo(x: number, y: number): void;
+        function fill(fillRule?: string): void;
+        function closePath(): void;
+        function rect(x: number, y: number, w: number, h: number): void;
+        function moveTo(x: number, y: number): void;
+        function fillRect(x: number, y: number, w: number, h: number): void;
+        function bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
+        function stroke(): void;
+        function strokeRect(x: number, y: number, w: number, h: number): void;
+        function beginPath(): void;
+        function arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void;
+        function transform(m11: number, m12: number, m21: number, m22: number, dx: number, dy: number): void;
+        function translate(x: number, y: number): void;
+        function scale(x: number, y: number): void;
+        function rotate(angle: number): void;
+        function save(): void;
+        function restore(): void;
+        function createLinearGradient(x0: number, y0: number, x1: number, y1: number): CanvasGradient;
+        function createRadialGradient(x0: number, y0: number, r0: number, x1: number, y1: number, r1: number): CanvasGradient;
+        /**
+         * @private
+         */
+        let lineWidth: number;
+        /**
+         * @private
+         */
+        let strokeStyle: any;
+        /**
+         * @private
+         */
+        let fillStyle: any;
+    }
+    namespace Game {
+        function listResource(root: any, promise: any): any;
+        function listUpdate(root: any, promise: any): any;
+    }
+    /**
+     * @private
+     */
+    class RenderContext {
+        clearScreen(r: number, g: number, b: number): void;
+        drawImage(texture: any, sourceX: any, sourceY: any, sourceWidth: any, sourceHeight: any, destX: any, destY: any, destWidth: any, destHeight: any): void;
+        setTransform(a: number, b: number, c: number, d: number, tx: number, ty: number): void;
+        setGlobalAlpha(alpha: number): void;
+        pushClip(x: number, y: number, w: number, h: number): void;
+        popClip(): void;
+    }
+    /**
+     * @private
+     */
+    class Canvas {
+        constructor(width: number, height: number);
+        width: number;
+        height: number;
+        getContext(type: string): RenderContext;
+    }
+}
 declare namespace egret.sys {
     /**
      * @private
@@ -4598,24 +4802,6 @@ declare namespace egret {
          */
         $toJson(): string;
     }
-}
-declare namespace egret {
-    /**
-     * Values for the dirty region policy
-     * @version Egret 2.5
-     * @platform Web,Native
-     * @language en_US
-     */
-    /**
-     * 脏矩形策略常量。
-     * @version Egret 3.0
-     * @platform Web,Native
-     * @language zh_CN
-     */
-    const DirtyRegionPolicy: {
-        OFF: string;
-        ON: string;
-    };
 }
 declare namespace egret {
     /**
@@ -8182,209 +8368,16 @@ declare namespace egret {
         new (url?: string, cache?: boolean): Video;
     };
 }
-/**
- * @private
- */
-declare namespace egret_native {
-    let nativeType: string;
+declare namespace egret {
     /**
-     * 游戏启动
-     * @private
+     * OrientationMode 类为舞台初始旋转模式提供值。
      */
-    function startGame(): void;
-    function _selectPhoto(promise: egret.PromiseObject): void;
-    function loglevel(logType: any): void;
-    function callRender(): void;
-    function getVersion(): any;
-    function setScreenCanvas(canvas: Canvas): void;
-    function setFrameRate(frameRate: number): void;
-    function onTouchesBegin(num: number, ids: any[], xs_array: any[], ys_array: any[]): any;
-    function onTouchesMove(num: number, ids: any[], xs_array: any[], ys_array: any[]): any;
-    function onTouchesEnd(num: number, ids: any[], xs_array: any[], ys_array: any[]): any;
-    function onTouchesCancel(num: number, ids: any[], xs_array: any[], ys_array: any[]): any;
-    function touchDown(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
-    function touchMove(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
-    function touchUp(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
-    function touchCancel(num: number, ids: Array<any>, xs_array: Array<any>, ys_array: Array<any>): any;
-    function sendToC(float32Array: Float32Array, arrayBufferLen: number, array: string[]): void;
-    function sendGLArray(arrayBuffer: ArrayBuffer, arrayBufferLen: number, array: Array<string>, typedArrays: Array<any>): void;
-    /**
-     * 启动主循环
-     * @param callback 主循环回调函数
-     * @param thisObject
-     */
-    function setOnUpdate(callback: Function, thisObject: any): void;
-    function executeMainLoop(callback: Function, thisObject: any): void;
-    function pauseApp(): void;
-    function resumeApp(): void;
-    function readXML(filepath: string): any;
-    function xmlStr2JsonStr(text: string): any;
-    function isFileExists(filepath: string): boolean;
-    function isRecordExists(filepath: string): boolean;
-    function readFileSync(filepath: string, type?: string): any;
-    function readResourceFileSync(filepath: string): any;
-    function readUpdateFileSync(filepath: string): any;
-    function deleteUpdateFile(filepath: string): void;
-    function readFileAsync(filepath: string, promise: egret.PromiseObject, type?: string): any;
-    function writeFileSync(filepath: string, fileContent: string): any;
-    function pickPhoto(promise: egret.PromiseObject): void;
-    function requireHttpSync(url: string, callback: Function): void;
-    function requireHttp(url: string, param: any, callback: Function): void;
-    function requestHttp(url: string, type: "GET" | "POST", stringfyHeaders: string, postData: string, forBinary: boolean, promise: egret.PromiseObject): void;
-    function sendInfoToPlugin(info: string): void;
-    function receivedPluginInfo(info: string): void;
-    function loadRecord(filepath: string): string;
-    function saveRecord(filepath: string, fileContent: string): void;
-    function getOption(type: string): string;
-    namespace Audio {
-        function preloadBackgroundMusic(path: string): void;
-        function playBackgroundMusic(path: string, loop: boolean): void;
-        function setBackgroundMusicVolume(value: number): void;
-        function setEffectsVolume(value: number): void;
-        function getBackgroundMusicVolume(): number;
-        function getEffectsVolume(): number;
-        function stopBackgroundMusic(isRelease: boolean): void;
-        function preloadEffect(path: string): void;
-        function preloadEffectAsync(path: string, promise: egret.PromiseObject): void;
-        function playEffect(path: string, loop: boolean): void;
-        function unloadEffect(path: string): void;
-        function stopEffect(effectId: number): void;
-        function pauseBackgroundMusic(): void;
-        function pauseAllEffects(): void;
-        function resumeBackgroundMusic(): void;
-        function resumeAllEffects(): void;
-    }
-    function download(url: string, savePath: string, promise: any): void;
-    namespace Graphics {
-        function clearScreen(r: number, g: number, b: number): void;
-        function drawImage(texture: any, sourceX: any, sourceY: any, sourceWidth: any, sourceHeight: any, destX: any, destY: any, destWidth: any, destHeight: any): void;
-        function drawImageScale9(texture: any, sourceX: any, sourceY: any, sourceWidth: any, sourceHeight: any, destX: any, destY: any, destWidth: any, destHeight: any, x: any, y: any, width: any, height: any): boolean;
-        function setTransform(a: number, b: number, c: number, d: number, tx: number, ty: number): void;
-        function setGlobalAlpha(alpha: number): void;
-        function pushClip(x: number, y: number, w: number, h: number): void;
-        function popClip(): void;
-        function setGlobalColorTransform(colorTransformMatrix: number[]): void;
-        function setGlobalColorTransformEnabled(bool: boolean): void;
-        function setGlobalShader(filterData: any): void;
-        function lineStyle(thickness: number, color: number): void;
-        function lineTo(x: number, y: number): void;
-        function moveTo(x: number, y: number): void;
-        function beginFill(color: number, alpha: number): void;
-        function endFill(): void;
-        function setBlendArg(src: number, des: number): void;
-        function setTextureScaleFactor(value: number): void;
-    }
-    namespace Label {
-        function drawText(text: string, x: number, y: number, size: number, textColor: number, stroke: number, strokeColor: number): void;
-        function setTextAlignment(type: string): void;
-        function getTextWidth(text: string, size: number): number;
-        function bindTexture(texture: any, width: number, height: number): void;
-        function generateTexture(): void;
-    }
-    namespace EGTXML {
-        function readXML(filepath: string): void;
-    }
-    function createRawImage(filePath: string, promise: any): any;
-    namespace Texture {
-        function create(filePath: string): any;
-        function addTexture(filePath: string): any;
-        function addTextureAsyn(filePath: string, promise: any): any;
-        function addTextureUnsyn(filePath: string, promise: any): any;
-        function removeTexture(filePath: string): void;
-        function createTextureFromArrayBuffer(arrayBuffer: ArrayBuffer): any;
-    }
-    namespace TextInputOp {
-        function setKeybordOpen(isOpen: boolean, jsonConfig?: Object): void;
-        function isFullScreenKeyBoard(): boolean;
-        function setInputTextMaxLenght(value: number): void;
-        function updateConfig(jsonConfig?: Object): void;
-    }
-    function EGT_TextInput(text: string): void;
-    function EGT_keyboardFinish(): void;
-    function EGT_deleteBackward(): void;
-    function EGT_keyboardDidHide(): void;
-    function EGT_keyboardDidShow(): void;
-    function EGT_getTextEditerContentText(): string;
-    function getDeviceWidth(): number;
-    function getDeviceHeight(): number;
-    function setVisibleRect(x: number, y: number, w: number, h: number): number;
-    function setDesignSize(w: number, h: number): number;
-    namespace EGTView {
-        function getFrameWidth(): number;
-        function getFrameHeight(): number;
-        function setVisibleRect(x: number, y: number, w: number, h: number): number;
-        function setDesignSize(w: number, h: number): number;
-    }
-    /**
-     * @private
-     */
-    class RenderTexture {
-        constructor(width: number, height: number);
-        begin(): any;
-        end(): any;
-        dispose(): any;
-        toDataURL(type: any): any;
-        saveToFile(type: string, filePath: string): any;
-    }
-    namespace rastergl {
-        function arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean): void;
-        function quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
-        function lineTo(x: number, y: number): void;
-        function fill(fillRule?: string): void;
-        function closePath(): void;
-        function rect(x: number, y: number, w: number, h: number): void;
-        function moveTo(x: number, y: number): void;
-        function fillRect(x: number, y: number, w: number, h: number): void;
-        function bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
-        function stroke(): void;
-        function strokeRect(x: number, y: number, w: number, h: number): void;
-        function beginPath(): void;
-        function arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void;
-        function transform(m11: number, m12: number, m21: number, m22: number, dx: number, dy: number): void;
-        function translate(x: number, y: number): void;
-        function scale(x: number, y: number): void;
-        function rotate(angle: number): void;
-        function save(): void;
-        function restore(): void;
-        function createLinearGradient(x0: number, y0: number, x1: number, y1: number): CanvasGradient;
-        function createRadialGradient(x0: number, y0: number, r0: number, x1: number, y1: number, r1: number): CanvasGradient;
-        /**
-         * @private
-         */
-        let lineWidth: number;
-        /**
-         * @private
-         */
-        let strokeStyle: any;
-        /**
-         * @private
-         */
-        let fillStyle: any;
-    }
-    namespace Game {
-        function listResource(root: any, promise: any): any;
-        function listUpdate(root: any, promise: any): any;
-    }
-    /**
-     * @private
-     */
-    class RenderContext {
-        clearScreen(r: number, g: number, b: number): void;
-        drawImage(texture: any, sourceX: any, sourceY: any, sourceWidth: any, sourceHeight: any, destX: any, destY: any, destWidth: any, destHeight: any): void;
-        setTransform(a: number, b: number, c: number, d: number, tx: number, ty: number): void;
-        setGlobalAlpha(alpha: number): void;
-        pushClip(x: number, y: number, w: number, h: number): void;
-        popClip(): void;
-    }
-    /**
-     * @private
-     */
-    class Canvas {
-        constructor(width: number, height: number);
-        width: number;
-        height: number;
-        getContext(type: string): RenderContext;
-    }
+    const OrientationMode: {
+        AUTO: string;
+        PORTRAIT: string;
+        LANDSCAPE: string;
+        LANDSCAPE_FLIPPED: string;
+    };
 }
 declare namespace egret {
     /**
@@ -8501,6 +8494,7 @@ declare namespace egret {
     }
     namespace native2 {
         class FileManager {
+            static searchPath: string;
             static makeFullPath(url: string | NativeBlob): string;
             static createImage(url: string, promise: any): void;
             static readFileAsync(url: string, promise: any, type: "String" | "ArrayBuffer"): void;
@@ -9163,14 +9157,52 @@ interface FPSData extends Object {
 }
 declare namespace egret {
     /**
-     * OrientationMode 类为舞台初始旋转模式提供值。
+     * RenderTexture is a dynamic texture
+     * @extends egret.Texture
+     * @version Egret 2.4
+     * @platform Web,Native
+     * @includeExample egret/display/RenderTexture.ts
+     * @language en_US
      */
-    const OrientationMode: {
-        AUTO: string;
-        PORTRAIT: string;
-        LANDSCAPE: string;
-        LANDSCAPE_FLIPPED: string;
-    };
+    /**
+     * RenderTexture 是动态纹理类，他实现了将显示对象及其子对象绘制成为一个纹理的功能
+     * @extends egret.Texture
+     * @version Egret 2.4
+     * @platform Web,Native
+     * @includeExample egret/display/RenderTexture.ts
+     * @language zh_CN
+     */
+    class RenderTexture extends egret.Texture {
+        constructor();
+        $renderBuffer: sys.RenderBuffer;
+        /**
+         * The specified display object is drawn as a texture
+         * @param displayObject {egret.DisplayObject} the display to draw
+         * @param clipBounds {egret.Rectangle} clip rect
+         * @param scale {number} scale factor
+         * @version Egret 2.4
+         * @platform Web,Native
+         * @language en_US
+         */
+        /**
+         * 将指定显示对象绘制为一个纹理
+         * @param displayObject {egret.DisplayObject} 需要绘制的显示对象
+         * @param clipBounds {egret.Rectangle} 绘制矩形区域
+         * @param scale {number} 缩放比例
+         * @version Egret 2.4
+         * @platform Web,Native
+         * @language zh_CN
+         */
+        drawToTexture(displayObject: egret.DisplayObject, clipBounds?: Rectangle, scale?: number): boolean;
+        /**
+         * @inheritDoc
+         */
+        getPixel32(x: number, y: number): number[];
+        /**
+         * @inheritDoc
+         */
+        dispose(): void;
+    }
 }
 /**
  * @private
@@ -10079,51 +10111,62 @@ declare namespace egret.sys {
 }
 declare namespace egret {
     /**
-     * RenderTexture is a dynamic texture
-     * @extends egret.Texture
+     * This class is used to create lightweight shapes using the drawing application program interface (API). The Shape
+     * class includes a graphics property, which lets you access methods from the Graphics class.
+     * @see egret.Graphics
      * @version Egret 2.4
      * @platform Web,Native
-     * @includeExample egret/display/RenderTexture.ts
+     * @includeExample egret/display/Shape.ts
      * @language en_US
      */
     /**
-     * RenderTexture 是动态纹理类，他实现了将显示对象及其子对象绘制成为一个纹理的功能
-     * @extends egret.Texture
+     * 此类用于使用绘图应用程序编程接口 (API) 创建简单形状。Shape 类含有 graphics 属性，通过该属性您可以访问各种矢量绘图方法。
+     * @see egret.Graphics
      * @version Egret 2.4
      * @platform Web,Native
-     * @includeExample egret/display/RenderTexture.ts
+     * @includeExample egret/display/Shape.ts
      * @language zh_CN
      */
-    class RenderTexture extends egret.Texture {
-        constructor();
-        $renderBuffer: sys.RenderBuffer;
+    class Shape extends DisplayObject {
         /**
-         * The specified display object is drawn as a texture
-         * @param displayObject {egret.DisplayObject} the display to draw
-         * @param clipBounds {egret.Rectangle} clip rect
-         * @param scale {number} scale factor
+         * Creates a new Shape object.
          * @version Egret 2.4
          * @platform Web,Native
          * @language en_US
          */
         /**
-         * 将指定显示对象绘制为一个纹理
-         * @param displayObject {egret.DisplayObject} 需要绘制的显示对象
-         * @param clipBounds {egret.Rectangle} 绘制矩形区域
-         * @param scale {number} 缩放比例
+         * 创建一个 Shape 对象
          * @version Egret 2.4
          * @platform Web,Native
          * @language zh_CN
          */
-        drawToTexture(displayObject: egret.DisplayObject, clipBounds?: Rectangle, scale?: number): boolean;
+        constructor();
         /**
-         * @inheritDoc
+         * @private
          */
-        getPixel32(x: number, y: number): number[];
+        $graphics: Graphics;
         /**
-         * @inheritDoc
+         * Specifies the Graphics object belonging to this Shape object, where vector drawing commands can occur.
+         * @version Egret 2.4
+         * @platform Web,Native
+         * @language en_US
          */
-        dispose(): void;
+        /**
+         * 获取 Shape 中的 Graphics 对象。可通过此对象执行矢量绘图命令。
+         * @version Egret 2.4
+         * @platform Web,Native
+         * @language zh_CN
+         */
+        readonly graphics: Graphics;
+        /**
+         * @private
+         */
+        $measureContentBounds(bounds: Rectangle): void;
+        $hitTest(stageX: number, stageY: number): DisplayObject;
+        /**
+         * @private
+         */
+        $onRemoveFromStage(): void;
     }
 }
 declare namespace egret.sys {
@@ -10280,63 +10323,28 @@ declare namespace egret.sys {
 }
 declare namespace egret {
     /**
-     * This class is used to create lightweight shapes using the drawing application program interface (API). The Shape
-     * class includes a graphics property, which lets you access methods from the Graphics class.
-     * @see egret.Graphics
+     * The BitmapFillMode class defines the image fill mode of Bitmap.
+     * The BitmapFillMode class defines a pattern enumeration for adjusting size. These patterns determine how Bitmap fill the size designated by the layout system.
+     * @see http://edn.egret.com/cn/docs/page/134 Texture filling way
      * @version Egret 2.4
      * @platform Web,Native
-     * @includeExample egret/display/Shape.ts
+     * @includeExample egret/display/BitmapFillMode.ts
      * @language en_US
      */
     /**
-     * 此类用于使用绘图应用程序编程接口 (API) 创建简单形状。Shape 类含有 graphics 属性，通过该属性您可以访问各种矢量绘图方法。
-     * @see egret.Graphics
+     * BitmapFillMode 类定义Bitmap的图像填充方式。
+     * BitmapFillMode 类定义了调整大小模式的一个枚举，这些模式确定 Bitmap 如何填充由布局系统指定的尺寸。
+     * @see http://edn.egret.com/cn/docs/page/134 纹理的填充方式
      * @version Egret 2.4
      * @platform Web,Native
-     * @includeExample egret/display/Shape.ts
+     * @includeExample egret/display/BitmapFillMode.ts
      * @language zh_CN
      */
-    class Shape extends DisplayObject {
-        /**
-         * Creates a new Shape object.
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language en_US
-         */
-        /**
-         * 创建一个 Shape 对象
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language zh_CN
-         */
-        constructor();
-        /**
-         * @private
-         */
-        $graphics: Graphics;
-        /**
-         * Specifies the Graphics object belonging to this Shape object, where vector drawing commands can occur.
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language en_US
-         */
-        /**
-         * 获取 Shape 中的 Graphics 对象。可通过此对象执行矢量绘图命令。
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language zh_CN
-         */
-        readonly graphics: Graphics;
-        /**
-         * @private
-         */
-        $measureContentBounds(bounds: Rectangle): void;
-        $hitTest(stageX: number, stageY: number): DisplayObject;
-        /**
-         * @private
-         */
-        $onRemoveFromStage(): void;
-    }
+    const BitmapFillMode: {
+        REPEAT: string;
+        SCALE: string;
+        CLIP: string;
+    };
 }
 declare namespace egret.sys {
     /**
@@ -11017,28 +11025,84 @@ declare let testDeviceType: () => boolean;
 declare let testRuntimeType: () => boolean;
 declare namespace egret {
     /**
-     * The BitmapFillMode class defines the image fill mode of Bitmap.
-     * The BitmapFillMode class defines a pattern enumeration for adjusting size. These patterns determine how Bitmap fill the size designated by the layout system.
-     * @see http://edn.egret.com/cn/docs/page/134 Texture filling way
+     * A class that provides constant values for visual blend mode effects. These constants are used in the blendMode
+     * property of the DisplayObject class.
+     * @see egret.DisplayObject#blendMode
      * @version Egret 2.4
      * @platform Web,Native
-     * @includeExample egret/display/BitmapFillMode.ts
+     * @includeExample egret/display/BlendMode.ts
+     * @see http://edn.egret.com/cn/docs/page/108 显示容器的概念与实现
      * @language en_US
      */
     /**
-     * BitmapFillMode 类定义Bitmap的图像填充方式。
-     * BitmapFillMode 类定义了调整大小模式的一个枚举，这些模式确定 Bitmap 如何填充由布局系统指定的尺寸。
-     * @see http://edn.egret.com/cn/docs/page/134 纹理的填充方式
+     * 提供混合模式可视效果的常量值的类,通常用于 DisplayObject 的 blendMode 属性上。
+     * @see egret.DisplayObject#blendMode
      * @version Egret 2.4
      * @platform Web,Native
-     * @includeExample egret/display/BitmapFillMode.ts
+     * @includeExample egret/display/BlendMode.ts
+     * @see http://edn.egret.com/cn/docs/page/108 显示容器的概念与实现
      * @language zh_CN
      */
-    const BitmapFillMode: {
-        REPEAT: string;
-        SCALE: string;
-        CLIP: string;
-    };
+    class BlendMode {
+        /**
+         * The display object appears in front of the background. Pixel values of the display object override the pixel
+         * values of the background. Where the display object is transparent, the background is visible.
+         * @version Egret 2.4
+         * @platform Web,Native
+         * @language en_US
+         */
+        /**
+         * 该显示对象出现在背景前面。显示对象的像素值会覆盖背景的像素值。在显示对象为透明的区域，背景是可见的。
+         * @version Egret 2.4
+         * @platform Web,Native
+         * @language zh_CN
+         */
+        static NORMAL: string;
+        /**
+         * Adds the values of the constituent colors of the display object to the colors of its background, applying a
+         * ceiling of 0xFF. This setting is commonly used for animating a lightening dissolve between two objects.<br/>
+         * For example, if the display object has a pixel with an RGB value of 0xAAA633, and the background pixel has an
+         * RGB value of 0xDD2200, the resulting RGB value for the displayed pixel is 0xFFC833 (because 0xAA + 0xDD > 0xFF,
+         * 0xA6 + 0x22 = 0xC8, and 0x33 + 0x00 = 0x33).
+         * @version Egret 2.4
+         * @platform Web,Native
+         * @language en_US
+         */
+        /**
+         * 将显示对象的原色值添加到它的背景颜色中，上限值为 0xFF。此设置通常用于使两个对象间的加亮溶解产生动画效果。<br/>
+         * 例如，如果显示对象的某个像素的 RGB 值为 0xAAA633，背景像素的 RGB 值为 0xDD2200，则显示像素的结果 RGB 值为 0xFFC833
+         * （因为 0xAA + 0xDD > 0xFF，0xA6 + 0x22 = 0xC8，且 0x33 + 0x00 = 0x33）。
+         * @version Egret 2.4
+         * @platform Web,Native
+         * @language zh_CN
+         */
+        static ADD: string;
+        /**
+         * Erases the background based on the alpha value of the display object.
+         * @version Egret 2.4
+         * @platform Web,Native
+         * @language en_US
+         */
+        /**
+         * 根据显示对象的 Alpha 值擦除背景。Alpha 值不为0的区域将被擦除。
+         * @version Egret 2.4
+         * @platform Web,Native
+         * @language zh_CN
+         */
+        static ERASE: string;
+    }
+}
+declare namespace egret.sys {
+    /**
+     * @private
+     * 转换 blendMode 字符串为数字。
+     */
+    function blendModeToNumber(blendMode: string): number;
+    /**
+     * @private
+     * 转换数字为 blendMode 字符串。
+     */
+    function numberToBlendMode(blendMode: number): string;
 }
 declare namespace egret {
     /**
@@ -14014,161 +14078,6 @@ declare namespace egret {
 }
 declare namespace egret {
     /**
-     * A class that provides constant values for visual blend mode effects. These constants are used in the blendMode
-     * property of the DisplayObject class.
-     * @see egret.DisplayObject#blendMode
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @includeExample egret/display/BlendMode.ts
-     * @see http://edn.egret.com/cn/docs/page/108 显示容器的概念与实现
-     * @language en_US
-     */
-    /**
-     * 提供混合模式可视效果的常量值的类,通常用于 DisplayObject 的 blendMode 属性上。
-     * @see egret.DisplayObject#blendMode
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @includeExample egret/display/BlendMode.ts
-     * @see http://edn.egret.com/cn/docs/page/108 显示容器的概念与实现
-     * @language zh_CN
-     */
-    class BlendMode {
-        /**
-         * The display object appears in front of the background. Pixel values of the display object override the pixel
-         * values of the background. Where the display object is transparent, the background is visible.
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language en_US
-         */
-        /**
-         * 该显示对象出现在背景前面。显示对象的像素值会覆盖背景的像素值。在显示对象为透明的区域，背景是可见的。
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language zh_CN
-         */
-        static NORMAL: string;
-        /**
-         * Adds the values of the constituent colors of the display object to the colors of its background, applying a
-         * ceiling of 0xFF. This setting is commonly used for animating a lightening dissolve between two objects.<br/>
-         * For example, if the display object has a pixel with an RGB value of 0xAAA633, and the background pixel has an
-         * RGB value of 0xDD2200, the resulting RGB value for the displayed pixel is 0xFFC833 (because 0xAA + 0xDD > 0xFF,
-         * 0xA6 + 0x22 = 0xC8, and 0x33 + 0x00 = 0x33).
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language en_US
-         */
-        /**
-         * 将显示对象的原色值添加到它的背景颜色中，上限值为 0xFF。此设置通常用于使两个对象间的加亮溶解产生动画效果。<br/>
-         * 例如，如果显示对象的某个像素的 RGB 值为 0xAAA633，背景像素的 RGB 值为 0xDD2200，则显示像素的结果 RGB 值为 0xFFC833
-         * （因为 0xAA + 0xDD > 0xFF，0xA6 + 0x22 = 0xC8，且 0x33 + 0x00 = 0x33）。
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language zh_CN
-         */
-        static ADD: string;
-        /**
-         * Erases the background based on the alpha value of the display object.
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language en_US
-         */
-        /**
-         * 根据显示对象的 Alpha 值擦除背景。Alpha 值不为0的区域将被擦除。
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language zh_CN
-         */
-        static ERASE: string;
-    }
-}
-declare namespace egret.sys {
-    /**
-     * @private
-     * 转换 blendMode 字符串为数字。
-     */
-    function blendModeToNumber(blendMode: string): number;
-    /**
-     * @private
-     * 转换数字为 blendMode 字符串。
-     */
-    function numberToBlendMode(blendMode: number): string;
-}
-declare namespace egret {
-    /**
-     * @private
-     */
-    let fontMapping: {};
-    /**
-     * 兼容旧版本不使用 fontMapping 的情况
-     * @private
-     */
-    let useFontMapping: boolean;
-    /**
-     * Register font mapping.
-     * @param fontFamily The font family name to register.
-     * @param value The font value.
-     * @version Egret 3.2.3
-     * @platform Native
-     * @language en_US
-     */
-    /**
-     * 注册字体映射
-     * @param fontFamily 要注册的字体名称
-     * @param value 注册的字体值
-     * @version Egret 3.2.3
-     * @platform Native
-     * @language zh_CN
-     */
-    function registerFontMapping(fontFamily: string, value: string): void;
-}
-declare namespace egret {
-    /**
-     * Registers the runtime class information for a class.This method adds some strings which represent the class name or
-     * some interface names to the class definition. After the registration,you can use egret.is() method to do the type checking
-     * for the instance of this class.<br/>
-     * Note:If you use the TypeScript programming language, the egret command line tool will automatically generate the registration code line.
-     * You don't need to manually call this method.
-     *
-     * @example the following code shows how to register the runtime class information for the EventDispatcher class and do the type checking:
-     * <pre>
-     *      egret.registerClass(egret.EventDispatcher,"egret.EventDispatcher",["egret.IEventDispatcher"]);
-     *      let dispatcher = new egret.EventDispatcher();
-     *      egret.log(egret.is(dispatcher, "egret.IEventDispatcher"));  //true。
-     *      egret.log(egret.is(dispatcher, "egret.EventDispatcher"));   //true。
-     *      egret.log(egret.is(dispatcher, "egret.Bitmap"));   //false。
-     * </pre>
-     * @param classDefinition the class definition to be registered.
-     * @param className  a unique identification string of the specific class
-     * @param interfaceNames a list of unique identification string of the specific interfaces.
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @language en_US
-     */
-    /**
-     * 为一个类定义注册运行时类信息,用此方法往类定义上注册它自身以及所有接口对应的字符串。
-     * 在运行时，这个类的实例将可以使用 egret.is() 方法传入一个字符串来判断实例类型。
-     * @example 以下代码演示了如何为EventDispatcher类注册运行时类信息并判断类型：
-     * <pre>
-     *      //为egret.EventDispatcher类注册运行时类信息，由于它实现了IEventDispatcher接口，这里应同时传入接口名对应的字符串。
-     *      egret.registerClass(egret.EventDispatcher,"egret.EventDispatcher",["egret.IEventDispatcher"]);
-     *      let dispatcher = new egret.EventDispatcher();
-     *      egret.log(egret.is(dispatcher, "egret.IEventDispatcher"));  //true。
-     *      egret.log(egret.is(dispatcher, "egret.EventDispatcher"));   //true。
-     *      egret.log(egret.is(dispatcher, "egret.Bitmap"));   //false。
-     * </pre>
-     * 注意：若您使用 TypeScript 来编写程序，egret 命令行会自动帮您生成类信息注册代码行到最终的 Javascript 文件中。因此您不需要手动调用此方法。
-     *
-     * @param classDefinition 要注册的类定义。
-     * @param className 要注册的类名。
-     * @param interfaceNames 要注册的类所实现的接口名列表。
-     * @version Egret 2.4
-     * @platform Web,Native
-     * @language zh_CN
-     */
-    function registerClass(classDefinition: any, className: string, interfaceNames?: string[]): void;
-}
-declare namespace egret {
-    /**
      * The Stage class represents the main drawing area.The Stage object is not globally accessible. You need to access
      * it through the stage property of a DisplayObject instance.<br/>
      * The Stage class has several ancestor classes — Sprite, DisplayObject, and EventDispatcher — from which it inherits
@@ -14393,6 +14302,102 @@ declare namespace egret {
          */
         setContentSize(width: number, height: number): void;
     }
+}
+declare namespace egret {
+    /**
+     * @private
+     */
+    let fontMapping: {};
+    /**
+     * 兼容旧版本不使用 fontMapping 的情况
+     * @private
+     */
+    let useFontMapping: boolean;
+    /**
+     * Register font mapping.
+     * @param fontFamily The font family name to register.
+     * @param value The font value.
+     * @version Egret 3.2.3
+     * @platform Native
+     * @language en_US
+     */
+    /**
+     * 注册字体映射
+     * @param fontFamily 要注册的字体名称
+     * @param value 注册的字体值
+     * @version Egret 3.2.3
+     * @platform Native
+     * @language zh_CN
+     */
+    function registerFontMapping(fontFamily: string, value: string): void;
+}
+declare namespace egret {
+    /**
+     * Registers the runtime class information for a class.This method adds some strings which represent the class name or
+     * some interface names to the class definition. After the registration,you can use egret.is() method to do the type checking
+     * for the instance of this class.<br/>
+     * Note:If you use the TypeScript programming language, the egret command line tool will automatically generate the registration code line.
+     * You don't need to manually call this method.
+     *
+     * @example the following code shows how to register the runtime class information for the EventDispatcher class and do the type checking:
+     * <pre>
+     *      egret.registerClass(egret.EventDispatcher,"egret.EventDispatcher",["egret.IEventDispatcher"]);
+     *      let dispatcher = new egret.EventDispatcher();
+     *      egret.log(egret.is(dispatcher, "egret.IEventDispatcher"));  //true。
+     *      egret.log(egret.is(dispatcher, "egret.EventDispatcher"));   //true。
+     *      egret.log(egret.is(dispatcher, "egret.Bitmap"));   //false。
+     * </pre>
+     * @param classDefinition the class definition to be registered.
+     * @param className  a unique identification string of the specific class
+     * @param interfaceNames a list of unique identification string of the specific interfaces.
+     * @version Egret 2.4
+     * @platform Web,Native
+     * @language en_US
+     */
+    /**
+     * 为一个类定义注册运行时类信息,用此方法往类定义上注册它自身以及所有接口对应的字符串。
+     * 在运行时，这个类的实例将可以使用 egret.is() 方法传入一个字符串来判断实例类型。
+     * @example 以下代码演示了如何为EventDispatcher类注册运行时类信息并判断类型：
+     * <pre>
+     *      //为egret.EventDispatcher类注册运行时类信息，由于它实现了IEventDispatcher接口，这里应同时传入接口名对应的字符串。
+     *      egret.registerClass(egret.EventDispatcher,"egret.EventDispatcher",["egret.IEventDispatcher"]);
+     *      let dispatcher = new egret.EventDispatcher();
+     *      egret.log(egret.is(dispatcher, "egret.IEventDispatcher"));  //true。
+     *      egret.log(egret.is(dispatcher, "egret.EventDispatcher"));   //true。
+     *      egret.log(egret.is(dispatcher, "egret.Bitmap"));   //false。
+     * </pre>
+     * 注意：若您使用 TypeScript 来编写程序，egret 命令行会自动帮您生成类信息注册代码行到最终的 Javascript 文件中。因此您不需要手动调用此方法。
+     *
+     * @param classDefinition 要注册的类定义。
+     * @param className 要注册的类名。
+     * @param interfaceNames 要注册的类所实现的接口名列表。
+     * @version Egret 2.4
+     * @platform Web,Native
+     * @language zh_CN
+     */
+    function registerClass(classDefinition: any, className: string, interfaceNames?: string[]): void;
+}
+declare namespace egret {
+    /**
+     * The CapsStyle class is an enumeration of constant values that specify the caps style to use in drawing lines.
+     * The constants are provided for use as values in the caps parameter of the egret.Graphics.lineStyle() method.
+     * @see egret.Graphics#lineStyle()
+     * @version Egret 2.5
+     * @platform Web,Native
+     * @language en_US
+     */
+    /**
+     * CapsStyle 类是可指定在绘制线条中使用的端点样式的常量值枚举。常量可用作 egret.Graphics.lineStyle() 方法的 caps 参数中的值。
+     * @see egret.Graphics#lineStyle()
+     * @version Egret 2.5
+     * @platform Web,Native
+     * @language zh_CN
+     */
+    const CapsStyle: {
+        NONE: string;
+        ROUND: string;
+        SQUARE: string;
+    };
 }
 declare namespace egret {
     /**
@@ -15088,24 +15093,20 @@ declare namespace egret {
 declare let __global: any;
 declare namespace egret {
     /**
-     * The CapsStyle class is an enumeration of constant values that specify the caps style to use in drawing lines.
-     * The constants are provided for use as values in the caps parameter of the egret.Graphics.lineStyle() method.
-     * @see egret.Graphics#lineStyle()
+     * Values for the dirty region policy
      * @version Egret 2.5
      * @platform Web,Native
      * @language en_US
      */
     /**
-     * CapsStyle 类是可指定在绘制线条中使用的端点样式的常量值枚举。常量可用作 egret.Graphics.lineStyle() 方法的 caps 参数中的值。
-     * @see egret.Graphics#lineStyle()
-     * @version Egret 2.5
+     * 脏矩形策略常量。
+     * @version Egret 3.0
      * @platform Web,Native
      * @language zh_CN
      */
-    const CapsStyle: {
-        NONE: string;
-        ROUND: string;
-        SQUARE: string;
+    const DirtyRegionPolicy: {
+        OFF: string;
+        ON: string;
     };
 }
 declare namespace egret {

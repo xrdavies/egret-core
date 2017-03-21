@@ -26,6 +26,7 @@ namespace egret {
 
     export namespace native2 {
         export class FileManager {
+            static searchPath = egret_native.getOption("SearchPath");
             static makeFullPath(url: string | NativeBlob): string {
                 console.log("makeFullPath = " + url);
                 let fullPath = "";
@@ -33,7 +34,7 @@ namespace egret {
                     if (!egret_native.fs.isAbsolutePathSync(url)) {
                         console.log("========" + egret.Capabilities.os);
                         if (egret.Capabilities.os == "Android") {
-                            fullPath = "egret-game/1/" + url;
+                            fullPath = FileManager.searchPath + url;
                         }
                         else {
                             let workPath = egret_native.fs.getAssetDirectorySync();
@@ -42,7 +43,7 @@ namespace egret {
                             if (workPath.lastIndexOf("/") !== workPath.length) {
                                 workPath += "/";
                             }
-                            fullPath = workPath + "egret-game/1/" + url;
+                            fullPath = workPath + FileManager.searchPath + url;
 
                         }
                     }
@@ -62,19 +63,16 @@ namespace egret {
 
             static createImage(url: string, promise: any): void {
                 let fullPath = FileManager.makeFullPath(url);
-                console.log("YH __createImage = " + fullPath);
                 egret_native.createRawImage(fullPath, promise);
             }
 
             static readFileAsync(url: string, promise: any, type: "String" | "ArrayBuffer"): void {
                 let fullPath = FileManager.makeFullPath(url);
-                console.log("YH __readFileAsync = " + fullPath + " type = " + type);
                 egret_native.fs.readFile(fullPath, promise, type);
             }
 
             static isFileExistSync(url: string): boolean {
                 let fullPath = FileManager.makeFullPath(url);
-                console.log("YH __isFileExistSync = " + fullPath);
                 return egret_native.fs.isFileExistSync(fullPath);
             }
         }
