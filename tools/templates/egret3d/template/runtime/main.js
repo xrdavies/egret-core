@@ -639,7 +639,6 @@ function clearInterval(id)
             };
             if (this.responseType === "arraybuffer") {
                 egret.native2.FileManager.readFileAsync(localurl, promise, "ArrayBuffer");
-                //egret_native.readFileAsync(localurl, promise, "ArrayBuffer");
             } else {
                 egret.native2.FileManager.readFileAsync(localurl, promise, "String");
             }

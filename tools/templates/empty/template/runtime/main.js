@@ -637,9 +637,9 @@ function clearInterval(id)
                 }
             };
             if (this.responseType === "arraybuffer") {
-                egret_native.readFileAsync(localurl, promise, "ArrayBuffer");
+                egret.native2.FileManager.readFileAsync(localurl, promise, "ArrayBuffer");
             } else {
-                egret_native.readFileAsync(localurl, promise);
+                egret.native2.FileManager.readFileAsync(localurl, promise, "ArrayBuffer");
             }
         }
     }
