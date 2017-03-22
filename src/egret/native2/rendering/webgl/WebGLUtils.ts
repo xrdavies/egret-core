@@ -93,5 +93,18 @@ namespace egret.native2 {
                 }
             }
         }
+
+        //test api getActiveAttrib
+        public static fetchAttributeLocations(gl: any, program: any) {
+            var attributes = {};
+            var n = gl.getProgramParameter( program, gl.ACTIVE_ATTRIBUTES );
+            for ( var i = 0; i < n; i ++ ) {
+                var info = gl.getActiveAttrib( program, i );
+                var name = info.name;
+                attributes[ name ] = gl.getAttribLocation( program, name );
+            }
+
+            return attributes;
+        }
     }
 }

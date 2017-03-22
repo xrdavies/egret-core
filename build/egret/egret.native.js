@@ -6759,6 +6759,17 @@ var egret;
                     }
                 }
             };
+            //test api getActiveAttrib
+            WebGLUtils.fetchAttributeLocations = function (gl, program) {
+                var attributes = {};
+                var n = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
+                for (var i = 0; i < n; i++) {
+                    var info = gl.getActiveAttrib(program, i);
+                    var name = info.name;
+                    attributes[name] = gl.getAttribLocation(program, name);
+                }
+                return attributes;
+            };
             return WebGLUtils;
         }());
         native2.WebGLUtils = WebGLUtils;
@@ -7349,6 +7360,27 @@ var egret;
         }(egret.HashObject));
         native2.CmdCacheObject = CmdCacheObject;
         __reflect(CmdCacheObject.prototype, "egret.native2.CmdCacheObject");
+        /*
+        interface WebGLActiveInfo {
+            readonly name: string;
+            readonly size: number;
+            readonly type: number;
+        }
+        */
+        var CacheActiveInfo = (function (_super) {
+            __extends(CacheActiveInfo, _super);
+            function CacheActiveInfo() {
+                var _this = _super.call(this) || this;
+                _this.$objType = 0x09;
+                _this.size = 0;
+                _this.name = "activeInfo";
+                _this.type = 0;
+                return _this;
+            }
+            return CacheActiveInfo;
+        }(CmdCacheObject));
+        native2.CacheActiveInfo = CacheActiveInfo;
+        __reflect(CacheActiveInfo.prototype, "egret.native2.CacheActiveInfo");
         /**
          * @private
          * 缓存WebGL命令管理器
@@ -8132,7 +8164,7 @@ var egret;
             };
             // 0x5E getShaderParameter(shader: WebGLShader | null, pname: number): any;
             WebGLCmdArrayManager.prototype.getShaderParameter = function (shader, pname) {
-                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
@@ -8141,22 +8173,23 @@ var egret;
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, shader.hashCode, true);
                 arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, pname, true);
+                arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
-                console.log("JS:NativeCmdArray: no cache function = getShaderParameter");
+                // console.log("JS:NativeCmdArray: no cache function = getShaderParameter");
                 this.flushCmd();
                 var dataViewRead = this.dataViewRead;
                 var retCmdId = dataViewRead.readUnsignedInt();
-                var ret = dataViewRead.readInt();
+                var ret = null;
                 if (retCmdId == 0x5E) {
-                    return ret;
+                    ret = dataViewRead.readInt();
                 }
-                else {
-                    return null;
-                }
+                dataViewRead.position = 0;
+                return ret;
             };
             // 0x5B getProgramParameter(program: WebGLProgram | null, pname: number): any;
             WebGLCmdArrayManager.prototype.getProgramParameter = function (program, pname) {
-                if (this.arrayBufferLen + 8 > this.maxArrayBufferLen) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
                     this.flushCmd();
                 }
                 var dataView = this.dataView;
@@ -8165,18 +8198,19 @@ var egret;
                 arrayBufferLen += 4;
                 dataView.setUint32(arrayBufferLen, program.hashCode, true);
                 arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, pname, true);
+                arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
-                console.log("JS:NativeCmdArray: no cache function = getProgramParameter");
+                // console.log("JS:NativeCmdArray: no cache function = getProgramParameter");
                 this.flushCmd();
                 var dataViewRead = this.dataViewRead;
                 var retCmdId = dataViewRead.readUnsignedInt();
-                var ret = dataViewRead.readInt();
-                if (retCmdId == 0x5B && (ret > 0)) {
-                    return dataViewRead.readUTF();
+                var ret = null;
+                if (retCmdId == 0x5B) {
+                    ret = dataViewRead.readInt();
                 }
-                else {
-                    return null;
-                }
+                dataViewRead.position = 0;
+                return ret;
             };
             // 0x5D getShaderInfoLog(shader: WebGLShader | null): string | null;
             WebGLCmdArrayManager.prototype.getShaderInfoLog = function (shader) {
@@ -8190,17 +8224,17 @@ var egret;
                 dataView.setUint32(arrayBufferLen, shader.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
-                console.log("JS:NativeCmdArray: no cache function = getShaderInfoLog");
+                // console.log("JS:NativeCmdArray: no cache function = getShaderInfoLog");
                 this.flushCmd();
                 var dataViewRead = this.dataViewRead;
                 var retCmdId = dataViewRead.readUnsignedInt();
                 var retLength = dataViewRead.readUnsignedInt();
+                var retStr = null;
                 if (retCmdId == 0x5D && (retLength > 0)) {
-                    return dataViewRead.readUTF();
+                    retStr = dataViewRead.readUTFBytes(retLength);
                 }
-                else {
-                    return null;
-                }
+                dataViewRead.position = 0;
+                return retStr;
             };
             // 0x5A getProgramInfoLog(program: WebGLProgram | null): string | null;
             WebGLCmdArrayManager.prototype.getProgramInfoLog = function (program) {
@@ -8214,17 +8248,17 @@ var egret;
                 dataView.setUint32(arrayBufferLen, program.hashCode, true);
                 arrayBufferLen += 4;
                 this.arrayBufferLen = arrayBufferLen;
-                console.log("JS:NativeCmdArray: no cache function = getProgramInfoLog");
+                // console.log("JS:NativeCmdArray: no cache function = getProgramInfoLog");
                 this.flushCmd();
                 var dataViewRead = this.dataViewRead;
                 var retCmdId = dataViewRead.readUnsignedInt();
                 var retLength = dataViewRead.readUnsignedInt();
+                var retStr = null;
                 if (retCmdId == 0x5A && (retLength > 0)) {
-                    return dataViewRead.readUTF();
+                    retStr = dataViewRead.readUTFBytes(retLength);
                 }
-                else {
-                    return null;
-                }
+                dataViewRead.position = 0;
+                return retStr;
             };
             // 0x28 checkFramebufferStatus(target: number): number;
             WebGLCmdArrayManager.prototype.checkFramebufferStatus = function (target) {
@@ -8412,7 +8446,6 @@ var egret;
                 dataView.setUint32(arrayBufferLen, target, true);
                 arrayBufferLen += 4;
                 if (texture == null) {
-                    // TODO check
                     dataView.setUint32(arrayBufferLen, 0xFFFFFFFF, true);
                 }
                 else {
@@ -8468,12 +8501,70 @@ var egret;
             };
             // 0x50 getActiveAttrib(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
             WebGLCmdArrayManager.prototype.getActiveAttrib = function (program, index) {
-                // TODO
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint32(arrayBufferLen, 0x50, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, program.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, index, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+                this.flushCmd();
+                var dataViewRead = this.dataViewRead;
+                var retCmdId = dataViewRead.readUnsignedInt();
+                var retLength = dataViewRead.readUnsignedInt();
+                var webGLObject = null;
+                if (retLength > 0) {
+                    webGLObject = new CacheActiveInfo();
+                    webGLObject.name = dataViewRead.readUTFBytes(retLength);
+                    dataViewRead.position += (Math.ceil(retLength / 4)) * 4;
+                    webGLObject.type = dataViewRead.readUnsignedInt();
+                    webGLObject.size = dataViewRead.readInt();
+                }
+                dataViewRead.position = 0;
+                return webGLObject;
+            };
+            // 0x51 getActiveUniform(program: WebGLProgram | null, index: number): WebGLActiveInfo | null;
+            WebGLCmdArrayManager.prototype.getActiveUniform = function (program, index) {
+                if (this.arrayBufferLen + 12 > this.maxArrayBufferLen) {
+                    this.flushCmd();
+                }
+                var dataView = this.dataView;
+                var arrayBufferLen = this.arrayBufferLen;
+                dataView.setUint32(arrayBufferLen, 0x51, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, program.hashCode, true);
+                arrayBufferLen += 4;
+                dataView.setUint32(arrayBufferLen, index, true);
+                arrayBufferLen += 4;
+                this.arrayBufferLen = arrayBufferLen;
+                this.flushCmd();
+                var dataViewRead = this.dataViewRead;
+                var retCmdId = dataViewRead.readUnsignedInt();
+                var retLength = dataViewRead.readUnsignedInt();
+                var webGLObject = null;
+                if (retLength > 0) {
+                    webGLObject = new CacheActiveInfo();
+                    webGLObject.name = dataViewRead.readUTFBytes(retLength);
+                    dataViewRead.position += (Math.ceil(retLength / 4)) * 4;
+                    webGLObject.type = dataViewRead.readUnsignedInt();
+                    webGLObject.size = dataViewRead.readInt();
+                }
+                dataViewRead.position = 0;
+                return webGLObject;
             };
             // 0x65 getVertexAttrib(index: number, pname: number): any;
-            // 0x66 getVertexAttribOffset(index: number, pname: number): number;
             WebGLCmdArrayManager.prototype.getVertexAttrib = function (index, pname) {
                 // TOOD
+            };
+            // 0x66 getVertexAttribOffset(index: number, pname: number): number;
+            WebGLCmdArrayManager.prototype.getVertexAttribOffset = function (index, pname) {
+                this.flushCmd();
+                return this._glContext.getVertexAttribOffset(index, pname);
             };
             // 0x49 enableVertexAttribArray(index: number): void;
             WebGLCmdArrayManager.prototype.enableVertexAttribArray = function (indx) {
