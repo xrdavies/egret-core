@@ -16325,12 +16325,6 @@ var egret;
             //todo 暂时只考虑绘制一次的情况
             if (filter && length == 8) {
                 if (egret.Capabilities.runtimeType == egret.RuntimeType.NATIVE) {
-                    egret_native.Graphics.setGlobalShader(filter);
-                    while (pos < length) {
-                        drawCalls++;
-                        context.drawImage(image.source, data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++]);
-                    }
-                    egret_native.Graphics.setGlobalShader(null);
                 }
                 else {
                     var displayBuffer = this.createRenderBuffer(data[6], data[7]);

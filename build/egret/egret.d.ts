@@ -3267,23 +3267,16 @@ declare namespace egret_native {
     }
     function download(url: string, savePath: string, promise: any): void;
     namespace Graphics {
-        function clearScreen(r: number, g: number, b: number): void;
-        function drawImage(texture: any, sourceX: any, sourceY: any, sourceWidth: any, sourceHeight: any, destX: any, destY: any, destWidth: any, destHeight: any): void;
-        function drawImageScale9(texture: any, sourceX: any, sourceY: any, sourceWidth: any, sourceHeight: any, destX: any, destY: any, destWidth: any, destHeight: any, x: any, y: any, width: any, height: any): boolean;
-        function setTransform(a: number, b: number, c: number, d: number, tx: number, ty: number): void;
-        function setGlobalAlpha(alpha: number): void;
-        function pushClip(x: number, y: number, w: number, h: number): void;
-        function popClip(): void;
-        function setGlobalColorTransform(colorTransformMatrix: number[]): void;
-        function setGlobalColorTransformEnabled(bool: boolean): void;
-        function setGlobalShader(filterData: any): void;
-        function lineStyle(thickness: number, color: number): void;
         function lineTo(x: number, y: number): void;
+        function cubicCurveTo(c1x: number, c1y: number, c2x: number, c2y: number, x: number, y: number): void;
+        function curveTo(cx: number, cy: number, x: number, y: number): void;
         function moveTo(x: number, y: number): void;
-        function beginFill(color: number, alpha: number): void;
-        function endFill(): void;
-        function setBlendArg(src: number, des: number): void;
-        function setTextureScaleFactor(value: number): void;
+        function translate(x: number, y: number): void;
+        function bindTexture(texture: any, width: number, height: number): void;
+        function generateTexture(): void;
+        function beginPath(): void;
+        function fill(color: number, alpha: number): void;
+        function stroke(color: number, alpha: number, width: number): void;
     }
     namespace Label {
         function drawText(text: string, x: number, y: number, size: number, textColor: number, stroke: number, strokeColor: number): void;

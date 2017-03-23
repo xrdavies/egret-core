@@ -783,12 +783,13 @@ namespace egret {
             //todo 暂时只考虑绘制一次的情况
             if(filter && length == 8) {
                 if(Capabilities.runtimeType == RuntimeType.NATIVE) { // for native
-                    egret_native.Graphics.setGlobalShader(filter);
-                    while (pos < length) {
-                        drawCalls++;
-                        context.drawImage(image.source, data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++]);
-                    }
-                    egret_native.Graphics.setGlobalShader(null);
+                    //todo native filter
+                    // egret_native.Graphics.setGlobalShader(filter);
+                    // while (pos < length) {
+                    //     drawCalls++;
+                    //     context.drawImage(image.source, data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++]);
+                    // }
+                    // egret_native.Graphics.setGlobalShader(null);
                 }
                 else {
                     let displayBuffer = this.createRenderBuffer(data[6],data[7]);

@@ -848,70 +848,95 @@ namespace egret.native2 {
          * @private
          */
         private renderGraphics(node: sys.GraphicsNode, buffer: WebGLRenderBuffer, forHitTest?: boolean): void {
-
-            // change xs
-                // skip graphics render
-                // TODO
-                return;
-            // change end
-
             let width = node.width;
             let height = node.height;
-            if (width <= 0 || height <= 0 || !width || !height || node.drawData.length == 0) {
-                return;
-            }
-            if (!this.canvasRenderBuffer || !this.canvasRenderBuffer.context) {
-                this.canvasRenderer = new CanvasRenderer();
-                this.canvasRenderBuffer = new CanvasRenderBuffer(width, height);
-            }
-            else if (node.dirtyRender || forHitTest) {
-                this.canvasRenderBuffer.resize(width, height);
-            }
-            if (!this.canvasRenderBuffer.context) {
-                return;
-            }
             if (node.x || node.y) {
-                if (node.dirtyRender || forHitTest) {
-                    this.canvasRenderBuffer.context.translate(-node.x, -node.y);
-                }
+                egret_native.Graphics.translate(-node.x, -node.y);
                 buffer.transform(1, 0, 0, 1, node.x, node.y);
             }
-            let surface = this.canvasRenderBuffer.surface;
-            if (forHitTest) {
-                this.canvasRenderer.renderGraphics(node, this.canvasRenderBuffer.context, true);
-                WebGLUtils.deleteWebGLTexture(surface);
-                let texture = buffer.context.getWebGLTexture(<BitmapData><any>surface);
-                buffer.context.drawTexture(texture, 0, 0, width, height, 0, 0, width, height, surface.width, surface.height);
-            } else {
-                if (node.dirtyRender) {
-                    this.canvasRenderer.renderGraphics(node, this.canvasRenderBuffer.context);
 
-                    // 拷贝canvas到texture
-                    let texture: WebGLTexture = node.$texture;
-                    if (!texture) {
-                        texture = buffer.context.createTexture(<BitmapData><any>surface);
-                        node.$texture = texture;
-                    } else {
-                        // 重新拷贝新的图像
-                        buffer.context.updateTexture(texture, <BitmapData><any>surface);
-                    }
-                    // 保存材质尺寸
-                    node.$textureWidth = surface.width;
-                    node.$textureHeight = surface.height;
+            if (!node.$texture) {
+                let canvas = window["canvas"];
+                let context = canvas.getContext("webgl");
+                let gl = context;
+                let texture = gl.createTexture();
+                if (!texture) {
+                    //先创建texture失败,然后lost事件才发出来..
+                    console.log("------ !texture");
+                    return;
                 }
-                let textureWidth = node.$textureWidth;
-                let textureHeight = node.$textureHeight;
-                buffer.context.drawTexture(node.$texture, 0, 0, textureWidth, textureHeight, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                node.$texture = texture;
+            }
+            if (node.dirtyRender) {
+                console.log("+++++++++++++++");
+                egret_native.Graphics.bindTexture(node.$texture, width, height);
+
+                let drawData = node.drawData;
+                let length = drawData.length;
+                for (let i = 0; i < length; i++) {
+                    let path = drawData[i];
+                    switch (path.type) {
+                        case 1 /* Fill */:
+                            console.log("Fill");
+                            egret_native.Graphics.beginPath();
+                            this.renderPath(path);
+                            egret_native.Graphics.fill(path.fillColor, path.fillAlpha);
+                            break;
+                        case 2 /* GradientFill */:
+                            console.log("GradientFill");
+                            this.renderPath(path);
+                            break;
+                        case 3 /* Stroke */:
+                            egret_native.Graphics.beginPath();
+                            this.renderPath(path);
+                            egret_native.Graphics.stroke(path.lineColor, path.lineAlpha, path.lineWidth);
+                            break;
+                    }
+                }
+
+                egret_native.Graphics.generateTexture();
+                console.log("--------------- " + width + " " + height + " " + node.x + " " + node.y);
+                node.$textureWidth = width;
+                node.$textureHeight = height;
             }
 
+            let textureWidth = node.$textureWidth;
+            let textureHeight = node.$textureHeight;
+            buffer.context.drawTexture(node.$texture, 0, 0, textureWidth, textureHeight, 0, 0,
+                textureWidth, textureHeight, textureWidth, textureHeight);
             if (node.x || node.y) {
-                if (node.dirtyRender || forHitTest) {
-                    this.canvasRenderBuffer.context.translate(node.x, node.y);
-                }
+                egret_native.Graphics.translate(node.x, node.y);
                 buffer.transform(1, 0, 0, 1, -node.x, -node.y);
             }
-            if (!forHitTest) {
-                node.dirtyRender = false;
+            node.dirtyRender = false;
+        }
+
+        private renderPath(path: sys.Path2D): void {
+            let data = path.$data;
+            let commands = path.$commands;
+            let commandCount = commands.length;
+            let pos = 0;
+            for (let commandIndex = 0; commandIndex < commandCount; commandIndex++) {
+                let command = commands[commandIndex];
+                switch (command) {
+                    case 4 /* CubicCurveTo */:
+                        egret_native.Graphics.cubicCurveTo(data[pos++], data[pos++], data[pos++], data[pos++], data[pos++], data[pos++]);
+                        break;
+                    case 3 /* CurveTo */:
+                        egret_native.Graphics.curveTo(data[pos++], data[pos++], data[pos++], data[pos++]);
+                        break;
+                    case 2 /* LineTo */:
+                        egret_native.Graphics.lineTo(data[pos++], data[pos++]);
+                        break;
+                    case 1 /* MoveTo */:
+                        egret_native.Graphics.moveTo(data[pos++], data[pos++]);
+                        break;
+                }
             }
         }
 
