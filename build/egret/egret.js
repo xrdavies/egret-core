@@ -12379,7 +12379,7 @@ var egret;
             };
             FileManager.createImage = function (url, promise) {
                 var fullPath = FileManager.makeFullPath(url);
-                egret_native.createRawImage(fullPath, promise);
+                egret_native.createImage(fullPath, promise);
             };
             FileManager.readFileAsync = function (url, promise, type) {
                 var fullPath = FileManager.makeFullPath(url);

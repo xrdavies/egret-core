@@ -3288,7 +3288,7 @@ declare namespace egret_native {
     namespace EGTXML {
         function readXML(filepath: string): void;
     }
-    function createRawImage(filePath: string, promise: any): any;
+    function createImage(filePath: string, promise: any): any;
     namespace Texture {
         function create(filePath: string): any;
         function addTexture(filePath: string): any;

@@ -2718,7 +2718,7 @@ var egret;
                     self.dispatchEventWith(egret.IOErrorEvent.IO_ERROR);
                 };
                 // egret_native.Texture.addTextureAsyn(url, promise);
-                egret_native.createRawImage(native2.FileManager.makeFullPath(url), promise);
+                egret_native.createImage(native2.FileManager.makeFullPath(url), promise);
             };
             /**
              * 是否是网络地址

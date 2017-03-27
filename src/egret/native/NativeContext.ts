@@ -199,7 +199,7 @@ declare namespace egret_native {
         function readXML(filepath: string): void;
     }
 
-    function createRawImage(filePath:string, promise:any):any;
+    function createImage(filePath:string, promise:any):any;
 
     namespace Texture {
 
