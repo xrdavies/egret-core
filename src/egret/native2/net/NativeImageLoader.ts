@@ -108,7 +108,7 @@ namespace egret.native2 {
                 self.dispatchEventWith(IOErrorEvent.IO_ERROR);
             };
             // egret_native.Texture.addTextureAsyn(url, promise);
-            egret_native.createRawImage(native2.FileManager.makeFullPath(url), promise);
+            egret_native.createImage(native2.FileManager.makeFullPath(url), promise);
         }
 
         /**

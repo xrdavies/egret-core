@@ -175,7 +175,7 @@ function clearInterval(id)
     egret_native.setDesignSize(window.innerWidth, window.innerHeight);
 
     // extends Image
-    window.Image = egret_native.RawImage;
+    window.Image = egret_native.Image;
 
     // extends document
     window.document = {

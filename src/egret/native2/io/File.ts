@@ -63,7 +63,7 @@ namespace egret {
 
             static createImage(url: string, promise: any): void {
                 let fullPath = FileManager.makeFullPath(url);
-                egret_native.createRawImage(fullPath, promise);
+                egret_native.createImage(fullPath, promise);
             }
 
             static readFileAsync(url: string, promise: any, type: "String" | "ArrayBuffer"): void {
