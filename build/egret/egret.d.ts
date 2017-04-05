@@ -3207,7 +3207,6 @@ declare namespace egret_native {
     function loglevel(logType: any): void;
     function callRender(): void;
     function getVersion(): any;
-    function setScreenCanvas(canvas: Canvas): void;
     function setFrameRate(frameRate: number): void;
     function onTouchesBegin(num: number, ids: any[], xs_array: any[], ys_array: any[]): any;
     function onTouchesMove(num: number, ids: any[], xs_array: any[], ys_array: any[]): any;

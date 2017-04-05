@@ -425,7 +425,6 @@ var egret;
              */
             NativePlayer.prototype.attachCanvas = function (canvas) {
                 this.canvas = canvas;
-                egret_native.setScreenCanvas(canvas);
             };
             ;
             /**

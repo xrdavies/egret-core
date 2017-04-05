@@ -47,8 +47,6 @@ declare namespace egret_native {
 
     function getVersion(): any;
 
-    function setScreenCanvas(canvas: Canvas): void;
-
     function setFrameRate(frameRate: number): void;
 
     function onTouchesBegin(num: number, ids: any[], xs_array: any[], ys_array: any[]);

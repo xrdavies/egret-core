@@ -144,7 +144,6 @@ namespace egret.native2 {
          */
         private attachCanvas(canvas):void {
             this.canvas = canvas;
-            egret_native.setScreenCanvas(canvas);
         };
 
         /**
