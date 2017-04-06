@@ -8,24 +8,21 @@ console.log("native version" + egret_native.getVersion());
 // window has console.log() & setTimeout() method
 var window = this;
 var self = this;
+var webGLRenderingContext = new egret_native.WebGLRenderingContext();
 
-function setTimeout(callback, time)
-{
-    egret_native.addTimer(callback, time, false);
+function setTimeout(callback, time) {
+    return egret_native.addTimer(callback, time, false);
 }
 
-function setInterval(callback, time)
-{
-    egret_native.addTimer(callback, time, true);
+function setInterval(callback, time) {
+    return egret_native.addTimer(callback, time, true);
 }
 
-function clearTimeout(id)
-{
+function clearTimeout(id) {
     egret_native.removeTimer(id);
 }
 
-function clearInterval(id)
-{
+function clearInterval(id) {
     egret_native.removeTimer(id);
 }
 
@@ -169,8 +166,32 @@ function clearInterval(id)
 
     // extends canvas
     window.WebGLRenderingContext = {};
-    window.canvas = new egret_native.Canvas(window.innerWidth, window.innerHeight);
-    window.canvas.style = {};
+    window.canvas = {
+        getContext: function () {
+            return webGLRenderingContext;
+        },
+        _width: window.innerWidth,
+        _height: window.innerHeight,
+        style: {}
+    };
+    Object.defineProperty(window.canvas, 'width', {
+        set: function (x) {
+            this._width = x;
+            egret_native.setApplicationSurfaceWidth(x);
+        },
+        get: function () {
+            return this._width;
+        }
+    });
+    Object.defineProperty(window.canvas, 'height', {
+        set: function (x) {
+            this._height = x;
+            egret_native.setApplicationSurfaceHeight(x);
+        },
+        get: function () {
+            return this._height;
+        }
+    });
     egret_native.setVisibleRect(0, 0, window.innerWidth, window.innerHeight);
     egret_native.setDesignSize(window.innerWidth, window.innerHeight);
 
@@ -255,6 +276,7 @@ function clearInterval(id)
         },
 
         dispatchEvent: function (event) {
+            //console.log("I wanna dispatch event with type" + event.type);
             if (event.type == 'keyup' && window.onkeypress !== null) {
                 window.onkeypress(event);
             }
@@ -333,7 +355,6 @@ function clearInterval(id)
 
     var dispatchTouchEvent = function (type, num, ids, xs_array, ys_array) {
         var all = [];
-
         for (var i = 0; i < num; i++) {
             var id = ids[i];
             var x = xs_array[i];
@@ -409,7 +430,7 @@ function clearInterval(id)
 
 })(this);
 
-// extends Blob 
+// extends Blob
 (function () {
     var Blob = function Blob(array, options) {
         this.type = options ? options.type : "image/png";
@@ -782,8 +803,6 @@ function clearInterval(id)
 /***** other extends *****/
 var setOnUpdate = egret_native.setOnUpdate;
 
-
-
-
 require("launcher/native_loader.js");
 egret_native.egtMain();
+
