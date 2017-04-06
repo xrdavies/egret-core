@@ -856,7 +856,6 @@ namespace egret.native2 {
             if (width == undefined) {
                 return;
             }
-
             let height = node.height;
             if (node.x || node.y) {
                 egret_native.Graphics.translate(-node.x, -node.y);
