@@ -177,7 +177,7 @@ function clearInterval(id) {
     Object.defineProperty(window.canvas, 'width', {
         set: function (x) {
             this._width = x;
-            egret_native.setApplicationSurfaceWidth(x);
+            egret_native.setDrawingBufferWidth(x);
         },
         get: function () {
             return this._width;
@@ -186,7 +186,7 @@ function clearInterval(id) {
     Object.defineProperty(window.canvas, 'height', {
         set: function (x) {
             this._height = x;
-            egret_native.setApplicationSurfaceHeight(x);
+            egret_native.setDrawingBufferHeight(x);
         },
         get: function () {
             return this._height;
