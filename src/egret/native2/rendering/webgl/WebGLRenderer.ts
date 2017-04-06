@@ -742,6 +742,10 @@ namespace egret.native2 {
          */
         private renderText(node: sys.TextNode, buffer: WebGLRenderBuffer): void {
 
+            if (node.drawData.length == 0) {
+                return;
+            }
+
             let width = node.width - node.x;
             let height = node.height - node.y;
 

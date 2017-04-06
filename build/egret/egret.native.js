@@ -6000,6 +6000,9 @@ var egret;
              * @private
              */
             WebGLRenderer.prototype.renderText = function (node, buffer) {
+                if (node.drawData.length == 0) {
+                    return;
+                }
                 var width = node.width - node.x;
                 var height = node.height - node.y;
                 if (node.x || node.y) {
