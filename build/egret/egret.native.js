@@ -6093,6 +6093,9 @@ var egret;
              */
             WebGLRenderer.prototype.renderGraphics = function (node, buffer, forHitTest) {
                 var width = node.width;
+                if (width == undefined) {
+                    return;
+                }
                 var height = node.height;
                 if (node.x || node.y) {
                     egret_native.Graphics.translate(-node.x, -node.y);

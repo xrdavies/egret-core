@@ -853,6 +853,9 @@ namespace egret.native2 {
          */
         private renderGraphics(node: sys.GraphicsNode, buffer: WebGLRenderBuffer, forHitTest?: boolean): void {
             let width = node.width;
+            if (width == undefined) {
+                return;
+            }
             let height = node.height;
             if (node.x || node.y) {
                 egret_native.Graphics.translate(-node.x, -node.y);
