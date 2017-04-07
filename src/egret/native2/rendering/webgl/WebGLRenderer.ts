@@ -634,7 +634,6 @@ namespace egret.native2 {
 
         public drawNodeToBufferNative(node:sys.RenderNode, forHitTest?:boolean, localX?:number, localY?:number):boolean {
             let gNode: sys.GraphicsNode = <sys.GraphicsNode>node;
-            
             let width: number = gNode.width;
             if (width == undefined) {
                 return;
