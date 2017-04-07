@@ -778,6 +778,22 @@ namespace egret {
             let m = target.$getInvertedConcatenatedMatrix();
             let localX = m.a * stageX + m.c * stageY + m.tx;
             let localY = m.b * stageX + m.d * stageY + m.ty;
+
+            if (egret.Capabilities.runtimeType === egret.RuntimeType.NATIVE) {
+                let node = this.$renderNode;
+                localX -= node.x;
+                localY -= node.y;
+                if (node.$texture) {
+                    if (egret.sys.canvasRenderer.drawNodeToBufferNative(node, true, localX, localY)) {
+                        return target;
+                    }
+                }
+                else {
+                    console.log("no texture");
+                }
+                return null;
+            }
+
             let buffer = sys.canvasHitTestBuffer;
             buffer.resize(3, 3);
             let node = this.$renderNode;

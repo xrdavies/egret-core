@@ -681,6 +681,10 @@ namespace egret {
             this.renderNode(node, context, forHitTest);
         }
 
+        public drawNodeToBufferNative(node:sys.RenderNode, forHitTest?:boolean, localX?:number, localY?:number):boolean {
+            return false;
+        }
+
         /**
          * @private
          */

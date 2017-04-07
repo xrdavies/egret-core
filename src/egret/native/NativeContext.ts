@@ -176,6 +176,8 @@ declare namespace egret_native {
         function fill(color: number, alpha: number): void;
 
         function stroke(color: number, alpha: number, width: number): void;
+
+        function getPixelsAt(x: number, y: number): boolean;
     }
 
     namespace Label {

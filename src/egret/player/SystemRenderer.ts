@@ -62,5 +62,7 @@ namespace egret.sys {
          * @param forHitTest 绘制结果是用于碰撞检测。若为true，当渲染GraphicsNode时，会忽略透明度样式设置，全都绘制为不透明的。
          */
         drawNodeToBuffer(node:sys.RenderNode, buffer:RenderBuffer, matrix:Matrix, forHitTest?:boolean):void;
+
+        drawNodeToBufferNative(node:sys.RenderNode, forHitTest?:boolean, localX?:number, localY?:number):boolean;
     }
 }
