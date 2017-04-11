@@ -144,7 +144,7 @@ module egret.native2 {
         sys.systemRenderer = new WebGLRenderer();
         sys.canvasRenderer = new WebGLRenderer();
         sys.customHitTestBuffer = new WebGLRenderBuffer(3, 3);
-        sys.canvasHitTestBuffer = new WebGLRenderBuffer(3, 3);
+        sys.canvasHitTestBuffer = window["canvasHitTestBuffer"];
         Capabilities.$renderMode = "webgl";
     }
 
