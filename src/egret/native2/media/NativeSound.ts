@@ -121,7 +121,7 @@ namespace egret.native2 {
             audio.addEventListener("error", onAudioError);
             this.originAudio = audio;
 
-            if (!egret_native.fs.isFileExistSync(url)) {
+            if (!egret_native.fs.isFileExistSync(native2.FileManager.makeFullPath(url))) {
                 download();
             }
             else {
