@@ -10666,20 +10666,6 @@ var egret;
             var m = target.$getInvertedConcatenatedMatrix();
             var localX = m.a * stageX + m.c * stageY + m.tx;
             var localY = m.b * stageX + m.d * stageY + m.ty;
-            if (egret.Capabilities.runtimeType === egret.RuntimeType.NATIVE) {
-                var node_1 = this.$renderNode;
-                localX -= node_1.x;
-                localY -= node_1.y;
-                if (node_1.$texture) {
-                    if (egret.sys.canvasRenderer.drawNodeToBufferNative(node_1, true, localX, localY)) {
-                        return target;
-                    }
-                }
-                else {
-                    console.log("no texture");
-                }
-                return null;
-            }
             var buffer = egret.sys.canvasHitTestBuffer;
             buffer.resize(3, 3);
             var node = this.$renderNode;
@@ -16242,9 +16228,6 @@ var egret;
             var context = buffer.context;
             context.setTransform(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
             this.renderNode(node, context, forHitTest);
-        };
-        CanvasRenderer.prototype.drawNodeToBufferNative = function (node, forHitTest, localX, localY) {
-            return false;
         };
         /**
          * @private

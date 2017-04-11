@@ -5845,9 +5845,6 @@ var egret;
                 //popRenderTARGET
                 webglBuffer.context.popBuffer();
             };
-            WebGLRenderer.prototype.drawNodeToBufferNative = function (node, forHitTest, localX, localY) {
-                return false;
-            };
             /**
              * @private
              */

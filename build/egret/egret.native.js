@@ -3268,7 +3268,7 @@ var egret;
             egret.sys.systemRenderer = new native2.WebGLRenderer();
             egret.sys.canvasRenderer = new native2.WebGLRenderer();
             egret.sys.customHitTestBuffer = new native2.WebGLRenderBuffer(3, 3);
-            egret.sys.canvasHitTestBuffer = new native2.WebGLRenderBuffer(3, 3);
+            egret.sys.canvasHitTestBuffer = window["canvasHitTestBuffer"];
             egret.Capabilities.$renderMode = "webgl";
         }
         function updateAllScreens() {
@@ -5900,49 +5900,6 @@ var egret;
                 //popRenderTARGET
                 webglBuffer.context.popBuffer();
             };
-            WebGLRenderer.prototype.drawNodeToBufferNative = function (node, forHitTest, localX, localY) {
-                var gNode = node;
-                var width = gNode.width;
-                if (width == undefined) {
-                    return;
-                }
-                var height = gNode.height;
-                var getPixels = false;
-                if (gNode.x || gNode.y) {
-                    egret_native.Graphics.translate(-gNode.x, -gNode.y);
-                }
-                if (forHitTest) {
-                    egret_native.Graphics.bindTexture(gNode.$texture, width, height);
-                    var drawData = node.drawData;
-                    var length_3 = drawData.length;
-                    for (var i = 0; i < length_3; i++) {
-                        var path = drawData[i];
-                        switch (path.type) {
-                            case 1 /* Fill */:
-                                egret_native.Graphics.beginPath();
-                                this.renderPath(path);
-                                egret_native.Graphics.fill(0, 1);
-                                break;
-                            case 2 /* GradientFill */:
-                                // console.log("GradientFill");
-                                this.renderPath(path);
-                                break;
-                            case 3 /* Stroke */:
-                                egret_native.Graphics.beginPath();
-                                this.renderPath(path);
-                                egret_native.Graphics.stroke(0, 1, path.lineWidth);
-                                break;
-                        }
-                    }
-                    egret_native.Graphics.generateTexture();
-                    getPixels = egret_native.Graphics.getPixelsAt(localX, localY);
-                }
-                if (gNode.x || gNode.y) {
-                    egret_native.Graphics.translate(gNode.x, gNode.y);
-                }
-                gNode.dirtyRender = true;
-                return getPixels;
-            };
             /**
              * @private
              */
@@ -6161,17 +6118,22 @@ var egret;
                     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
                     node.$texture = texture;
                 }
-                if (node.dirtyRender) {
+                if (node.dirtyRender || forHitTest) {
                     egret_native.Graphics.bindTexture(node.$texture, width, height);
                     var drawData = node.drawData;
-                    var length_4 = drawData.length;
-                    for (var i = 0; i < length_4; i++) {
+                    var length_3 = drawData.length;
+                    for (var i = 0; i < length_3; i++) {
                         var path = drawData[i];
                         switch (path.type) {
                             case 1 /* Fill */:
                                 egret_native.Graphics.beginPath();
                                 this.renderPath(path);
-                                egret_native.Graphics.fill(path.fillColor, path.fillAlpha);
+                                if (forHitTest) {
+                                    egret_native.Graphics.fill(0, 1);
+                                }
+                                else {
+                                    egret_native.Graphics.fill(path.fillColor, path.fillAlpha);
+                                }
                                 break;
                             case 2 /* GradientFill */:
                                 console.log("GradientFill");
@@ -6180,7 +6142,12 @@ var egret;
                             case 3 /* Stroke */:
                                 egret_native.Graphics.beginPath();
                                 this.renderPath(path);
-                                egret_native.Graphics.stroke(path.lineColor, path.lineAlpha, path.lineWidth);
+                                if (forHitTest) {
+                                    egret_native.Graphics.stroke(0, 1, path.lineWidth);
+                                }
+                                else {
+                                    egret_native.Graphics.stroke(path.lineColor, path.lineAlpha, path.lineWidth);
+                                }
                                 break;
                         }
                     }
@@ -6195,7 +6162,12 @@ var egret;
                     egret_native.Graphics.translate(node.x, node.y);
                     buffer.transform(1, 0, 0, 1, -node.x, -node.y);
                 }
-                node.dirtyRender = false;
+                if (forHitTest) {
+                    node.dirtyRender = true;
+                }
+                else {
+                    node.dirtyRender = false;
+                }
             };
             WebGLRenderer.prototype.renderPath = function (path) {
                 var data = path.$data;

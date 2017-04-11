@@ -630,10 +630,6 @@ namespace egret.web {
             webglBuffer.context.popBuffer();
         }
 
-        public drawNodeToBufferNative(node:sys.RenderNode, forHitTest?:boolean, localX?:number, localY?:number):boolean {
-            return false;
-        }
-
         /**
          * @private
          */

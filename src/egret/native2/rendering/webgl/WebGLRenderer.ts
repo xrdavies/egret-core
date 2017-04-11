@@ -632,52 +632,6 @@ namespace egret.native2 {
             webglBuffer.context.popBuffer();
         }
 
-        public drawNodeToBufferNative(node:sys.RenderNode, forHitTest?:boolean, localX?:number, localY?:number):boolean {
-            let gNode: sys.GraphicsNode = <sys.GraphicsNode>node;
-            let width: number = gNode.width;
-            if (width == undefined) {
-                return;
-            }
-            let height: number = gNode.height;
-            let getPixels: boolean = false;
-            if (gNode.x || gNode.y) {
-                egret_native.Graphics.translate(-gNode.x, -gNode.y);
-            }
-            if (forHitTest) {
-                egret_native.Graphics.bindTexture(gNode.$texture, width, height);
-                let drawData = node.drawData;
-                let length = drawData.length;
-
-                for (var i = 0; i < length; i++) {
-                    var path = drawData[i];
-                    switch (path.type) {
-                        case 1 /* Fill */:
-                            egret_native.Graphics.beginPath();
-                            this.renderPath(path);
-                            egret_native.Graphics.fill(0, 1);
-                            break;
-                        case 2 /* GradientFill */:
-                            // console.log("GradientFill");
-                            this.renderPath(path);
-                            break;
-                        case 3 /* Stroke */:
-                            egret_native.Graphics.beginPath();
-                            this.renderPath(path);
-                            egret_native.Graphics.stroke(0, 1, path.lineWidth);
-                            break;
-                    }
-                }
-                egret_native.Graphics.generateTexture();
-                getPixels = egret_native.Graphics.getPixelsAt(localX, localY);
-            }
-            if (gNode.x || gNode.y) {
-                egret_native.Graphics.translate(gNode.x, gNode.y);
-            }
-
-            gNode.dirtyRender = true;
-            return getPixels;
-        }
-
         /**
          * @private
          */
@@ -925,7 +879,7 @@ namespace egret.native2 {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
                 node.$texture = texture;
             }
-            if (node.dirtyRender) {
+            if (node.dirtyRender || forHitTest) {
                 egret_native.Graphics.bindTexture(node.$texture, width, height);
 
                 let drawData = node.drawData;
@@ -936,7 +890,12 @@ namespace egret.native2 {
                         case 1 /* Fill */:
                             egret_native.Graphics.beginPath();
                             this.renderPath(path);
-                            egret_native.Graphics.fill(path.fillColor, path.fillAlpha);
+                            if (forHitTest) {
+                                egret_native.Graphics.fill(0, 1);
+                            }
+                            else {
+                                egret_native.Graphics.fill(path.fillColor, path.fillAlpha);
+                            }
                             break;
                         case 2 /* GradientFill */:
                             console.log("GradientFill");
@@ -945,7 +904,12 @@ namespace egret.native2 {
                         case 3 /* Stroke */:
                             egret_native.Graphics.beginPath();
                             this.renderPath(path);
-                            egret_native.Graphics.stroke(path.lineColor, path.lineAlpha, path.lineWidth);
+                            if (forHitTest) {
+                                egret_native.Graphics.stroke(0, 1, path.lineWidth);
+                            }
+                            else {
+                                egret_native.Graphics.stroke(path.lineColor, path.lineAlpha, path.lineWidth);
+                            }
                             break;
                     }
                 }
@@ -963,7 +927,12 @@ namespace egret.native2 {
                 egret_native.Graphics.translate(node.x, node.y);
                 buffer.transform(1, 0, 0, 1, -node.x, -node.y);
             }
-            node.dirtyRender = false;
+            if (forHitTest) {
+                node.dirtyRender = true;
+            }
+            else {
+                node.dirtyRender = false;
+            }
         }
 
         private renderPath(path: sys.Path2D): void {
