@@ -271,46 +271,16 @@ var egret;
 (function (egret) {
     var native2;
     (function (native2) {
-        /**
-         * 测量文本在指定样式下的宽度。
-         * @param text 要测量的文本内容。
-         * @param fontFamily 字体名称
-         * @param fontSize 字体大小
-         * @param bold 是否粗体
-         * @param italic 是否斜体
-         */
-        function measureText(text, fontFamily, fontSize, bold, italic) {
-            return egret_native.Label.getTextWidth(text, fontSize);
-            ;
-            // let font:string;
-            // var arr:string[];
-            // if(fontFamily.indexOf(", ") != -1) {
-            //     arr = fontFamily.split(", ");
-            // }
-            // else if(fontFamily.indexOf(",") != -1) {
-            //     arr = fontFamily.split(",");
-            // }
-            // if(arr) {
-            //     let length:number = arr.length;
-            //     for(let i = 0 ; i < length ; i++) {
-            //         let fontFamily = arr[i];
-            //         //暂时先不考虑带有引号的情况
-            //         if(fontMapping[fontFamily]) {
-            //             font = fontMapping[fontFamily];
-            //             break;
-            //         }
-            //     }
-            // }
-            // else {
-            //     font = fontMapping[fontFamily];
-            // }
-            // if(!font) {
-            //     font= "/system/fonts/DroidSansFallback.ttf";
-            // }
-            // egret_native.Label.createLabel(font, fontSize, "", 0);
-            // return egret_native.Label.getTextSize(text)[0];
+        if (true) {
+            function setLogLevel(logType) {
+                egret_native.loglevel(logType);
+            }
+            Object.defineProperty(egret.Logger, "logLevel", {
+                set: setLogLevel,
+                enumerable: true,
+                configurable: true
+            });
         }
-        egret.sys.measureText = measureText;
     })(native2 = egret.native2 || (egret.native2 = {}));
 })(egret || (egret = {}));
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1204,300 +1174,6 @@ var egret;
         }
         egret.ExternalInterface = NativeExternalInterface;
         egret_native.receivedPluginInfo = onReceivedPluginInfo;
-    })(native2 = egret.native2 || (egret.native2 = {}));
-})(egret || (egret = {}));
-//////////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (c) 2014-present, Egret Technology.
-//  All rights reserved.
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright
-//       notice, this list of conditions and the following disclaimer in the
-//       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Egret nor the
-//       names of its contributors may be used to endorse or promote products
-//       derived from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
-//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//////////////////////////////////////////////////////////////////////////////////////
-var egret;
-(function (egret) {
-    var native2;
-    (function (native2) {
-        /**
-         * @private
-         * @inheritDoc
-         */
-        var NaSound = (function (_super) {
-            __extends(NaSound, _super);
-            /**
-             * @private
-             * @inheritDoc
-             */
-            function NaSound() {
-                var _this = _super.call(this) || this;
-                /**
-                 * @private
-                 */
-                _this.loaded = false;
-                return _this;
-            }
-            Object.defineProperty(NaSound.prototype, "length", {
-                get: function () {
-                    throw new Error("sound length not supported");
-                    //return 0;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            /**
-             * @inheritDoc
-             */
-            NaSound.prototype.load = function (url) {
-                var self = this;
-                this.url = url;
-                if (true && !url) {
-                    egret.$error(3002);
-                }
-                if (!egret_native.fs.isFileExistSync(url)) {
-                    download();
-                }
-                else {
-                    if (__global.setTimeout) {
-                        __global.setTimeout(onLoadComplete, 0);
-                    }
-                    else {
-                        egret.$callAsync(onLoadComplete, self);
-                    }
-                }
-                function download() {
-                    var promise = native2.PromiseObject.create();
-                    promise.onSuccessFunc = onLoadComplete;
-                    promise.onErrorFunc = function () {
-                        egret.IOErrorEvent.dispatchIOErrorEvent(self);
-                    };
-                    egret_native.download(url, url, promise);
-                }
-                function onLoadComplete() {
-                    self.loaded = true;
-                    self.preload();
-                }
-            };
-            NaSound.prototype.preload = function () {
-                var self = this;
-                if (self.type == egret.Sound.EFFECT) {
-                    var promise = new egret.PromiseObject();
-                    promise.onSuccessFunc = function (soundId) {
-                        self.dispatchEventWith(egret.Event.COMPLETE);
-                    };
-                    egret_native.Audio.preloadEffectAsync(self.url, promise);
-                }
-                else {
-                    self.dispatchEventWith(egret.Event.COMPLETE);
-                }
-            };
-            /**
-             * @inheritDoc
-             */
-            NaSound.prototype.play = function (startTime, loops) {
-                startTime = +startTime || 0;
-                loops = +loops || 0;
-                if (true && this.loaded == false) {
-                    egret.$error(1049);
-                }
-                var channel = new native2.NaSoundChannel();
-                channel.$url = this.url;
-                channel.$loops = loops;
-                channel.$type = this.type;
-                channel.$startTime = startTime;
-                channel.$play();
-                egret.sys.$pushSoundChannel(channel);
-                return channel;
-            };
-            /**
-             * @inheritDoc
-             */
-            NaSound.prototype.close = function () {
-            };
-            return NaSound;
-        }(egret.EventDispatcher));
-        /**
-         * Background music
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language en_US
-         */
-        /**
-         * 背景音乐
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language zh_CN
-         */
-        NaSound.MUSIC = "music";
-        /**
-         * EFFECT
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language en_US
-         */
-        /**
-         * 音效
-         * @version Egret 2.4
-         * @platform Web,Native
-         * @language zh_CN
-         */
-        NaSound.EFFECT = "effect";
-        native2.NaSound = NaSound;
-        __reflect(NaSound.prototype, "egret.native2.NaSound", ["egret.Sound"]);
-        if (!__global.Audio) {
-            egret.Sound = NaSound;
-        }
-    })(native2 = egret.native2 || (egret.native2 = {}));
-})(egret || (egret = {}));
-//////////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (c) 2014-present, Egret Technology.
-//  All rights reserved.
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright
-//       notice, this list of conditions and the following disclaimer in the
-//       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Egret nor the
-//       names of its contributors may be used to endorse or promote products
-//       derived from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
-//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//////////////////////////////////////////////////////////////////////////////////////
-var egret;
-(function (egret) {
-    var native2;
-    (function (native2) {
-        /**
-         * @private
-         * @inheritDoc
-         */
-        var NaSoundChannel = (function (_super) {
-            __extends(NaSoundChannel, _super);
-            /**
-             * @private
-             */
-            function NaSoundChannel() {
-                var _this = _super.call(this) || this;
-                /**
-                 * @private
-                 */
-                _this.$startTime = 0;
-                //声音是否已经播放完成
-                _this.isStopped = false;
-                /**
-                 * @private
-                 */
-                _this._startTime = 0;
-                return _this;
-            }
-            NaSoundChannel.prototype.$play = function () {
-                this.isStopped = false;
-                if (this.$type == egret.Sound.EFFECT) {
-                    this._effectId = egret_native.Audio.playEffect(this.$url, this.$loops != 1);
-                }
-                else {
-                    NaSoundChannel.currentPath = this.$url;
-                    egret_native.Audio.playBackgroundMusic(this.$url, this.$loops != 1);
-                }
-                this._startTime = Date.now();
-            };
-            /**
-             * @private
-             * @inheritDoc
-             */
-            NaSoundChannel.prototype.stop = function () {
-                if (!this.isStopped) {
-                    egret.sys.$popSoundChannel(this);
-                }
-                this.isStopped = true;
-                if (this.$type == egret.Sound.EFFECT) {
-                    if (this._effectId) {
-                        egret_native.Audio.stopEffect(this._effectId);
-                        this._effectId = null;
-                    }
-                }
-                else {
-                    if (this.$url == NaSoundChannel.currentPath) {
-                        egret_native.Audio.stopBackgroundMusic(false);
-                    }
-                }
-            };
-            Object.defineProperty(NaSoundChannel.prototype, "volume", {
-                /**
-                 * @private
-                 * @inheritDoc
-                 */
-                get: function () {
-                    if (this.$type == egret.Sound.EFFECT) {
-                        return egret_native.Audio.getEffectsVolume();
-                    }
-                    else {
-                        return egret_native.Audio.getBackgroundMusicVolume();
-                    }
-                    return 1;
-                },
-                /**
-                 * @inheritDoc
-                 */
-                set: function (value) {
-                    if (this.$type == egret.Sound.EFFECT) {
-                        egret_native.Audio.setEffectsVolume(value);
-                    }
-                    else {
-                        egret_native.Audio.setBackgroundMusicVolume(value);
-                    }
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(NaSoundChannel.prototype, "position", {
-                /**
-                 * @private
-                 * @inheritDoc
-                 */
-                get: function () {
-                    return (Date.now() - this._startTime) / 1000;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            return NaSoundChannel;
-        }(egret.EventDispatcher));
-        native2.NaSoundChannel = NaSoundChannel;
-        __reflect(NaSoundChannel.prototype, "egret.native2.NaSoundChannel", ["egret.SoundChannel", "egret.IEventDispatcher"]);
     })(native2 = egret.native2 || (egret.native2 = {}));
 })(egret || (egret = {}));
 //////////////////////////////////////////////////////////////////////////////////////
@@ -2980,6 +2656,80 @@ var egret;
     var native2;
     (function (native2) {
         /**
+         * 测量文本在指定样式下的宽度。
+         * @param text 要测量的文本内容。
+         * @param fontFamily 字体名称
+         * @param fontSize 字体大小
+         * @param bold 是否粗体
+         * @param italic 是否斜体
+         */
+        function measureText(text, fontFamily, fontSize, bold, italic) {
+            return egret_native.Label.getTextWidth(text, fontSize);
+            ;
+            // let font:string;
+            // var arr:string[];
+            // if(fontFamily.indexOf(", ") != -1) {
+            //     arr = fontFamily.split(", ");
+            // }
+            // else if(fontFamily.indexOf(",") != -1) {
+            //     arr = fontFamily.split(",");
+            // }
+            // if(arr) {
+            //     let length:number = arr.length;
+            //     for(let i = 0 ; i < length ; i++) {
+            //         let fontFamily = arr[i];
+            //         //暂时先不考虑带有引号的情况
+            //         if(fontMapping[fontFamily]) {
+            //             font = fontMapping[fontFamily];
+            //             break;
+            //         }
+            //     }
+            // }
+            // else {
+            //     font = fontMapping[fontFamily];
+            // }
+            // if(!font) {
+            //     font= "/system/fonts/DroidSansFallback.ttf";
+            // }
+            // egret_native.Label.createLabel(font, fontSize, "", 0);
+            // return egret_native.Label.getTextSize(text)[0];
+        }
+        egret.sys.measureText = measureText;
+    })(native2 = egret.native2 || (egret.native2 = {}));
+})(egret || (egret = {}));
+//////////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (c) 2014-present, Egret Technology.
+//  All rights reserved.
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Egret nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
+//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//////////////////////////////////////////////////////////////////////////////////////
+var egret;
+(function (egret) {
+    var native2;
+    (function (native2) {
+        /**
          * @private
          */
         var NativeFps = (function (_super) {
@@ -3096,50 +2846,6 @@ var egret;
         native2.NativeFps = NativeFps;
         __reflect(NativeFps.prototype, "egret.native2.NativeFps", ["egret.FPSDisplay", "egret.DisplayObject"]);
         egret.FPSDisplay = NativeFps;
-    })(native2 = egret.native2 || (egret.native2 = {}));
-})(egret || (egret = {}));
-//////////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (c) 2014-present, Egret Technology.
-//  All rights reserved.
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright
-//       notice, this list of conditions and the following disclaimer in the
-//       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Egret nor the
-//       names of its contributors may be used to endorse or promote products
-//       derived from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
-//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//////////////////////////////////////////////////////////////////////////////////////
-var egret;
-(function (egret) {
-    var native2;
-    (function (native2) {
-        if (true) {
-            function setLogLevel(logType) {
-                egret_native.loglevel(logType);
-            }
-            Object.defineProperty(egret.Logger, "logLevel", {
-                set: setLogLevel,
-                enumerable: true,
-                configurable: true
-            });
-        }
     })(native2 = egret.native2 || (egret.native2 = {}));
 })(egret || (egret = {}));
 //
