@@ -8477,6 +8477,7 @@ declare namespace egret_native {
         function isFileExistSync(path: string): boolean;
         function isAbsolutePathSync(url: string): boolean;
         function getAssetDirectorySync(): string;
+        function getWorkDirectorySync(url: string): string;
     }
 }
 declare namespace egret {
@@ -8489,6 +8490,8 @@ declare namespace egret {
         class FileManager {
             static searchPath: string;
             static makeFullPath(url: string | NativeBlob): string;
+            static downloadPath: string;
+            static makeFullPathForDownload(url: string | NativeBlob): string;
             static createImage(url: string, promise: any): void;
             static readFileAsync(url: string, promise: any, type: "String" | "ArrayBuffer"): void;
             static isFileExistSync(url: string): boolean;

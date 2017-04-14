@@ -12377,6 +12377,37 @@ var egret;
                 console.log("fullPath = " + fullPath);
                 return fullPath;
             };
+            FileManager.makeFullPathForDownload = function (url) {
+                console.log("makeFullPathForDownload = " + url);
+                var fullPath = "";
+                if (isString(url)) {
+                    if (!egret_native.fs.isAbsolutePathSync(url)) {
+                        console.log("========" + egret.Capabilities.os);
+                        if (egret.Capabilities.os == "Android") {
+                            fullPath = FileManager.downloadPath + url;
+                        }
+                        else {
+                            var workPath = "" + FileManager.downloadPath;
+                            //console.log("url = " + url);
+                            //console.log("workPath = " + workPath);
+                            if (workPath.lastIndexOf("/") !== workPath.length) {
+                                workPath += "/";
+                            }
+                            fullPath = workPath + url;
+                        }
+                    }
+                    else {
+                        fullPath = url;
+                    }
+                }
+                else {
+                    var blob = url;
+                    var base64 = egret.Base64Util.encode(blob.data);
+                    fullPath = "data:" + blob.type + ";base64," + base64;
+                }
+                console.log("fullPath = " + fullPath);
+                return fullPath;
+            };
             FileManager.createImage = function (url, promise) {
                 var fullPath = FileManager.makeFullPath(url);
                 egret_native.createImage(fullPath, promise);
@@ -12392,6 +12423,7 @@ var egret;
             return FileManager;
         }());
         FileManager.searchPath = egret_native.getOption("SearchPath");
+        FileManager.downloadPath = egret_native.fs.getWorkDirectorySync("");
         native2.FileManager = FileManager;
         __reflect(FileManager.prototype, "egret.native2.FileManager");
     })(native2 = egret.native2 || (egret.native2 = {}));

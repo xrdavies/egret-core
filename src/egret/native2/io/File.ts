@@ -4,6 +4,7 @@ declare namespace egret_native {
         function isFileExistSync(path: string): boolean;
         function isAbsolutePathSync(url: string): boolean;
         function getAssetDirectorySync(): string;
+        function getWorkDirectorySync(url: string): string;
     }
 }
 
@@ -44,6 +45,41 @@ namespace egret {
                                 workPath += "/";
                             }
                             fullPath = workPath + FileManager.searchPath + url;
+
+                        }
+                    }
+                    else {
+                        fullPath = url;
+                    }
+                }
+                else{
+                    var blob = url;
+                    var base64 = egret.Base64Util.encode(blob.data);
+                    fullPath = "data:" + blob.type + ";base64," + base64;
+                }
+
+                console.log("fullPath = " + fullPath);
+                return fullPath;
+            }
+
+            static downloadPath: string = egret_native.fs.getWorkDirectorySync("");
+            static makeFullPathForDownload(url: string | NativeBlob): string {
+                console.log("makeFullPathForDownload = " + url);
+                let fullPath = "";
+                if (isString(url)) {
+                    if (!egret_native.fs.isAbsolutePathSync(url)) {
+                        console.log("========" + egret.Capabilities.os);
+                        if (egret.Capabilities.os == "Android") {
+                            fullPath = FileManager.downloadPath + url;
+                        }
+                        else {
+                            let workPath = "" + FileManager.downloadPath;
+                            //console.log("url = " + url);
+                            //console.log("workPath = " + workPath);
+                            if (workPath.lastIndexOf("/") !== workPath.length) {
+                                workPath += "/";
+                            }
+                            fullPath = workPath + url;
 
                         }
                     }
