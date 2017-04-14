@@ -26,9 +26,14 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-
 namespace egret.native2 {
+    export interface NativeImage {
 
+    }
+
+    export declare var NativeImage: {
+        new (value: any): NativeImage;
+    }
     /**
      * @private
      * ImageLoader 类可用于加载图像（JPG、PNG 或 GIF）文件。使用 load() 方法来启动加载。被加载的图像对象数据将存储在 ImageLoader.data 属性上 。
@@ -38,20 +43,20 @@ namespace egret.native2 {
          * @private
          * 使用 load() 方法加载成功的 BitmapData 图像数据。
          */
-        public data:BitmapData = null;
+        public data: BitmapData = null;
 
         /**
          * @private
          * 当从其他站点加载一个图片时，指定是否启用跨域资源共享(CORS)，默认值为null。
          * 可以设置为"anonymous","use-credentials"或null,设置为其他值将等同于"anonymous"。
          */
-        private _crossOrigin:string = null;
+        private _crossOrigin: string = null;
 
-        public set crossOrigin(value:string) {
+        public set crossOrigin(value: string) {
             this._crossOrigin = value;
         }
 
-        public get crossOrigin():string {
+        public get crossOrigin(): string {
             return this._crossOrigin;
         }
 
@@ -59,7 +64,7 @@ namespace egret.native2 {
          * @private
          * 指定是否启用跨域资源共享,如果ImageLoader实例有设置过crossOrigin属性将使用设置的属性
          */
-        public static crossOrigin:string = null;
+        public static crossOrigin: string = null;
 
         /**
          * @private
@@ -67,11 +72,11 @@ namespace egret.native2 {
          * @param url
          * @param callback
          */
-        public load(url:string):void {
+        public load(url: string): void {
             this.check(url);
         }
 
-        private check(url:string):void {
+        private check(url: string): void {
             let self = this;
             if (self.isNetUrl(url)) {//网络请求
                 self.download(url);
@@ -84,7 +89,7 @@ namespace egret.native2 {
             }
         }
 
-        private download(url:string):void {
+        private download(url: string): void {
             let self = this;
             let promise = egret.PromiseObject.create();
             promise.onSuccessFunc = function () {
@@ -96,19 +101,23 @@ namespace egret.native2 {
             egret_native.download(url, url, promise);
         }
 
-        private loadTexture(url:string):void {
-            let self = this;
+        private loadTexture(url: string): void {
             let promise = new egret.PromiseObject();
-            promise.onSuccessFunc = function (bitmapData) {
-                self.data = new egret.BitmapData(bitmapData);
-
-                self.dispatchEventWith(Event.COMPLETE);
+            promise.onSuccessFunc = (data) => {
+                let image = new Image();
+                image.onload = () => {
+                    this.dispatchEventWith(egret.Event.COMPLETE);
+                };
+                image.onerror = () => {
+                    this.dispatchEventWith(egret.IOErrorEvent.IO_ERROR);
+                };
+                image.src = data;
+                this.data = new egret.BitmapData(image);
             };
-            promise.onErrorFunc = function () {
-                self.dispatchEventWith(IOErrorEvent.IO_ERROR);
+            promise.onErrorFunc = () => {
+                this.dispatchEventWith(IOErrorEvent.IO_ERROR);
             };
-            // egret_native.Texture.addTextureAsyn(url, promise);
-            egret_native.createImage(native2.FileManager.makeFullPath(url), promise);
+            egret_native.fs.readFile(native2.FileManager.makeFullPath(url), promise, "ArrayBuffer");
         }
 
         /**
@@ -116,7 +125,7 @@ namespace egret.native2 {
          * @param url
          * @returns {boolean}
          */
-        private isNetUrl(url:string):boolean {
+        private isNetUrl(url: string): boolean {
             return url.indexOf("http://") != -1 || url.indexOf("HTTP://") != -1 || url.indexOf("https://") != -1 || url.indexOf("HTTPS://") != -1;
         }
     }

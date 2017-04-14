@@ -2707,17 +2707,23 @@ var egret;
                 egret_native.download(url, url, promise);
             };
             NativeImageLoader.prototype.loadTexture = function (url) {
-                var self = this;
+                var _this = this;
                 var promise = new egret.PromiseObject();
-                promise.onSuccessFunc = function (bitmapData) {
-                    self.data = new egret.BitmapData(bitmapData);
-                    self.dispatchEventWith(egret.Event.COMPLETE);
+                promise.onSuccessFunc = function (data) {
+                    var image = new Image();
+                    image.onload = function () {
+                        _this.dispatchEventWith(egret.Event.COMPLETE);
+                    };
+                    image.onerror = function () {
+                        _this.dispatchEventWith(egret.IOErrorEvent.IO_ERROR);
+                    };
+                    image.src = data;
+                    _this.data = new egret.BitmapData(image);
                 };
                 promise.onErrorFunc = function () {
-                    self.dispatchEventWith(egret.IOErrorEvent.IO_ERROR);
+                    _this.dispatchEventWith(egret.IOErrorEvent.IO_ERROR);
                 };
-                // egret_native.Texture.addTextureAsyn(url, promise);
-                egret_native.createImage(native2.FileManager.makeFullPath(url), promise);
+                egret_native.fs.readFile(native2.FileManager.makeFullPath(url), promise, "ArrayBuffer");
             };
             /**
              * 是否是网络地址
