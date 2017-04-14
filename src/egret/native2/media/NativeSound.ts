@@ -102,45 +102,33 @@ namespace egret.native2 {
          * @inheritDoc
          */
         public load(url:string):void {
-
-            //
             let self = this;
-            // self.loaded = true;
-            // self.dispatchEventWith(egret.Event.COMPLETE);
-            // return;
-            //
 
             this.url = url;
 
             if (DEBUG && !url) {
                 egret.$error(3002);
             }
-
             let audio = new Audio(url);
-            audio.addEventListener("canplaythrough", onCanPlay);
+            audio.addEventListener("canplaythrough", onAudioLoaded);
             audio.addEventListener("error", onAudioError);
+
+            let ua:string = navigator.userAgent.toLowerCase();
+            if (ua.indexOf("firefox") >= 0) {//火狐兼容
+                audio.autoplay = !0;
+                audio.muted = true;
+            }
+
+            audio.load();
             this.originAudio = audio;
+            NativeSound.$recycle(url, audio);
 
-            if (!egret_native.fs.isFileExistSync(native2.FileManager.makeFullPath(url))) {
-                download();
-            }
-            else {
-                onAudioLoaded();
-            }
-
-            function download() {
-                let promise = PromiseObject.create();
-                promise.onSuccessFunc = onAudioLoaded;
-                promise.onErrorFunc = onAudioError;
-                egret_native.download(url, url, promise);
-            }
             function onAudioLoaded():void {
-                audio.load();
-                NativeSound.$recycle(url, audio);
-            }
-
-            function onCanPlay():void {
                 removeListeners();
+                if (ua.indexOf("firefox") >= 0) {//火狐兼容
+                    audio.pause();
+                    audio.muted = false;
+                }
 
                 self.loaded = true;
                 self.dispatchEventWith(egret.Event.COMPLETE);
@@ -153,7 +141,7 @@ namespace egret.native2 {
             }
 
             function removeListeners():void {
-                audio.removeEventListener("canplaythrough", onCanPlay);
+                audio.removeEventListener("canplaythrough", onAudioLoaded);
                 audio.removeEventListener("error", onAudioError);
             }
         }
@@ -174,12 +162,11 @@ namespace egret.native2 {
                 audio = new Audio(this.url);
             }
             else {
-                audio.load();
+                //audio.load();
             }
-            // audio.autoplay = true;
+            audio.autoplay = true;
 
             let channel = new NativeSoundChannel(audio);
-            //let channel = new NativeSoundChannel(null);
             channel.$url = this.url;
             channel.$loops = loops;
             channel.$startTime = startTime;
@@ -230,7 +217,5 @@ namespace egret.native2 {
         }
     }
 
-    if (__global.Audio) {
-        egret.Sound = NativeSound;
-    }
+    egret.Sound = NativeSound;
 }
