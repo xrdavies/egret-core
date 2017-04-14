@@ -1419,6 +1419,17 @@ var egret;
                 _this.audio = null;
                 //声音是否已经播放完成
                 _this.isStopped = false;
+                _this.canPlay = function () {
+                    _this.audio.removeEventListener("canplay", _this.canPlay);
+                    try {
+                        _this.audio.currentTime = _this.$startTime;
+                    }
+                    catch (e) {
+                    }
+                    finally {
+                        _this.audio.play();
+                    }
+                };
                 /**
                  * @private
                  */
@@ -1435,37 +1446,35 @@ var egret;
                     //this.audio.load();
                     _this.$play();
                 };
-                _this.$volume = 1;
+                /**
+                 * @private
+                 */
+                _this._volume = 1;
                 audio.addEventListener("ended", _this.onPlayEnd);
                 _this.audio = audio;
                 return _this;
             }
             NativeSoundChannel.prototype.$play = function () {
-                //
-                //return;
-                //
                 if (this.isStopped) {
                     egret.$error(1036);
                     return;
                 }
                 try {
+                    //this.audio.pause();
+                    this.audio.volume = this._volume;
                     this.audio.currentTime = this.$startTime;
                 }
                 catch (e) {
+                    this.audio.addEventListener("canplay", this.canPlay);
+                    return;
                 }
-                finally {
-                    this.audio.volume = this.$volume;
-                    this.audio.play();
-                }
+                this.audio.play();
             };
             /**
              * @private
              * @inheritDoc
              */
             NativeSoundChannel.prototype.stop = function () {
-                //
-                // return;
-                //
                 if (!this.audio)
                     return;
                 if (!this.isStopped) {
@@ -1473,10 +1482,16 @@ var egret;
                 }
                 this.isStopped = true;
                 var audio = this.audio;
-                audio.pause();
                 audio.removeEventListener("ended", this.onPlayEnd);
+                audio.volume = 0;
+                this._volume = 0;
                 this.audio = null;
-                native2.NativeSound.$recycle(this.$url, audio);
+                var url = this.$url;
+                //延迟一定时间再停止，规避chrome报错
+                window.setTimeout(function () {
+                    audio.pause();
+                    native2.NativeSound.$recycle(url, audio);
+                }, 200);
             };
             Object.defineProperty(NativeSoundChannel.prototype, "volume", {
                 /**
@@ -1484,21 +1499,17 @@ var egret;
                  * @inheritDoc
                  */
                 get: function () {
-                    return 1;
-                    if (!this.audio)
-                        return 1;
-                    return this.$volume;
+                    return this._volume;
                 },
                 /**
                  * @inheritDoc
                  */
                 set: function (value) {
-                    return;
                     if (this.isStopped) {
                         egret.$error(1036);
                         return;
                     }
-                    this.$volume = value;
+                    this._volume = value;
                     if (!this.audio)
                         return;
                     this.audio.volume = value;
@@ -1512,7 +1523,6 @@ var egret;
                  * @inheritDoc
                  */
                 get: function () {
-                    return 0;
                     if (!this.audio)
                         return 0;
                     return this.audio.currentTime;

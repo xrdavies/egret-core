@@ -65,26 +65,35 @@ namespace egret.native2 {
             this.audio = audio;
         }
 
-        $play():void {
-            //
-            //return;
-            //
+        private canPlay =():void => {
+            this.audio.removeEventListener("canplay", this.canPlay);
 
+            try {
+                this.audio.currentTime = this.$startTime;
+            }
+            catch (e) {
+            }
+            finally {
+                this.audio.play();
+            }
+        };
+
+        $play():void {
             if (this.isStopped) {
                 egret.$error(1036);
                 return;
             }
 
             try {
+                //this.audio.pause();
+                this.audio.volume = this._volume;
                 this.audio.currentTime = this.$startTime;
             }
             catch (e) {
-
+                this.audio.addEventListener("canplay", this.canPlay);
+                return;
             }
-            finally {
-                this.audio.volume = this.$volume;
-                this.audio.play();
-            }
+            this.audio.play();
         }
 
         /**
@@ -112,10 +121,6 @@ namespace egret.native2 {
          * @inheritDoc
          */
         public stop() {
-            //
-            // return;
-            //
-
             if (!this.audio)
                 return;
 
@@ -125,35 +130,42 @@ namespace egret.native2 {
             this.isStopped = true;
 
             let audio = this.audio;
-            audio.pause();
             audio.removeEventListener("ended", this.onPlayEnd);
+            audio.volume = 0;
+            this._volume = 0;
             this.audio = null;
 
-            NativeSound.$recycle(this.$url, audio);
+            let url = this.$url;
+
+            //延迟一定时间再停止，规避chrome报错
+            window.setTimeout(function () {
+                audio.pause();
+                NativeSound.$recycle(url, audio);
+            }, 200);
         }
 
-        private $volume:number = 1;
+        /**
+         * @private
+         */
+        private _volume:number = 1;
+        
         /**
          * @private
          * @inheritDoc
          */
         public get volume():number {
-            return 1;
-            if (!this.audio)
-                return 1;
-            return this.$volume;
+            return this._volume;
         }
 
         /**
          * @inheritDoc
          */
         public set volume(value:number) {
-            return;
             if (this.isStopped) {
                 egret.$error(1036);
                 return;
             }
-            this.$volume = value;            
+            this._volume = value;         
             if (!this.audio)
                 return;
             this.audio.volume = value;
@@ -164,7 +176,6 @@ namespace egret.native2 {
          * @inheritDoc
          */
         public get position():number {
-            return 0;
             if (!this.audio)
                 return 0;
             return this.audio.currentTime;
