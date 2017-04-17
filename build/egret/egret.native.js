@@ -2380,22 +2380,15 @@ var egret;
             };
             NativeImageLoader.prototype.loadTexture = function (url) {
                 var _this = this;
-                var promise = new egret.PromiseObject();
-                promise.onSuccessFunc = function (data) {
-                    var image = new Image();
-                    image.onload = function () {
-                        _this.dispatchEventWith(egret.Event.COMPLETE);
-                    };
-                    image.onerror = function () {
-                        _this.dispatchEventWith(egret.IOErrorEvent.IO_ERROR);
-                    };
-                    image.src = data;
+                var image = new Image();
+                image.onload = function () {
                     _this.data = new egret.BitmapData(image);
+                    _this.dispatchEventWith(egret.Event.COMPLETE);
                 };
-                promise.onErrorFunc = function () {
+                image.onerror = function () {
                     _this.dispatchEventWith(egret.IOErrorEvent.IO_ERROR);
                 };
-                egret_native.fs.readFile(native2.FileManager.makeFullPath(url), promise, "ArrayBuffer");
+                image.src = url;
             };
             /**
              * 是否是网络地址

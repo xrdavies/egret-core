@@ -102,22 +102,15 @@ namespace egret.native2 {
         }
 
         private loadTexture(url: string): void {
-            let promise = new egret.PromiseObject();
-            promise.onSuccessFunc = (data) => {
-                let image = new Image();
-                image.onload = () => {
-                    this.dispatchEventWith(egret.Event.COMPLETE);
-                };
-                image.onerror = () => {
-                    this.dispatchEventWith(egret.IOErrorEvent.IO_ERROR);
-                };
-                image.src = data;
+            var image = new Image();
+            image.onload = ()=>{
                 this.data = new egret.BitmapData(image);
+                this.dispatchEventWith(egret.Event.COMPLETE);
             };
-            promise.onErrorFunc = () => {
-                this.dispatchEventWith(IOErrorEvent.IO_ERROR);
-            };
-            egret_native.fs.readFile(native2.FileManager.makeFullPath(url), promise, "ArrayBuffer");
+            image.onerror = ()=>{
+                this.dispatchEventWith(egret.IOErrorEvent.IO_ERROR);
+            };       
+            image.src = url;
         }
 
         /**
