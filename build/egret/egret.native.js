@@ -2931,13 +2931,7 @@ var egret;
             catch (e) {
             }
             var ticker = egret.sys.$ticker;
-            var mainLoop = function () {
-                if (customContext) {
-                    customContext.onRender(context);
-                }
-                ticker.update();
-            };
-            egret_native.setOnUpdate(mainLoop, ticker);
+            startTicker(ticker);
             if (!egret.sys.screenAdapter) {
                 if (options.screenAdapter) {
                     egret.sys.screenAdapter = options.screenAdapter;
@@ -2953,6 +2947,26 @@ var egret;
             player.$stage.dirtyRegionPolicy = egret.DirtyRegionPolicy.OFF;
             egret.sys.DisplayList.prototype.setDirtyRegionPolicy = function () {
             };
+        }
+        function startTicker(ticker) {
+            var requestAnimationFrame = window["requestAnimationFrame"] ||
+                window["webkitRequestAnimationFrame"] ||
+                window["mozRequestAnimationFrame"] ||
+                window["oRequestAnimationFrame"] ||
+                window["msRequestAnimationFrame"];
+            if (!requestAnimationFrame) {
+                requestAnimationFrame = function (callback) {
+                    return window.setTimeout(callback, 1000 / 60);
+                };
+            }
+            requestAnimationFrame.call(window, onTick);
+            function onTick() {
+                if (customContext) {
+                    customContext.onRender(context);
+                }
+                ticker.update();
+                requestAnimationFrame.call(window, onTick);
+            }
         }
         /**
          * 设置渲染模式。"auto","webgl","canvas"
