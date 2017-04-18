@@ -113,12 +113,27 @@ module egret.native2 {
         }
 
         // todo
-        var player = new NativePlayer();
-        playerList.push(player);
-        // 关闭脏矩形
-        player.$stage.dirtyRegionPolicy = DirtyRegionPolicy.OFF;
-        egret.sys.DisplayList.prototype.setDirtyRegionPolicy = function () {
-        };
+        // var player = new NativePlayer();
+        // playerList.push(player);
+        // // 关闭脏矩形
+        // player.$stage.dirtyRegionPolicy = DirtyRegionPolicy.OFF;
+        // egret.sys.DisplayList.prototype.setDirtyRegionPolicy = function () {
+        // };
+        /////
+        let list = document.querySelectorAll(".egret-player");
+        let length = list.length;
+        for (let i = 0; i < length; i++) {
+            let container = <HTMLDivElement>list[i];
+            let player = new NativePlayer();
+            container["egret-player"] = player;
+            //webgl模式关闭脏矩形
+            if(Capabilities.$renderMode == "webgl") {
+               player.$stage.dirtyRegionPolicy = DirtyRegionPolicy.OFF;
+            }
+        }
+        if(Capabilities.$renderMode == "webgl") {
+            egret.sys.DisplayList.prototype.setDirtyRegionPolicy = function () {};
+        }
     }
     function startTicker(ticker:egret.sys.SystemTicker):void {
         let requestAnimationFrame =
@@ -166,47 +181,53 @@ module egret.native2 {
     }
 
     function updateAllScreens():void {
-        var length:number = playerList.length;
-        for (var i:number = 0; i < length; i++) {
-            playerList[i].updateScreenSize();
+        if (!isRunning) {
+            return;
+        }
+        let containerList = document.querySelectorAll(".egret-player");
+        let length = containerList.length;
+        for (let i = 0; i < length; i++) {
+            let container = containerList[i];
+            let player = <NativePlayer>container["egret-player"];
+            player.updateScreenSize();
         }
     }
 
-    function toArray(argument) {
-        var args = [];
-        for (var i = 0; i < argument.length; i++) {
-            args.push(argument[i]);
-        }
-        return args;
-    }
+    // function toArray(argument) {
+    //     var args = [];
+    //     for (var i = 0; i < argument.length; i++) {
+    //         args.push(argument[i]);
+    //     }
+    //     return args;
+    // }
 
-    egret.warn = function () {
-        console.warn.apply(console, toArray(arguments))
-    };
-    egret.error = function () {
-        console.error.apply(console, toArray(arguments))
-    };
-    egret.assert = function () {
-        console.assert.apply(console, toArray(arguments))
-    };
-    if (DEBUG) {
-        egret.log = function () {
-            if (DEBUG) {
-                var length = arguments.length;
-                var info = "";
-                for (var i = 0; i < length; i++) {
-                    info += arguments[i] + " ";
-                }
-                sys.$logToFPS(info);
-            }
-            console.log.apply(console, toArray(arguments));
-        }
-    }
-    else {
-        egret.log = function () {
-            console.log.apply(console, toArray(arguments))
-        };
-    }
+    // egret.warn = function () {
+    //     console.warn.apply(console, toArray(arguments))
+    // };
+    // egret.error = function () {
+    //     console.error.apply(console, toArray(arguments))
+    // };
+    // egret.assert = function () {
+    //     console.assert.apply(console, toArray(arguments))
+    // };
+    // if (DEBUG) {
+    //     egret.log = function () {
+    //         if (DEBUG) {
+    //             var length = arguments.length;
+    //             var info = "";
+    //             for (var i = 0; i < length; i++) {
+    //                 info += arguments[i] + " ";
+    //             }
+    //             sys.$logToFPS(info);
+    //         }
+    //         console.log.apply(console, toArray(arguments));
+    //     }
+    // }
+    // else {
+    //     egret.log = function () {
+    //         console.log.apply(console, toArray(arguments))
+    //     };
+    // }
 
     egret.runEgret = runEgret;
     egret.updateAllScreens = updateAllScreens;
