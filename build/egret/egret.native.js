@@ -2879,9 +2879,6 @@ var egret;
             restore: function () {
                 var context = native2.WebGLRenderContext.getInstance(0, 0);
                 var gl = context.context;
-                if (native2.WebGLRenderContext.$supportCmdBatch) {
-                    gl = context.glCmdManager;
-                }
                 gl.bindBuffer(gl.ARRAY_BUFFER, context["vertexBuffer"]);
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, context["indexBuffer"]);
                 gl.activeTexture(gl.TEXTURE0);
@@ -2898,13 +2895,19 @@ var egret;
             customContext = custom;
         }
         egret.setRendererContext = setRendererContext;
-        /**
-         * @private
-         */
-        native2.$supportCanvas = egret_native.Canvas ? true : false;
-        native2.$glCmdBatch = false;
+        function updateAllScreens() {
+            if (!isRunning) {
+                return;
+            }
+            var containerList = document.querySelectorAll(".egret-player");
+            var length = containerList.length;
+            for (var i = 0; i < length; i++) {
+                var container = containerList[i];
+                var player = container["egret-player"];
+                player.updateScreenSize();
+            }
+        }
         var isRunning = false;
-        var playerList = [];
         function runEgret(options) {
             if (isRunning) {
                 return;
@@ -2913,11 +2916,6 @@ var egret;
             if (!options) {
                 options = {};
             }
-            /**
-             * @private
-             * 设置当前runtime版本是否支持cmdBatch
-             */
-            native2.WebGLRenderContext.$supportCmdBatch = native2.$glCmdBatch;
             setRenderMode(options.renderMode);
             if (true) {
                 //todo 获得系统语言版本
@@ -2940,14 +2938,6 @@ var egret;
                     egret.sys.screenAdapter = new egret.sys.DefaultScreenAdapter();
                 }
             }
-            // todo
-            // var player = new NativePlayer();
-            // playerList.push(player);
-            // // 关闭脏矩形
-            // player.$stage.dirtyRegionPolicy = DirtyRegionPolicy.OFF;
-            // egret.sys.DisplayList.prototype.setDirtyRegionPolicy = function () {
-            // };
-            /////
             var list = document.querySelectorAll(".egret-player");
             var length = list.length;
             for (var i = 0; i < length; i++) {
@@ -2962,6 +2952,24 @@ var egret;
             if (egret.Capabilities.$renderMode == "webgl") {
                 egret.sys.DisplayList.prototype.setDirtyRegionPolicy = function () { };
             }
+        }
+        /**
+         * 设置渲染模式。"auto","webgl","canvas"
+         * @param renderMode
+         */
+        function setRenderMode(renderMode) {
+            egret.sys.CanvasRenderBuffer = native2.WebGLRenderBuffer;
+            // sys.RenderBuffer = web.WebGLRenderBuffer;
+            // sys.systemRenderer = new web.WebGLRenderer();
+            // sys.canvasRenderer = new CanvasRenderer();
+            // Capabilities.$renderMode = "webgl";
+            // TODO rename
+            egret.sys.RenderBuffer = native2.WebGLRenderBuffer;
+            egret.sys.systemRenderer = new native2.WebGLRenderer();
+            egret.sys.canvasRenderer = new native2.WebGLRenderer();
+            egret.sys.customHitTestBuffer = new native2.WebGLRenderBuffer(3, 3);
+            egret.sys.canvasHitTestBuffer = window["canvasHitTestBuffer"];
+            egret.Capabilities.$renderMode = "webgl";
         }
         function startTicker(ticker) {
             var requestAnimationFrame = window["requestAnimationFrame"] ||
@@ -2983,87 +2991,29 @@ var egret;
                 requestAnimationFrame.call(window, onTick);
             }
         }
-        /**
-         * 设置渲染模式。"auto","webgl","canvas"
-         * @param renderMode
-         */
-        function setRenderMode(renderMode) {
-            egret.sys.CanvasRenderBuffer = native2.WebGLRenderBuffer;
-            // sys.RenderBuffer = web.WebGLRenderBuffer;
-            // sys.systemRenderer = new web.WebGLRenderer();
-            // sys.canvasRenderer = new CanvasRenderer();
-            // Capabilities.$renderMode = "webgl";
-            // TODO rename
-            egret.sys.RenderBuffer = native2.WebGLRenderBuffer;
-            egret.sys.systemRenderer = new native2.WebGLRenderer();
-            egret.sys.canvasRenderer = new native2.WebGLRenderer();
-            egret.sys.customHitTestBuffer = new native2.WebGLRenderBuffer(3, 3);
-            egret.sys.canvasHitTestBuffer = window["canvasHitTestBuffer"];
-            egret.Capabilities.$renderMode = "webgl";
-        }
-        function updateAllScreens() {
-            if (!isRunning) {
-                return;
-            }
-            var containerList = document.querySelectorAll(".egret-player");
-            var length = containerList.length;
-            for (var i = 0; i < length; i++) {
-                var container = containerList[i];
-                var player = container["egret-player"];
-                player.updateScreenSize();
+        //覆盖原生的isNaN()方法实现，在不同浏览器上有2~10倍性能提升。
+        window["isNaN"] = function (value) {
+            value = +value;
+            return value !== value;
+        };
+        egret.runEgret = runEgret;
+        egret.updateAllScreens = updateAllScreens;
+        var resizeTimer = NaN;
+        function doResize() {
+            resizeTimer = NaN;
+            egret.updateAllScreens();
+            if (customContext) {
+                customContext.onResize(context);
             }
         }
-        // function toArray(argument) {
-        //     var args = [];
-        //     for (var i = 0; i < argument.length; i++) {
-        //         args.push(argument[i]);
-        //     }
-        //     return args;
-        // }
-        // egret.warn = function () {
-        //     console.warn.apply(console, toArray(arguments))
-        // };
-        // egret.error = function () {
-        //     console.error.apply(console, toArray(arguments))
-        // };
-        // egret.assert = function () {
-        //     console.assert.apply(console, toArray(arguments))
-        // };
-        // if (DEBUG) {
-        //     egret.log = function () {
-        //         if (DEBUG) {
-        //             var length = arguments.length;
-        //             var info = "";
-        //             for (var i = 0; i < length; i++) {
-        //                 info += arguments[i] + " ";
-        //             }
-        //             sys.$logToFPS(info);
-        //         }
-        //         console.log.apply(console, toArray(arguments));
-        //     }
-        // }
-        // else {
-        //     egret.log = function () {
-        //         console.log.apply(console, toArray(arguments))
-        //     };
-        // }
+        window.addEventListener("resize", function () {
+            if (isNaN(resizeTimer)) {
+                resizeTimer = window.setTimeout(doResize, 300);
+            }
+        });
         egret.runEgret = runEgret;
         egret.updateAllScreens = updateAllScreens;
     })(native2 = egret.native2 || (egret.native2 = {}));
-})(egret || (egret = {}));
-(function (egret) {
-    var native;
-    (function (native) {
-        native.$supportCanvas = true;
-        egret.native.$supportCanvas = egret.native2.$supportCanvas;
-    })(native = egret.native || (egret.native = {}));
-})(egret || (egret = {}));
-(function (egret) {
-    var native;
-    (function (native) {
-        native.$supportGLCmdBatch = false;
-        egret.native.$supportGLCmdBatch = egret.native2.$glCmdBatch;
-    })(native = egret.native || (egret.native = {}));
 })(egret || (egret = {}));
 //////////////////////////////////////////////////////////////////////////////////////
 //
