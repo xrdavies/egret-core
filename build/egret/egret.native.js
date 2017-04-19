@@ -4405,7 +4405,7 @@ var egret;
                     gl = this.glCmdManager;
                 }
                 // TODO
-                // gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+                gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
             };
             /**
              * 创建一个WebGLTexture
