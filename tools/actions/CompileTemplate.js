@@ -2,6 +2,7 @@
  * Created by yanjiaqi on 15/8/31.
  */
 /// <reference path="../lib/types.d.ts" />
+Object.defineProperty(exports, "__esModule", { value: true });
 var FileUtil = require("../lib/FileUtil");
 var project = require("../actions/Project");
 var htmlparser = require("../lib/htmlparser");

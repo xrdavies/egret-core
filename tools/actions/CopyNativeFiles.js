@@ -11,10 +11,10 @@ var CopyNativeFiles = (function () {
         //拷贝项目到native工程中
         var cpFiles = new CopyFilesCommand();
         if (platform == "android" || platform == "android_as") {
-            var url2 = FileUtil.joinPath(nativePath, "proj.android/assets", "egret-game");
+            var url2 = FileUtil.joinPath(nativePath, "proj.android/assets");
         }
         else if (platform == "ios") {
-            url2 = FileUtil.joinPath(nativePath, "Resources", "egret-game");
+            url2 = FileUtil.joinPath(nativePath, "Resources");
         }
         FileUtil.remove(url2);
         if (isDebug) {
@@ -27,12 +27,20 @@ var CopyNativeFiles = (function () {
             catch (e) {
                 globals.exit(10021);
             }
-            var sourceRuntime = FileUtil.joinPath(options.templateDir, "runtime");
-            var outputRuntime = FileUtil.joinPath(url2, "launcher");
-            FileUtil.copy(sourceRuntime, outputRuntime);
-            EgretProject.utils.getModulesConfig('native').forEach(function (m) {
-                FileUtil.copy(m.sourceDir, FileUtil.joinPath(url2, m.targetDir));
-            });
+            for (var _i = 0, _a = FileUtil.getDirectoryAllListing(EgretProject.utils.getProjectRoot()); _i < _a.length; _i++) {
+                var each = _a[_i];
+                var relativePath = FileUtil.getRelativePath(EgretProject.utils.getProjectRoot(), each);
+                FileUtil.copy(each, FileUtil.joinPath(url2, "egret-game", relativePath));
+            }
+            for (var _b = 0, _c = FileUtil.getDirectoryListing(url2); _b < _c.length; _b++) {
+                var each = _c[_b];
+                if (each !== FileUtil.joinPath(url2, "egret-game")) {
+                    FileUtil.remove(each);
+                }
+            }
+            // EgretProject.utils.getModulesConfig('web').forEach(m => {
+            //     FileUtil.copy(m.sourceDir, FileUtil.joinPath(url2, m.targetDir));
+            // })
         }
         else {
             FileUtil.copy(options.releaseDir, url2);
@@ -62,7 +70,7 @@ var CopyNativeFiles = (function () {
         }
         if (nativePath = config.getNativePath("ios")) {
             var url1 = FileUtil.joinPath(nativePath, "proj.ios");
-            var url2 = FileUtil.joinPath(nativePath, "Resources", "egret-game");
+            var url2 = FileUtil.joinPath(nativePath, "Resources");
             CopyNativeFiles.copyProjectFiles("ios", nativePath, isDebug);
             //修改java文件
             var entrance = new ChangeEntranceCMD();
