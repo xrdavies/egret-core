@@ -67,6 +67,10 @@ var CreateAppCommand = (function () {
         if (!app_data) {
             globals.exit(1603, template_path);
         }
+        var isNative2 = false;
+        if (file.exists(file.joinPath(template_path, "native2"))) {
+            isNative2 = true;
+        }
         var platform = "";
         if (file.exists(file.joinPath(template_path, "proj.android"))) {
             if (file.isFile(file.joinPath(file.joinPath(template_path, "proj.android"), "build.gradle"))) {
@@ -99,7 +103,12 @@ var CreateAppCommand = (function () {
         new ParseConfigCommand().execute();
         CompileTemplate.modifyNativeRequire(true);
         //拷贝项目到native工程中
-        copyNative.refreshNative(true);
+        if (isNative2) {
+            copyNative.refreshNative(true);
+        }
+        else {
+            copyNative.oldRefreshNative(true);
+        }
         globals.log2(1606, (Date.now() - startTime) / 1000);
     };
     CreateAppCommand.prototype.create_app_from = function (app_path, template_path, app_data) {

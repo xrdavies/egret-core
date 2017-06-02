@@ -77,8 +77,14 @@ class CreateAppCommand implements egret.Command {
             globals.exit(1603, template_path);
         }
 
-        var platform = "";
+        
+        var isNative2 = false;
+        if(file.exists(file.joinPath(template_path, "native2")))
+        {
+            isNative2 = true;
+        }
 
+        var platform = "";
         if (file.exists(file.joinPath(template_path, "proj.android"))) {//android
             if (file.isFile(file.joinPath(file.joinPath(template_path, "proj.android"), "build.gradle"))) {
                 platform = "android_as";
@@ -116,7 +122,14 @@ class CreateAppCommand implements egret.Command {
         CompileTemplate.modifyNativeRequire(true);
 
         //拷贝项目到native工程中
-        copyNative.refreshNative(true);
+        if(isNative2)
+        {
+            copyNative.refreshNative(true);
+        }
+        else
+        {
+            copyNative.oldRefreshNative(true);
+        }
 
         globals.log2(1606, (Date.now() - startTime) / 1000);
     }
