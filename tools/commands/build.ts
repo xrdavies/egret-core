@@ -6,7 +6,6 @@ import service = require('../service/index');
 import FileUtil = require('../lib/FileUtil');
 import CompileProject = require('../actions/CompileProject');
 import CompileTemplate = require('../actions/CompileTemplate');
-import CHILD_EXEC = require('child_process');
 import * as project from '../parser/EgretProject';
 import ts = require('../lib/typescript-plus/lib/typescript')
 import * as path from 'path';
@@ -56,10 +55,9 @@ class Build implements egret.Command {
         let { options, fileNames } = compiler.parseTsconfig(projectDir, egret.args.publish);
         let outFile = options.outFile;
         if (!outFile) {
-            globals.exit(1022);
+            globals.exit(1122);
         }
         compiler.compile(options, fileNames);
-
         let outDir = path.dirname(outFile);
         let outFileName = path.basename(outFile);
         let minFile = path.join(outDir, outFileName.replace(".js", ".min.js"));

@@ -455,10 +455,10 @@ function startToDownload() {
 }
 var InstallSDK = (function () {
     function InstallSDK() {
-        this.isAsync = true;
     }
     InstallSDK.prototype.execute = function () {
         startToDownload();
+        return DontExitCode;
     };
     InstallSDK.printAndroidSDKConfig = function () {
         printAndroidSDKConfig();
