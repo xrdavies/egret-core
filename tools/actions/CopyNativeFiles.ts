@@ -122,7 +122,7 @@ class CopyNativeFiles {
         if (nativePath = config.getNativePath("android_as")) {
             var url1 = FileUtil.joinPath(nativePath, "proj.android");
             var url2 = FileUtil.joinPath(nativePath, "proj.android/assets", "egret-game");
-            CopyNativeFiles.copyProjectFiles("android_as", nativePath, isDebug);
+            CopyNativeFiles.oldCopyProjectFiles("android_as", nativePath, isDebug);
             //修改java文件
             var entrance = new ChangeEntranceCMD();
             entrance.initCommand(url1, "android_as", versionFile);
@@ -132,7 +132,7 @@ class CopyNativeFiles {
             var url1 = FileUtil.joinPath(nativePath, "proj.android");
             var url2 = FileUtil.joinPath(nativePath, "proj.android/assets", "egret-game");
 
-            CopyNativeFiles.copyProjectFiles("android", nativePath, isDebug);
+            CopyNativeFiles.oldCopyProjectFiles("android", nativePath, isDebug);
 
             //修改java文件
             var entrance = new ChangeEntranceCMD();
@@ -144,7 +144,7 @@ class CopyNativeFiles {
             var url1 = FileUtil.joinPath(nativePath, "proj.ios");
             var url2 = FileUtil.joinPath(nativePath, "Resources", "egret-game");
 
-            CopyNativeFiles.copyProjectFiles("ios", nativePath, isDebug);
+            CopyNativeFiles.oldCopyProjectFiles("ios", nativePath, isDebug);
 
             //修改java文件
             var entrance = new ChangeEntranceCMD();

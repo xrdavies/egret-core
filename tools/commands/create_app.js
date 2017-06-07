@@ -71,6 +71,12 @@ var CreateAppCommand = (function () {
         if (file.exists(file.joinPath(template_path, "native2"))) {
             isNative2 = true;
         }
+        if (isNative2) {
+            console.log("当前版本是Native 2");
+        }
+        else {
+            console.log("当前版本是Native 1");
+        }
         var platform = "";
         if (file.exists(file.joinPath(template_path, "proj.android"))) {
             if (file.isFile(file.joinPath(file.joinPath(template_path, "proj.android"), "build.gradle"))) {

@@ -83,6 +83,14 @@ class CreateAppCommand implements egret.Command {
         {
             isNative2 = true;
         }
+        if(isNative2)
+        {
+            console.log("当前版本是Native 2")
+        }
+        else
+        {
+            console.log("当前版本是Native 1")
+        }
 
         var platform = "";
         if (file.exists(file.joinPath(template_path, "proj.android"))) {//android
