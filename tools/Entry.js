@@ -26,6 +26,7 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
+Object.defineProperty(exports, "__esModule", { value: true });
 /// <reference path="./lib/types.d.ts" />
 global.DEBUG = true;
 global.egret = global.egret || {};
@@ -35,6 +36,7 @@ require('./globals');
 var Parser = require("./parser/Parser");
 var earlyParams = require("./parser/ParseEarlyVersionParams");
 var utils = require("./lib/utils");
+var index_1 = require("./project/index");
 var fs = require('fs');
 var path = require('path');
 var packageJsonConfig;
@@ -77,32 +79,55 @@ function getEgretPath() {
     return egret_path;
 }
 function getLanguageInfo() {
-    var i18n = getPackageJsonConfig().i18n;
-    if (i18n == "en") {
-        i18n = "en_US";
-        require('./locales/en_US');
-    }
-    else {
-        i18n = "zh_CN";
+    var osLocal = require("./lib/os-local.js");
+    var i18n = osLocal();
+    i18n = i18n.toLowerCase();
+    if (i18n == "zh_cn" || i18n == "zh_tw" || i18n == "zh_hk") {
         require('./locales/zh_CN');
     }
-    return i18n;
+    else {
+        require('./locales/en_US');
+    }
 }
 getLanguageInfo(); //引用语言包
 function executeCommandLine(args) {
     var options = Parser.parseCommandLine(args);
     egret.args = options;
+    var version = getPackageJsonConfig().version;
+    console.log("\u60A8\u6B63\u5728\u4F7F\u7528\u767D\u9E6D\u7F16\u8BD1\u5668 " + version + " \u7248\u672C");
+    var currentTarget = index_1.projectData.getCurrentTarget();
+    if (egret.args.target == "none") {
+        egret.args.target = currentTarget;
+    }
     earlyParams.parse(options, args);
     var exitcode = entry.executeOption(options);
     if (typeof exitcode == "number") {
         entry.exit(exitcode);
     }
     else {
-        exitcode.then(function (value) { return entry.exit(value); }).catch(function (e) { return console.log(e); });
+        exitcode.then(function (value) {
+            entry.exit(value);
+        }).catch(function (e) {
+            if (e instanceof Error) {
+                console.error(e.toString());
+                entry.exit(9999);
+            }
+            else if (typeof e == 'string') {
+                console.error(e);
+                entry.exit(1);
+            }
+            else if (typeof e == 'number') {
+                entry.exit(e);
+            }
+            else {
+                console.error(e);
+                entry.exit(9998);
+            }
+        });
     }
 }
 exports.executeCommandLine = executeCommandLine;
-var Entry = (function () {
+var Entry = /** @class */ (function () {
     function Entry() {
     }
     Entry.prototype.executeOption = function (options) {
@@ -116,7 +141,8 @@ var Entry = (function () {
             return 10002;
         }
         var command = new CommandClass();
-        return command.execute();
+        var result = command.execute();
+        return result;
     };
     Entry.prototype.exit = function (exitCode) {
         if (DontExitCode == exitCode)

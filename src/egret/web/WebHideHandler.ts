@@ -31,109 +31,67 @@ namespace egret.web {
     /**
      * @private
      */
-    export class WebHideHandler extends HashObject {
-        /**
-         * @private
-         */
-        private stage:egret.Stage;
-        /**
-         * @private
-         */
-        constructor(stage:egret.Stage) {
-            super();
-            this.stage = stage;
+    export let WebLifeCycleHandler: egret.lifecycle.LifecyclePlugin = (context) => {
 
-            this.registerListener();
+
+        let handleVisibilityChange = function () {
+            if (!document[hidden]) {
+                context.resume();
+            }
+            else {
+                context.pause();
+            }
+        };
+
+        window.addEventListener("focus", context.resume, false);
+        window.addEventListener("blur", context.pause, false);
+
+        let hidden, visibilityChange;
+        if (typeof document.hidden !== "undefined") {
+            hidden = "hidden";
+            visibilityChange = "visibilitychange";
+        } else if (typeof document["mozHidden"] !== "undefined") {
+            hidden = "mozHidden";
+            visibilityChange = "mozvisibilitychange";
+        } else if (typeof document["msHidden"] !== "undefined") {
+            hidden = "msHidden";
+            visibilityChange = "msvisibilitychange";
+        } else if (typeof document["webkitHidden"] !== "undefined") {
+            hidden = "webkitHidden";
+            visibilityChange = "webkitvisibilitychange";
+        } else if (typeof document["oHidden"] !== "undefined") {
+            hidden = "oHidden";
+            visibilityChange = "ovisibilitychange";
+        }
+        if ("onpageshow" in window && "onpagehide" in window) {
+            window.addEventListener("pageshow", context.resume, false);
+            window.addEventListener("pagehide", context.pause, false);
+        }
+        if (hidden && visibilityChange) {
+            document.addEventListener(visibilityChange, handleVisibilityChange, false);
         }
 
-        /**
-         * @private
-         */
-        private isActivate:boolean = true;
-        /**
-         * @private
-         * 
-         */
-        private registerListener():void {
-            let self = this;
-            //失去焦点
-            let onBlurHandler = function () {
-                if (!self.isActivate) {
-                    return;
-                }
-                self.isActivate = false;
-                self.stage.dispatchEvent(new Event(Event.DEACTIVATE));
-            };
-            //激活
-            let onFocusHandler = function () {
-                if (self.isActivate) {
-                    return;
-                }
-                self.isActivate = true;
+        let ua = navigator.userAgent;
+        let isWX = /micromessenger/gi.test(ua);
+        let isQQBrowser = /mqq/ig.test(ua);
+        let isQQ = /mobile.*qq/gi.test(ua);
 
-                self.stage.dispatchEvent(new Event(Event.ACTIVATE));
-            };
-
-            let handleVisibilityChange = function () {
-                if (!document[hidden]) {
-                    onFocusHandler();
+        if (isQQ || isWX) {
+            isQQBrowser = false;
+        }
+        if (isQQBrowser) {
+            let browser = window["browser"] || {};
+            browser.execWebFn = browser.execWebFn || {};
+            browser.execWebFn.postX5GamePlayerMessage = function (event) {
+                let eventType = event.type;
+                if (eventType == "app_enter_background") {
+                    context.pause();
                 }
-                else {
-                    onBlurHandler();
+                else if (eventType == "app_enter_foreground") {
+                    context.resume();
                 }
             };
-
-            window.addEventListener("focus", onFocusHandler, false);
-            window.addEventListener("blur", onBlurHandler, false);
-
-            let hidden, visibilityChange;
-            if (typeof document.hidden !== "undefined") {
-                hidden = "hidden";
-                visibilityChange = "visibilitychange";
-            } else if (typeof document["mozHidden"] !== "undefined") {
-                hidden = "mozHidden";
-                visibilityChange = "mozvisibilitychange";
-            } else if (typeof document["msHidden"] !== "undefined") {
-                hidden = "msHidden";
-                visibilityChange = "msvisibilitychange";
-            } else if (typeof document["webkitHidden"] !== "undefined") {
-                hidden = "webkitHidden";
-                visibilityChange = "webkitvisibilitychange";
-            } else if (typeof document["oHidden"] !== "undefined") {
-                hidden = "oHidden";
-                visibilityChange = "ovisibilitychange";
-            }
-            if ("onpageshow" in window && "onpagehide" in window) {
-                window.addEventListener("pageshow", onFocusHandler, false);
-                window.addEventListener("pagehide", onBlurHandler, false);
-            }
-            if (hidden && visibilityChange) {
-                document.addEventListener(visibilityChange, handleVisibilityChange, false);
-            }
-
-            let ua = navigator.userAgent;
-            let isWX = /micromessenger/gi.test(ua);
-            let isQQBrowser = /mqq/ig.test(ua);
-            let isQQ = /mobile.*qq/gi.test(ua);
-
-            if (isQQ || isWX) {
-                isQQBrowser = false;
-            }
-            if(isQQBrowser)
-            {
-                let browser = window["browser"] || {};
-                browser.execWebFn =  browser.execWebFn || {};
-                browser.execWebFn.postX5GamePlayerMessage = function(event){
-                    let eventType = event.type;
-                    if (eventType == "app_enter_background"){
-                        onBlurHandler();
-                    }
-                    else if (eventType == "app_enter_foreground"){
-                        onFocusHandler();
-                    }
-                };
-                window["browser"] = browser;
-            }
+            window["browser"] = browser;
         }
     }
 }

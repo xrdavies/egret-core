@@ -1,16 +1,15 @@
 import file = require('../lib/FileUtil');
 import service = require('../service/index');
-import Project = require('../project/EgretProject');
+import Project = require('../project');
 import path = require('path');
 import utils = require('../lib/utils')
-import modify = require("./upgrade/ModifyProperties");
 import doT = require('../lib/doT');
 import projectAction = require('../actions/Project');
-
+import Clean = require('./clean');
 type VersionInfo = {
 
     v: string,
-    command?: { new (): egret.Command }
+    command?: { new(): egret.Command }
 }
 
 class UpgradeCommand implements egret.Command {
@@ -21,40 +20,62 @@ class UpgradeCommand implements egret.Command {
     execute(): number {
 
         utils.checkEgret();
-        this.run();
+
+
+        var version = Project.projectData.getVersion();
+        const versionArr = version.split(".");
+        let majorVersion = parseInt(versionArr[0]);
+        let middleVersion = parseInt(versionArr[1]);
+        if (majorVersion == 5 && middleVersion != 0) {
+            this.run();
+        }
+        else {
+            globals.exit(1719);
+        }
+
+
         return DontExitCode
     }
 
     private async run() {
-        var version = Project.data.getVersion();
+        var version = Project.projectData.getVersion();
         if (!version) {
-            version = "1.0.0";
+            version = "5.1.0";
         }
 
 
         let upgradeConfigArr: VersionInfo[] = [
-            { "v": "4.0.1", command: Upgrade_4_0_1 },
-            { "v": "4.0.3" },
-            { "v": "4.1.0", command: Upgrade_4_1_0 },
-            { "v": "5.0.0" },
-            { "v": "5.1.0", command: Upgrade_5_1_0 }
+            { "v": "5.1.1", command: Upgrade_5_1_1 },
+            { "v": "5.1.2", command: Upgrade_5_1_2 },
+            { "v": "5.2.13", command: Upgrade_5_2_13 },
+            { "v": "5.2.17", command: Upgrade_5_2_17 },
+            { "v": "5.2.19", command: Upgrade_5_2_19 },
+            { "v": "5.2.22", command: Upgrade_5_2_22 },
+            { "v": "5.2.23", command: Upgrade_5_2_23 },
+            { "v": "5.2.25", command: Upgrade_5_2_25 },
+            { "v": "5.2.28", command: Upgrade_5_2_28 },
+            { "v": "5.2.30" }
         ];
 
         try {
-            modify.initProperties();
             await series(upgrade, upgradeConfigArr.concat())
-            modify.save(upgradeConfigArr.pop().v);
+            Project.projectData.save(upgradeConfigArr.pop().v);
             globals.log(1702);
-            await service.client.closeServer(Project.data.getProjectRoot())
+            service.client.closeServer(Project.projectData.getProjectRoot())
+            await new Clean().execute();
+            let source = path.join(egret.root, "tools/templates/empty/scripts/api.d.ts");
+            let target = path.join(egret.args.projectDir, "scripts/api.d.ts");
+            file.copy(source, target);
             globals.exit(0);
         }
         catch (e) {
-            console.log("升级中断，具体原因如下")
+            globals.log(1717);
             console.log(e)
             globals.exit(1705);
         }
     }
 }
+
 
 
 let series = <T>(cb: (data: T, index?: number, result?: any) => PromiseLike<number>, arr: T[]) => {
@@ -90,7 +111,7 @@ let series = <T>(cb: (data: T, index?: number, result?: any) => PromiseLike<numb
 }
 
 function upgrade(info: VersionInfo) {
-    var version = Project.data.getVersion();
+    var version = Project.projectData.getVersion();
     var v = info.v;
     var command: egret.Command;
     if (info.command) {
@@ -118,78 +139,80 @@ function upgrade(info: VersionInfo) {
 }
 
 
-class Upgrade_4_0_1 {
-
-
+class Upgrade_5_1_1 {
     async execute() {
-
-        let tsconfigPath = Project.data.getFilePath('tsconfig.json');
-        if (!file.exists(tsconfigPath)) {
-            let source = file.joinPath(egret.root, "tools/templates/empty/tsconfig.json");
-            let target = Project.data.getFilePath("tsconfig.json")
-            file.copy(source, target);
-        }
-        let tsconfigContent = file.read(tsconfigPath);
-        let tsconfig = JSON.parse(tsconfigContent);
-        let needLibs = [
-            "es5", "dom", "es2015.promise"
-        ];
-        if (!tsconfig.compilerOptions.lib) {
-            tsconfig.compilerOptions.lib = [];
-        }
-        needLibs.forEach(lib => {
-            if (tsconfig.compilerOptions.lib.indexOf(lib) == -1) {
-                tsconfig.compilerOptions.lib.push(lib);
-            }
-        })
-        tsconfigContent = JSON.stringify(tsconfig, null, "\t");
-        file.save(tsconfigPath, tsconfigContent);
-        file.copy(path.join(egret.root, 'tools/templates/empty/polyfill'), Project.data.getFilePath('polyfill'));
-
-        globals.log(1703, "https://github.com/egret-labs/egret-core/tree/master/docs/cn/release-note/4.0.1")
-
         return 0;
     }
 }
 
-class Upgrade_4_1_0 {
-    /**
-     * 将用户的系统内置模块添加 path 字段，并指向老版本的模块，而非新版本模块
-     */
+class Upgrade_5_1_2 {
     async execute() {
-        modify.upgradeModulePath();
-        globals.log(1703, "https://github.com/egret-labs/egret-core/tree/master/docs/cn/release-note/4.1.0")
+        console.log("【警告】: 如果您尝试发布到微信小游戏，建议您创建一个新项目，而不是使用 egret upgrade 命令")
         return 0;
     }
 }
 
-class Upgrade_5_1_0 {
+class Upgrade_5_2_13 {
     async execute() {
-        let options = egret.args;
-        let moduleName = "empty";
-        if (Project.data.isWasmProject()) {
-            moduleName = "wasm";
-        }
-        file.copy(file.joinPath(egret.root, "tools", "templates", moduleName, "template", "debug"),
-            file.joinPath(options.projectDir, "template", "debug"));
-        file.copy(file.joinPath(egret.root, "tools", "templates", moduleName, "template", "web"),
-            file.joinPath(options.projectDir, "template", "web"));
-        let proj = options.getProject(true);
-        projectAction.normalize(proj);
-        let debugFile = file.joinPath(options.projectDir, "template", "debug", "index.html");
-        let contentDebug = file.read(debugFile);
-        contentDebug = doT.template(contentDebug)(proj);
-        file.save(debugFile, contentDebug);
-        
-        let webFile = file.joinPath(options.projectDir, "template", "web", "index.html");
-        let contentWeb = file.read(webFile);
-        contentWeb = doT.template(contentWeb)(proj);
-        file.save(webFile, contentWeb);
-
-        file.copy(file.joinPath(options.projectDir, "index.html"), file.joinPath(options.projectDir, "index-backup.html"));
-        globals.log(1703, "https://www.baidu.com");
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "baidugame"), path.join(egret.args.projectDir, "scripts", "baidugame"));
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.baidugame.ts"), path.join(egret.args.projectDir, "scripts", "config.baidugame.ts"));
         return 0;
     }
 }
 
+class Upgrade_5_2_17 {
+    async execute() {
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "qgame"), path.join(egret.args.projectDir, "scripts", "qgame"));
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.qgame.ts"), path.join(egret.args.projectDir, "scripts", "config.qgame.ts"));
+        return 0;
+    }
+}
+
+class Upgrade_5_2_19 {
+    async execute() {
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "oppogame"), path.join(egret.args.projectDir, "scripts", "oppogame"));
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.oppogame.ts"), path.join(egret.args.projectDir, "scripts", "config.oppogame.ts"));
+        return 0;
+    }
+}
+
+class Upgrade_5_2_22 {
+    async execute() {
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "vivogame"), path.join(egret.args.projectDir, "scripts", "vivogame"));
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.vivogame.ts"), path.join(egret.args.projectDir, "scripts", "config.vivogame.ts"));
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "api.d.ts"), path.join(egret.args.projectDir, "scripts", "api.d.ts"));
+        return 0;
+    }
+}
+
+class Upgrade_5_2_23 {
+    async execute() {
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "vivogame"), path.join(egret.args.projectDir, "scripts", "vivogame"));
+        return 0;
+    }
+}
+
+class Upgrade_5_2_25 {
+    async execute() {
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "qqgame"), path.join(egret.args.projectDir, "scripts", "qqgame"));
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.qqgame.ts"), path.join(egret.args.projectDir, "scripts", "config.qqgame.ts"));
+        return 0;
+    }
+}
+
+class Upgrade_5_2_28 {
+    async execute() {
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "vivogame"), path.join(egret.args.projectDir, "scripts", "vivogame"));
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.vivogame.ts"), path.join(egret.args.projectDir, "scripts", "config.vivogame.ts"));
+        return 0;
+    }
+}
+class Upgrade_wxplugin {
+    async execute() {
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "wxgame"), path.join(egret.args.projectDir, "scripts", "wxgame"));
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.wxgame.ts"), path.join(egret.args.projectDir, "scripts", "config.wxgame.ts"));
+        file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "api.d.ts"), path.join(egret.args.projectDir, "scripts", "api.d.ts"));
+        return 0;
+    }
+}
 export = UpgradeCommand;

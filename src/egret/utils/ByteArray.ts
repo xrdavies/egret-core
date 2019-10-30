@@ -58,7 +58,7 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public static LITTLE_ENDIAN:string = "littleEndian";
+        public static LITTLE_ENDIAN: string = "littleEndian";
 
         /**
          * Indicates the most significant byte of the multibyte number appears first in the sequence of bytes.
@@ -74,10 +74,35 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public static BIG_ENDIAN:string = "bigEndian";
+        public static BIG_ENDIAN: string = "bigEndian";
 
     }
 
+    export const enum EndianConst {
+        LITTLE_ENDIAN = 0,
+        BIG_ENDIAN = 1
+    }
+
+    const enum ByteArraySize {
+
+        SIZE_OF_BOOLEAN = 1,
+
+        SIZE_OF_INT8 = 1,
+
+        SIZE_OF_INT16 = 2,
+
+        SIZE_OF_INT32 = 4,
+
+        SIZE_OF_UINT8 = 1,
+
+        SIZE_OF_UINT16 = 2,
+
+        SIZE_OF_UINT32 = 4,
+
+        SIZE_OF_FLOAT32 = 4,
+
+        SIZE_OF_FLOAT64 = 8
+    }
     /**
      * The ByteArray class provides methods and attributes for optimized reading and writing as well as dealing with binary data.
      * Note: The ByteArray class is applied to the advanced developers who need to access data at the byte layer.
@@ -95,111 +120,142 @@ namespace egret {
      * @language zh_CN
      */
     export class ByteArray {
-        /**
-         * @private
-         */
-        private static SIZE_OF_BOOLEAN:number = 1;
-        /**
-         * @private
-         */
-        private static SIZE_OF_INT8:number = 1;
-        /**
-         * @private
-         */
-        private static SIZE_OF_INT16:number = 2;
-        /**
-         * @private
-         */
-        private static SIZE_OF_INT32:number = 4;
-        /**
-         * @private
-         */
-        private static SIZE_OF_UINT8:number = 1;
-        /**
-         * @private
-         */
-        private static SIZE_OF_UINT16:number = 2;
-        /**
-         * @private
-         */
-        private static SIZE_OF_UINT32:number = 4;
-        /**
-         * @private
-         */
-        private static SIZE_OF_FLOAT32:number = 4;
-        /**
-         * @private
-         */
-        private static SIZE_OF_FLOAT64:number = 8;
 
         /**
          * @private
          */
-        private BUFFER_EXT_SIZE:number = 0;//Buffer expansion size
+        protected bufferExtSize = 0;//Buffer expansion size
 
-        private data:DataView;
+        protected data: DataView;
+
+        protected _bytes: Uint8Array;
         /**
          * @private
          */
-        private _position:number;
-        /**
-         * @private
-         */
-        private write_position:number;
+        protected _position: number;
 
         /**
-         * Changes or reads the byte order; egret.Endian.BIG_ENDIAN or egret.Endian.LITTLE_ENDIAN.
-         * @default egret.Endian.BIG_ENDIAN
+         * 
+         * 已经使用的字节偏移量
+         * @protected
+         * @type {number}
+         * @memberOf ByteArray
+         */
+        protected write_position: number;
+
+        /**
+         * Changes or reads the byte order; egret.EndianConst.BIG_ENDIAN or egret.EndianConst.LITTLE_EndianConst.
+         * @default egret.EndianConst.BIG_ENDIAN
          * @version Egret 2.4
          * @platform Web,Native
          * @language en_US
          */
         /**
-         * 更改或读取数据的字节顺序；egret.Endian.BIG_ENDIAN 或 egret.Endian.LITTLE_ENDIAN。
-         * @default egret.Endian.BIG_ENDIAN
+         * 更改或读取数据的字节顺序；egret.EndianConst.BIG_ENDIAN 或 egret.EndianConst.LITTLE_ENDIAN。
+         * @default egret.EndianConst.BIG_ENDIAN
          * @version Egret 2.4
          * @platform Web,Native
          * @language zh_CN
          */
-        public endian:string;
+        public get endian() {
+            return this.$endian == EndianConst.LITTLE_ENDIAN ? Endian.LITTLE_ENDIAN : Endian.BIG_ENDIAN;
+        }
+
+        public set endian(value: string) {
+            this.$endian = value == Endian.LITTLE_ENDIAN ? EndianConst.LITTLE_ENDIAN : EndianConst.BIG_ENDIAN;
+        }
+
+        protected $endian: EndianConst;
 
         /**
          * @version Egret 2.4
          * @platform Web,Native
          */
-        constructor(buffer?:ArrayBuffer) {
-            this._setArrayBuffer(buffer || new ArrayBuffer(this.BUFFER_EXT_SIZE));
+        constructor(buffer?: ArrayBuffer | Uint8Array, bufferExtSize = 0) {
+            if (bufferExtSize < 0) {
+                bufferExtSize = 0;
+            }
+            this.bufferExtSize = bufferExtSize;
+            let bytes: Uint8Array, wpos = 0;
+            if (buffer) {//有数据，则可写字节数从字节尾开始
+                let uint8: Uint8Array;
+                if (buffer instanceof Uint8Array) {
+                    uint8 = buffer;
+                    wpos = buffer.length;
+                } else {
+                    wpos = buffer.byteLength;
+                    uint8 = new Uint8Array(buffer);
+                }
+                if (bufferExtSize == 0) {
+                    bytes = new Uint8Array(wpos);
+                }
+                else {
+                    let multi = (wpos / bufferExtSize | 0) + 1;
+                    bytes = new Uint8Array(multi * bufferExtSize);
+                }
+                bytes.set(uint8);
+            } else {
+                bytes = new Uint8Array(bufferExtSize);
+            }
+            this.write_position = wpos;
+            this._position = 0;
+            this._bytes = bytes;
+            this.data = new DataView(bytes.buffer);
             this.endian = Endian.BIG_ENDIAN;
         }
 
-        /**
-         * @private
-         * @param buffer
-         */
-        private _setArrayBuffer(buffer:ArrayBuffer):void {
-            this.write_position = buffer.byteLength;
-            this.data = new DataView(buffer);
-            this._position = 0;
-        }
 
         /**
          * @deprecated
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public setArrayBuffer(buffer:ArrayBuffer):void {
+        public setArrayBuffer(buffer: ArrayBuffer): void {
 
         }
 
-        public get buffer():ArrayBuffer {
+        /**
+         * 可读的剩余字节数
+         * 
+         * @returns 
+         * 
+         * @memberOf ByteArray
+         */
+        public get readAvailable() {
+            return this.write_position - this._position;
+        }
+
+        public get buffer(): ArrayBuffer {
+            return this.data.buffer.slice(0, this.write_position);
+        }
+
+        public get rawBuffer(): ArrayBuffer {
             return this.data.buffer;
         }
 
         /**
          * @private
          */
-        public set buffer(value:ArrayBuffer) {
-            this.data = new DataView(value);
+        public set buffer(value: ArrayBuffer) {
+            let wpos = value.byteLength;
+            let uint8 = new Uint8Array(value);
+            let bufferExtSize = this.bufferExtSize;
+            let bytes: Uint8Array;
+            if (bufferExtSize == 0) {
+                bytes = new Uint8Array(wpos);
+            }
+            else {
+                let multi = (wpos / bufferExtSize | 0) + 1;
+                bytes = new Uint8Array(multi * bufferExtSize);
+            }
+            bytes.set(uint8);
+            this.write_position = wpos;
+            this._bytes = bytes;
+            this.data = new DataView(bytes.buffer);
+        }
+
+        public get bytes(): Uint8Array {
+            return this._bytes;
         }
 
         /**
@@ -207,22 +263,21 @@ namespace egret {
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public get dataView():DataView {
+        public get dataView(): DataView {
             return this.data;
         }
 
         /**
          * @private
          */
-        public set dataView(value:DataView) {
-            this.data = value;
-            this.write_position = value.byteLength;
+        public set dataView(value: DataView) {
+            this.buffer = value.buffer;
         }
 
         /**
          * @private
          */
-        public get bufferOffset():number {
+        public get bufferOffset(): number {
             return this.data.byteOffset;
         }
 
@@ -238,18 +293,15 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public get position():number {
+        public get position(): number {
             return this._position;
         }
 
-        public set position(value:number) {
-            //if (this._position < value) {
-            //    if (!this.validate(value - this._position)) {
-            //        return;
-            //    }
-            //}
+        public set position(value: number) {
             this._position = value;
-            this.write_position = value > this.write_position ? value : this.write_position;
+            if (value > this.write_position) {
+                this.write_position = value;
+            }
         }
 
         /**
@@ -268,20 +320,33 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public get length():number {
+        public get length(): number {
             return this.write_position;
         }
 
-        public set length(value:number) {
+        public set length(value: number) {
             this.write_position = value;
-            let tmp:Uint8Array = new Uint8Array(new ArrayBuffer(value));
-            let byteLength:number = this.data.buffer.byteLength;
-            if (byteLength > value) {
+            if (this.data.byteLength > value) {
                 this._position = value;
             }
-            let length:number = Math.min(byteLength, value);
-            tmp.set(new Uint8Array(this.data.buffer, 0, length));
-            this.buffer = tmp.buffer;
+            this._validateBuffer(value);
+        }
+
+        protected _validateBuffer(value: number) {
+            if (this.data.byteLength < value) {
+                let be = this.bufferExtSize;
+                let tmp: Uint8Array;
+                if (be == 0) {
+                    tmp = new Uint8Array(value);
+                }
+                else {
+                    let nLen = ((value / be >> 0) + 1) * be;
+                    tmp = new Uint8Array(nLen);
+                }
+                tmp.set(this._bytes);
+                this._bytes = tmp;
+                this.data = new DataView(tmp.buffer);
+            }
         }
 
         /**
@@ -298,7 +363,7 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public get bytesAvailable():number {
+        public get bytesAvailable(): number {
             return this.data.byteLength - this._position;
         }
 
@@ -309,13 +374,17 @@ namespace egret {
          * @language en_US
          */
         /**
-         * 清除字节数组的内容，并将 length 和 position 属性重置为 0。 
+         * 清除字节数组的内容，并将 length 和 position 属性重置为 0。
          * @version Egret 2.4
          * @platform Web,Native
          * @language zh_CN
          */
-        public clear():void {
-            this._setArrayBuffer(new ArrayBuffer(this.BUFFER_EXT_SIZE));
+        public clear(): void {
+            let buffer = new ArrayBuffer(this.bufferExtSize);
+            this.data = new DataView(buffer);
+            this._bytes = new Uint8Array(buffer);
+            this._position = 0;
+            this.write_position = 0;
         }
 
         /**
@@ -332,10 +401,8 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public readBoolean():boolean {
-            if (!this.validate(ByteArray.SIZE_OF_BOOLEAN)) return null;
-
-            return this.data.getUint8(this.position++) != 0;
+        public readBoolean(): boolean {
+            if (this.validate(ByteArraySize.SIZE_OF_BOOLEAN)) return !!this._bytes[this.position++];
         }
 
         /**
@@ -352,10 +419,8 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public readByte():number {
-            if (!this.validate(ByteArray.SIZE_OF_INT8)) return null;
-
-            return this.data.getInt8(this.position++);
+        public readByte(): number {
+            if (this.validate(ByteArraySize.SIZE_OF_INT8)) return this.data.getInt8(this.position++);
         }
 
         /**
@@ -376,23 +441,29 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public readBytes(bytes:ByteArray, offset:number = 0, length:number = 0):void {
+        public readBytes(bytes: ByteArray, offset: number = 0, length: number = 0): void {
+            if (!bytes) {//由于bytes不返回，所以new新的无意义
+                return;
+            }
+            let pos = this._position;
+            let available = this.write_position - pos;
+            if (available < 0) {
+                egret.$error(1025);
+                return;
+            }
             if (length == 0) {
-                length = this.bytesAvailable;
+                length = available;
             }
-            else if (!this.validate(length)) {
-                return null;
+            else if (length > available) {
+                egret.$error(1025);
+                return;
             }
-            if (bytes) {
-                bytes.validateBuffer(offset + length);
-            }
-            else {
-                bytes = new ByteArray(new ArrayBuffer(offset + length));
-            }
-            //This method is expensive
-            for (let i = 0; i < length; i++) {
-                bytes.data.setUint8(i + offset, this.data.getUint8(this.position++));
-            }
+            const position = bytes._position;
+            bytes._position = 0;
+            bytes.validateBuffer(offset + length);
+            bytes._position = position;
+            bytes._bytes.set(this._bytes.subarray(pos, pos + length), offset);
+            this.position += length;
         }
 
         /**
@@ -409,12 +480,12 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public readDouble():number {
-            if (!this.validate(ByteArray.SIZE_OF_FLOAT64)) return null;
-
-            let value:number = this.data.getFloat64(this.position, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_FLOAT64;
-            return value;
+        public readDouble(): number {
+            if (this.validate(ByteArraySize.SIZE_OF_FLOAT64)) {
+                let value = this.data.getFloat64(this._position, this.$endian == EndianConst.LITTLE_ENDIAN);
+                this.position += ByteArraySize.SIZE_OF_FLOAT64;
+                return value;
+            }
         }
 
         /**
@@ -431,12 +502,12 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public readFloat():number {
-            if (!this.validate(ByteArray.SIZE_OF_FLOAT32)) return null;
-
-            let value:number = this.data.getFloat32(this.position, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_FLOAT32;
-            return value;
+        public readFloat(): number {
+            if (this.validate(ByteArraySize.SIZE_OF_FLOAT32)) {
+                let value = this.data.getFloat32(this._position, this.$endian == EndianConst.LITTLE_ENDIAN);
+                this.position += ByteArraySize.SIZE_OF_FLOAT32;
+                return value;
+            }
         }
 
         /**
@@ -453,26 +524,13 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public readInt():number {
-            if (!this.validate(ByteArray.SIZE_OF_INT32)) return null;
-
-            let value = this.data.getInt32(this.position, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_INT32;
-            return value;
+        public readInt(): number {
+            if (this.validate(ByteArraySize.SIZE_OF_INT32)) {
+                let value = this.data.getInt32(this._position, this.$endian == EndianConst.LITTLE_ENDIAN);
+                this.position += ByteArraySize.SIZE_OF_INT32;
+                return value;
+            }
         }
-
-        ///**
-        // * 使用指定的字符集从字节流中读取指定长度的多字节字符串
-        // * @param length 要从字节流中读取的字节数
-        // * @param charSet 表示用于解释字节的字符集的字符串。可能的字符集字符串包括 "shift-jis"、"cn-gb"、"iso-8859-1"”等
-        // * @return UTF-8 编码的字符串
-        // * @method egret.ByteArray#readMultiByte
-        // */
-        //public readMultiByte(length:number, charSet?:string):string {
-        //    if (!this.validate(length)) return null;
-        //
-        //    return "";
-        //}
 
         /**
          * Read a 16-bit signed integer from the byte stream.
@@ -488,32 +546,30 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public readShort():number {
-            if (!this.validate(ByteArray.SIZE_OF_INT16)) return null;
-
-            let value = this.data.getInt16(this.position, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_INT16;
-            return value;
+        public readShort(): number {
+            if (this.validate(ByteArraySize.SIZE_OF_INT16)) {
+                let value = this.data.getInt16(this._position, this.$endian == EndianConst.LITTLE_ENDIAN);
+                this.position += ByteArraySize.SIZE_OF_INT16;
+                return value;
+            }
         }
 
         /**
          * Read unsigned bytes from the byte stream.
-         * @return A 32-bit unsigned integer ranging from 0 to 255
+         * @return A unsigned integer ranging from 0 to 255
          * @version Egret 2.4
          * @platform Web,Native
          * @language en_US
          */
         /**
          * 从字节流中读取无符号的字节
-         * @return 介于 0 和 255 之间的 32 位无符号整数
+         * @return 介于 0 和 255 之间的无符号整数
          * @version Egret 2.4
          * @platform Web,Native
          * @language zh_CN
          */
-        public readUnsignedByte():number {
-            if (!this.validate(ByteArray.SIZE_OF_UINT8)) return null;
-
-            return this.data.getUint8(this.position++);
+        public readUnsignedByte(): number {
+            if (this.validate(ByteArraySize.SIZE_OF_UINT8)) return this._bytes[this.position++];
         }
 
         /**
@@ -530,12 +586,12 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public readUnsignedInt():number {
-            if (!this.validate(ByteArray.SIZE_OF_UINT32)) return null;
-
-            let value = this.data.getUint32(this.position, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_UINT32;
-            return value;
+        public readUnsignedInt(): number {
+            if (this.validate(ByteArraySize.SIZE_OF_UINT32)) {
+                let value = this.data.getUint32(this._position, this.$endian == EndianConst.LITTLE_ENDIAN);
+                this.position += ByteArraySize.SIZE_OF_UINT32;
+                return value;
+            }
         }
 
         /**
@@ -552,12 +608,12 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public readUnsignedShort():number {
-            if (!this.validate(ByteArray.SIZE_OF_UINT16)) return null;
-
-            let value = this.data.getUint16(this.position, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_UINT16;
-            return value;
+        public readUnsignedShort(): number {
+            if (this.validate(ByteArraySize.SIZE_OF_UINT16)) {
+                let value = this.data.getUint16(this._position, this.$endian == EndianConst.LITTLE_ENDIAN);
+                this.position += ByteArraySize.SIZE_OF_UINT16;
+                return value;
+            }
         }
 
         /**
@@ -574,12 +630,8 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public readUTF():string {
-            if (!this.validate(ByteArray.SIZE_OF_UINT16)) return null;
-
-            let length:number = this.data.getUint16(this.position, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_UINT16;
-
+        public readUTF(): string {
+            let length = this.readUnsignedShort();
             if (length > 0) {
                 return this.readUTFBytes(length);
             } else {
@@ -603,15 +655,13 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public readUTFBytes(length:number):string {
-            if (!this.validate(length)) return null;
-
-            let bytes:Uint8Array = new Uint8Array(this.buffer, this.bufferOffset + this.position, length);
+        public readUTFBytes(length: number): string {
+            if (!this.validate(length)) {
+                return;
+            }
+            let data = this.data;
+            let bytes = new Uint8Array(data.buffer, data.byteOffset + this._position, length);
             this.position += length;
-            /*let bytes: Uint8Array = new Uint8Array(new ArrayBuffer(length));
-             for (let i = 0; i < length; i++) {
-             bytes[i] = this.data.getUint8(this.position++);
-             }*/
             return this.decodeUTF8(bytes);
         }
 
@@ -629,10 +679,9 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public writeBoolean(value:boolean):void {
-            this.validateBuffer(ByteArray.SIZE_OF_BOOLEAN);
-
-            this.data.setUint8(this.position++, value ? 1 : 0);
+        public writeBoolean(value: boolean): void {
+            this.validateBuffer(ByteArraySize.SIZE_OF_BOOLEAN);
+            this._bytes[this.position++] = +value;
         }
 
         /**
@@ -651,10 +700,9 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public writeByte(value:number):void {
-            this.validateBuffer(ByteArray.SIZE_OF_INT8);
-
-            this.data.setInt8(this.position++, value);
+        public writeByte(value: number): void {
+            this.validateBuffer(ByteArraySize.SIZE_OF_INT8);
+            this._bytes[this.position++] = value & 0xff;
         }
 
         /**
@@ -679,34 +727,22 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public writeBytes(bytes:ByteArray, offset:number = 0, length:number = 0):void {
-            let writeLength:number;
+        public writeBytes(bytes: ByteArray, offset: number = 0, length: number = 0): void {
+            let writeLength: number;
             if (offset < 0) {
                 return;
             }
             if (length < 0) {
                 return;
-            }
-            else if (length == 0) {
+            } else if (length == 0) {
                 writeLength = bytes.length - offset;
-            }
-            else {
+            } else {
                 writeLength = Math.min(bytes.length - offset, length);
             }
             if (writeLength > 0) {
                 this.validateBuffer(writeLength);
-
-                let tmp_data = new DataView(bytes.buffer);
-                let length = writeLength;
-                let BYTES_OF_UINT32 = 4;
-                for (; length > BYTES_OF_UINT32; length -= BYTES_OF_UINT32) {
-                    this.data.setUint32(this._position, tmp_data.getUint32(offset));
-                    this.position += BYTES_OF_UINT32;
-                    offset += BYTES_OF_UINT32;
-                }
-                for (; length > 0; length--) {
-                    this.data.setUint8(this.position++, tmp_data.getUint8(offset++));
-                }
+                this._bytes.set(bytes._bytes.subarray(offset, offset + writeLength), this._position);
+                this.position = this._position + writeLength;
             }
         }
 
@@ -724,11 +760,10 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public writeDouble(value:number):void {
-            this.validateBuffer(ByteArray.SIZE_OF_FLOAT64);
-
-            this.data.setFloat64(this.position, value, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_FLOAT64;
+        public writeDouble(value: number): void {
+            this.validateBuffer(ByteArraySize.SIZE_OF_FLOAT64);
+            this.data.setFloat64(this._position, value, this.$endian == EndianConst.LITTLE_ENDIAN);
+            this.position += ByteArraySize.SIZE_OF_FLOAT64;
         }
 
         /**
@@ -745,11 +780,10 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public writeFloat(value:number):void {
-            this.validateBuffer(ByteArray.SIZE_OF_FLOAT32);
-
-            this.data.setFloat32(this.position, value, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_FLOAT32;
+        public writeFloat(value: number): void {
+            this.validateBuffer(ByteArraySize.SIZE_OF_FLOAT32);
+            this.data.setFloat32(this._position, value, this.$endian == EndianConst.LITTLE_ENDIAN);
+            this.position += ByteArraySize.SIZE_OF_FLOAT32;
         }
 
         /**
@@ -766,11 +800,10 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public writeInt(value:number):void {
-            this.validateBuffer(ByteArray.SIZE_OF_INT32);
-
-            this.data.setInt32(this.position, value, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_INT32;
+        public writeInt(value: number): void {
+            this.validateBuffer(ByteArraySize.SIZE_OF_INT32);
+            this.data.setInt32(this._position, value, this.$endian == EndianConst.LITTLE_ENDIAN);
+            this.position += ByteArraySize.SIZE_OF_INT32;
         }
 
         /**
@@ -787,11 +820,10 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public writeShort(value:number):void {
-            this.validateBuffer(ByteArray.SIZE_OF_INT16);
-
-            this.data.setInt16(this.position, value, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_INT16;
+        public writeShort(value: number): void {
+            this.validateBuffer(ByteArraySize.SIZE_OF_INT16);
+            this.data.setInt16(this._position, value, this.$endian == EndianConst.LITTLE_ENDIAN);
+            this.position += ByteArraySize.SIZE_OF_INT16;
         }
 
         /**
@@ -808,11 +840,10 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public writeUnsignedInt(value:number):void {
-            this.validateBuffer(ByteArray.SIZE_OF_UINT32);
-
-            this.data.setUint32(this.position, value, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_UINT32;
+        public writeUnsignedInt(value: number): void {
+            this.validateBuffer(ByteArraySize.SIZE_OF_UINT32);
+            this.data.setUint32(this._position, value, this.$endian == EndianConst.LITTLE_ENDIAN);
+            this.position += ByteArraySize.SIZE_OF_UINT32;
         }
 
         /**
@@ -829,11 +860,10 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public writeUnsignedShort(value:number):void {
-            this.validateBuffer(ByteArray.SIZE_OF_UINT16);
-
-            this.data.setUint16(this.position, value, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_UINT16;
+        public writeUnsignedShort(value: number): void {
+            this.validateBuffer(ByteArraySize.SIZE_OF_UINT16);
+            this.data.setUint16(this._position, value, this.$endian == EndianConst.LITTLE_ENDIAN);
+            this.position += ByteArraySize.SIZE_OF_UINT16;
         }
 
         /**
@@ -850,14 +880,12 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public writeUTF(value:string):void {
-            let utf8bytes:Uint8Array = this.encodeUTF8(value);
-            let length:number = utf8bytes.length;
-
-            this.validateBuffer(ByteArray.SIZE_OF_UINT16 + length);
-
-            this.data.setUint16(this.position, length, this.endian == Endian.LITTLE_ENDIAN);
-            this.position += ByteArray.SIZE_OF_UINT16;
+        public writeUTF(value: string): void {
+            let utf8bytes: ArrayLike<number> = this.encodeUTF8(value);
+            let length: number = utf8bytes.length;
+            this.validateBuffer(ByteArraySize.SIZE_OF_UINT16 + length);
+            this.data.setUint16(this._position, length, this.$endian == EndianConst.LITTLE_ENDIAN);
+            this.position += ByteArraySize.SIZE_OF_UINT16;
             this._writeUint8Array(utf8bytes, false);
         }
 
@@ -875,7 +903,7 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public writeUTFBytes(value:string):void {
+        public writeUTFBytes(value: string): void {
             this._writeUint8Array(this.encodeUTF8(value));
         }
 
@@ -886,7 +914,7 @@ namespace egret {
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public toString():string {
+        public toString(): string {
             return "[ByteArray] length:" + this.length + ", bytesAvailable:" + this.bytesAvailable;
         }
 
@@ -896,14 +924,14 @@ namespace egret {
          * @param bytes 要写入的Uint8Array
          * @param validateBuffer
          */
-        public _writeUint8Array(bytes:Uint8Array, validateBuffer:boolean = true):void {
+        public _writeUint8Array(bytes: Uint8Array | ArrayLike<number>, validateBuffer: boolean = true): void {
+            let pos = this._position;
+            let npos = pos + bytes.length;
             if (validateBuffer) {
-                this.validateBuffer(this.position + bytes.length);
+                this.validateBuffer(npos);
             }
-
-            for (let i = 0; i < bytes.length; i++) {
-                this.data.setUint8(this.position++, bytes[i]);
-            }
+            this.bytes.set(bytes, pos);
+            this.position = npos;
         }
 
         /**
@@ -913,9 +941,9 @@ namespace egret {
          * @platform Web,Native
          * @private
          */
-        public validate(len:number):boolean {
-            //len += this.data.byteOffset;
-            if (this.data.byteLength > 0 && this._position + len <= this.data.byteLength) {
+        public validate(len: number): boolean {
+            let bl = this._bytes.length;
+            if (bl > 0 && this._position + len <= bl) {
                 return true;
             } else {
                 egret.$error(1025);
@@ -930,28 +958,23 @@ namespace egret {
          * @param len
          * @param needReplace
          */
-        private validateBuffer(len:number, needReplace:boolean = false):void {
+        protected validateBuffer(len: number): void {
             this.write_position = len > this.write_position ? len : this.write_position;
             len += this._position;
-            if (this.data.byteLength < len || needReplace) {
-                let tmp:Uint8Array = new Uint8Array(new ArrayBuffer(len + this.BUFFER_EXT_SIZE));
-                let length = Math.min(this.data.buffer.byteLength, len + this.BUFFER_EXT_SIZE);
-                tmp.set(new Uint8Array(this.data.buffer, 0, length));
-                this.buffer = tmp.buffer;
-            }
+            this._validateBuffer(len);
         }
 
         /**
          * @private
          * UTF-8 Encoding/Decoding
          */
-        private encodeUTF8(str:string):Uint8Array {
-            let pos:number = 0;
+        private encodeUTF8(str: string): Uint8Array {
+            let pos: number = 0;
             let codePoints = this.stringToCodePoints(str);
             let outputBytes = [];
 
             while (codePoints.length > pos) {
-                let code_point:number = codePoints[pos++];
+                let code_point: number = codePoints[pos++];
 
                 if (this.inRange(code_point, 0xD800, 0xDFFF)) {
                     this.encoderError(code_point);
@@ -989,11 +1012,11 @@ namespace egret {
          * @param data
          * @returns
          */
-        private decodeUTF8(data:Uint8Array):string {
-            let fatal:boolean = false;
-            let pos:number = 0;
-            let result:string = "";
-            let code_point:number;
+        private decodeUTF8(data: Uint8Array): string {
+            let fatal: boolean = false;
+            let pos: number = 0;
+            let result: string = "";
+            let code_point: number;
             let utf8_code_point = 0;
             let utf8_bytes_needed = 0;
             let utf8_bytes_seen = 0;
@@ -1067,7 +1090,7 @@ namespace egret {
                 //Decode string
                 if (code_point !== null && code_point !== this.EOF_code_point) {
                     if (code_point <= 0xFFFF) {
-                        if (code_point > 0)result += String.fromCharCode(code_point);
+                        if (code_point > 0) result += String.fromCharCode(code_point);
                     } else {
                         code_point -= 0x10000;
                         result += String.fromCharCode(0xD800 + ((code_point >> 10) & 0x3ff));
@@ -1094,7 +1117,7 @@ namespace egret {
          * @param opt_code_point
          * @returns
          */
-        private decoderError(fatal, opt_code_point?):number {
+        private decoderError(fatal, opt_code_point?): number {
             if (fatal) {
                 egret.$error(1027);
             }
@@ -1104,11 +1127,11 @@ namespace egret {
         /**
          * @private
          */
-        private EOF_byte:number = -1;
+        private EOF_byte: number = -1;
         /**
          * @private
          */
-        private EOF_code_point:number = -1;
+        private EOF_code_point: number = -1;
 
         /**
          * @private

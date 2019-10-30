@@ -45,7 +45,7 @@ namespace egret.sys {
         /**
          * 线条路径
          */
-        Stroke,
+        Stroke
     }
     /**
      * @private
@@ -55,7 +55,7 @@ namespace egret.sys {
         MoveTo = 1,
         LineTo,
         CurveTo,
-        CubicCurveTo,
+        CubicCurveTo
     }
 
     /**
@@ -70,10 +70,10 @@ namespace egret.sys {
         public type: number = 0;
 
         $commands: number[] = [];
-        $data: number[] = [];
+        $data: number | number[][] = [];
 
-        private commandPosition: number = 0;
-        private dataPosition: number = 0;
+        protected commandPosition: number = 0;
+        protected dataPosition: number = 0;
 
         /**
          * 当前移动到的坐标X

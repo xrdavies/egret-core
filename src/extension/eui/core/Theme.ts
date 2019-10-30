@@ -230,10 +230,16 @@ namespace eui {
             if (data.styles) {
                 this.$styles = data.styles;
             }
+            let paths = data.paths;
+            for (let path in paths) {
+                EXML.update(path, paths[path])
+            }
 
+            //commonjs|commonjs2
             if (!data.exmls || data.exmls.length == 0) {
                 this.onLoaded();
             }
+            //gjs
             else if (data.exmls[0]['gjs']) {
                 data.exmls.forEach((exml) => EXML.$parseURLContentAsJs((<EXMLFile>exml).path, (<EXMLFile>exml).gjs, (<EXMLFile>exml).className));
                 this.onLoaded();

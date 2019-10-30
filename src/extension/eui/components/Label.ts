@@ -183,8 +183,8 @@ namespace eui {
 
         $setFontFamily(value: string): boolean {
             if (!this.$changeFromStyle) {
-                delete this.$revertStyle["fontFanily"];
-                this.$styleSetMap["fontFanily"] = false;
+                delete this.$revertStyle["fontFamily"];
+                this.$styleSetMap["fontFamily"] = false;
             }
             return super.$setFontFamily(value);
         }
@@ -329,8 +329,8 @@ namespace eui {
          * @private
          *
          */
-        $invalidateContentBounds():void {
-            super.$invalidateContentBounds();
+        $invalidateTextField():void {
+            super.$invalidateTextField();
             this.invalidateSize();
         }
 

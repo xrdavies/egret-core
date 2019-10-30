@@ -1,9 +1,14 @@
 /// <reference path="../lib/types.d.ts" />
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var fs = require("fs");
 var http = require("http");
 var path = require("path");
@@ -187,7 +192,7 @@ function saveSDKInfoToConfigFile() {
     var filePath = getAndroidSDKConfigFilePath();
     writeJSONObjectToFile(filePath, config);
 }
-var Downloader = (function () {
+var Downloader = /** @class */ (function () {
     function Downloader() {
     }
     Downloader.prototype.download = function (url, dest, cb) {
@@ -239,7 +244,7 @@ function getSDKInstallDir() {
     }
     return sdkInstallDir;
 }
-var MultiTaskManager = (function (_super) {
+var MultiTaskManager = /** @class */ (function (_super) {
     __extends(MultiTaskManager, _super);
     function MultiTaskManager() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -326,7 +331,7 @@ var MultiTaskManager = (function (_super) {
     };
     return MultiTaskManager;
 }(events.EventEmitter));
-var DownloadManager = (function (_super) {
+var DownloadManager = /** @class */ (function (_super) {
     __extends(DownloadManager, _super);
     function DownloadManager(list, dlDir) {
         var _this = _super.call(this) || this;
@@ -353,7 +358,7 @@ var DownloadManager = (function (_super) {
     };
     return DownloadManager;
 }(MultiTaskManager));
-var UnzipManager = (function (_super) {
+var UnzipManager = /** @class */ (function (_super) {
     __extends(UnzipManager, _super);
     function UnzipManager(list) {
         var _this = _super.call(this) || this;
@@ -448,7 +453,7 @@ function startToDownload() {
     print(startMsg);
     dlm.start();
 }
-var InstallSDK = (function () {
+var InstallSDK = /** @class */ (function () {
     function InstallSDK() {
     }
     InstallSDK.prototype.execute = function () {

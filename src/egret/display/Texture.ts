@@ -29,7 +29,7 @@
 
 
 namespace egret {
-    export let $TextureScaleFactor:number = 1;
+    export let $TextureScaleFactor: number = 1;
     /**
      * The Texture class encapsulates different image resources on different platforms.
      * In HTML5, resource is an HTMLElement object
@@ -73,42 +73,56 @@ namespace egret {
         }
 
         /**
+         * Whether to destroy the corresponding BitmapData when the texture is destroyed
+         * @version Egret 5.0.8
+         * @platform Web,Native
+         * @language en_US
+         */
+        /**
+         * 销毁纹理时是否销毁对应BitmapData
+         * @version Egret 5.0.8
+         * @platform Web,Native
+         * @language zh_CN
+         */
+        public disposeBitmapData: boolean = true;
+
+        /**
          * @private
          * 表示这个纹理在 bitmapData 上的 x 起始位置
          */
-        public _bitmapX:number = 0;
+        public $bitmapX: number = 0;
         /**
          * @private
          * 表示这个纹理在 bitmapData 上的 y 起始位置
          */
-        public _bitmapY:number = 0;
+        public $bitmapY: number = 0;
         /**
          * @private
          * 表示这个纹理在 bitmapData 上的宽度
          */
-        public _bitmapWidth:number = 0;
+        public $bitmapWidth: number = 0;
         /**
          * @private
          * 表示这个纹理在 bitmapData 上的高度
          */
-        public _bitmapHeight:number = 0;
+        public $bitmapHeight: number = 0;
 
         /**
          * @private
          * 表示这个纹理显示了之后在 x 方向的渲染偏移量
          */
-        public _offsetX = 0;
+        public $offsetX = 0;
         /**
          * @private
          * 表示这个纹理显示了之后在 y 方向的渲染偏移量
          */
-        public _offsetY = 0;
+        public $offsetY = 0;
 
         /**
          * @private
          * 纹理宽度
          */
-        private _textureWidth:number = 0;
+        private $textureWidth: number = 0;
 
         /**
          * Texture width, read only
@@ -122,19 +136,19 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public get textureWidth():number {
+        public get textureWidth(): number {
             return this.$getTextureWidth();
         }
 
-        $getTextureWidth():number {
-            return this._textureWidth;
+        $getTextureWidth(): number {
+            return this.$textureWidth;
         }
 
         /**
          * @private
          * 纹理高度
          */
-        private _textureHeight:number = 0;
+        private $textureHeight: number = 0;
 
         /**
          * Texture height, read only
@@ -148,37 +162,47 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public get textureHeight():number {
+        public get textureHeight(): number {
             return this.$getTextureHeight();
         }
 
-        $getTextureHeight():number {
-            return this._textureHeight;
+        $getTextureHeight(): number {
+            return this.$textureHeight;
         }
 
-        $getScaleBitmapWidth():number {
-            return this._bitmapWidth * $TextureScaleFactor;
+        $getScaleBitmapWidth(): number {
+            return this.$bitmapWidth * $TextureScaleFactor;
         }
 
-        $getScaleBitmapHeight():number {
-            return this._bitmapHeight * $TextureScaleFactor;
+        $getScaleBitmapHeight(): number {
+            return this.$bitmapHeight * $TextureScaleFactor;
         }
 
         /**
          * @private
          * 表示bitmapData.width
          */
-        public _sourceWidth:number = 0;
+        public $sourceWidth: number = 0;
         /**
          * @private
          * 表示bitmapData.height
          */
-        public _sourceHeight:number = 0;
+        public $sourceHeight: number = 0;
 
         /**
          * @private
          */
-        public _bitmapData:BitmapData = null;
+        public $bitmapData: BitmapData = null;
+
+        /**
+         * @private
+         */
+        public $ktxData: ArrayBuffer = null;
+
+        /**
+         * @private
+         */
+        public $rotated: boolean = false;
 
         /**
          * The BitmapData object being referenced.
@@ -192,32 +216,83 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public get bitmapData():BitmapData {
-            return this._bitmapData;
+        public get bitmapData(): BitmapData {
+            return this.$bitmapData;
         }
 
-        public set bitmapData(value:BitmapData) {
+        public set bitmapData(value: BitmapData) {
+            this.$ktxData = null;
             this._setBitmapData(value);
         }
-
-         /**
-         * Set the BitmapData object.
-         * @version Egret 3.2.1
-         * @platform Web,Native
-         * @language en_US
-         */
+        /**
+        * Set the BitmapData object.
+        * @version Egret 3.2.1
+        * @platform Web,Native
+        * @language en_US
+        */
         /**
          * 设置 BitmapData 对象。
          * @version Egret 3.2.1
          * @platform Web,Native
          * @language zh_CN
          */
-        public _setBitmapData(value:BitmapData) {
-            this._bitmapData = value;
+        public _setBitmapData(value: BitmapData) {
+            this.$bitmapData = value;
             let scale = $TextureScaleFactor;
             let w = value.width * scale;
             let h = value.height * scale;
             this.$initData(0, 0, w, h, 0, 0, w, h, value.width, value.height);
+        }
+        /**
+         * The KTX object being referenced.
+        * @version Egret 5.2.21
+        * @platform Web,Native
+        * @language en_US
+        */
+        /**
+         * 被引用的 KTXData 对象。
+         * @version Egret 5.2.21
+         * @platform Web,Native
+         * @language zh_CN
+         */
+        public get ktxData(): ArrayBuffer {
+            return this.$ktxData;
+        }
+
+        public set ktxData(data: ArrayBuffer) {
+            this._setKtxData(data);
+        }
+        
+        /**
+        * Set the KTXData object.
+        * @version Egret 3.2.1
+        * @platform Web,Native
+        * @language en_US
+        */
+        /**
+         * 设置 KTXData 对象。
+         * @version Egret 3.2.1
+         * @platform Web,Native
+         * @language zh_CN
+         */
+        public _setKtxData(value: ArrayBuffer) {
+            if (!value) {
+                egret.error('ktx data is null');
+                return;
+            }
+            if (value == this.$ktxData) {
+                return;
+            }
+            let ktx = new egret.KTXContainer(value, 1);
+            if (ktx.isInvalid) {
+                egret.error('ktx data is invalid');
+                return;
+            }
+            this.$ktxData = value;
+            let bitmapData = new egret.BitmapData(value);
+            bitmapData.format = 'ktx';
+            ktx.uploadLevels(bitmapData, false);
+            this._setBitmapData(bitmapData);
         }
 
         /**
@@ -234,30 +309,32 @@ namespace egret {
          * @param sourceWidth
          * @param sourceHeight
          */
-        public $initData(bitmapX:number, bitmapY:number, bitmapWidth:number, bitmapHeight:number, offsetX:number, offsetY:number,
-                        textureWidth:number, textureHeight:number, sourceWidth:number, sourceHeight:number):void {
+        public $initData(bitmapX: number, bitmapY: number, bitmapWidth: number, bitmapHeight: number, offsetX: number, offsetY: number,
+            textureWidth: number, textureHeight: number, sourceWidth: number, sourceHeight: number, rotated: boolean = false): void {
             let scale = $TextureScaleFactor;
-            this._bitmapX = bitmapX / scale;
-            this._bitmapY = bitmapY / scale;
-            this._bitmapWidth = bitmapWidth / scale;
-            this._bitmapHeight = bitmapHeight / scale;
+            this.$bitmapX = bitmapX / scale;
+            this.$bitmapY = bitmapY / scale;
+            this.$bitmapWidth = bitmapWidth / scale;
+            this.$bitmapHeight = bitmapHeight / scale;
 
-            this._offsetX = offsetX;
-            this._offsetY = offsetY;
-            this._textureWidth = textureWidth;
-            this._textureHeight = textureHeight;
+            this.$offsetX = offsetX;
+            this.$offsetY = offsetY;
+            this.$textureWidth = textureWidth;
+            this.$textureHeight = textureHeight;
 
-            this._sourceWidth = sourceWidth;
-            this._sourceHeight = sourceHeight;
+            this.$sourceWidth = sourceWidth;
+            this.$sourceHeight = sourceHeight;
+
+            this.$rotated = rotated;
 
             //todo
-            BitmapData.$invalidate(this);
+            BitmapData.$invalidate(this.$bitmapData);
         }
 
         /**
          * @deprecated
          */
-        public getPixel32(x:number, y:number):number[] {
+        public getPixel32(x: number, y: number): number[] {
             throw new Error();
         }
 
@@ -276,14 +353,14 @@ namespace egret {
          * 获取指定像素区域的颜色值
          * @param x  像素区域的X轴坐标
          * @param y  像素区域的Y轴坐标
-         * @param width  像素点的Y轴坐标
-         * @param height  像素点的Y轴坐标
+         * @param width  像素区域的宽度
+         * @param height  像素区域的高度
          * @returns  指定像素区域的颜色值
          * @version Egret 3.2.1
          * @platform Web
          * @language zh_CN
          */
-        public getPixels(x:number, y:number, width:number = 1, height:number = 1):number[] {
+        public getPixels(x: number, y: number, width: number = 1, height: number = 1): number[] {
             throw new Error();
         }
 
@@ -300,11 +377,12 @@ namespace egret {
          * 转换成base64字符串，如果图片（或者包含的图片）跨域，则返回null
          * @param type 转换的类型，如  "image/png"
          * @param rect 需要转换的区域
+         * @param {any} encoderOptions 编码用的参数
          * @returns {any} base64字符串
          * @version Egret 2.4
          * @language zh_CN
          */
-        public toDataURL(type:string, rect?:egret.Rectangle):string {
+        public toDataURL(type: string, rect?: egret.Rectangle, encoderOptions?): string {
             throw new Error();
         }
 
@@ -328,7 +406,7 @@ namespace egret {
          * @platform Native
          * @language zh_CN
          */
-        public saveToFile(type:string, filePath:string, rect?:egret.Rectangle):void {
+        public saveToFile(type: string, filePath: string, rect?: egret.Rectangle): void {
             throw new Error();
         }
 
@@ -344,10 +422,12 @@ namespace egret {
          * @platform Web,Native
          * @language zh_CN
          */
-        public dispose():void {
-            if (this._bitmapData) {
-                this._bitmapData.$dispose();
-                this._bitmapData = null;
+        public dispose(): void {
+            if (this.$bitmapData) {
+                if (this.disposeBitmapData) {
+                    this.$bitmapData.$dispose();
+                }
+                this.$bitmapData = null;
             }
         }
     }

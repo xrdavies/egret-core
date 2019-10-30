@@ -176,16 +176,12 @@ namespace egret {
             if (request.method == URLRequestMethod.GET || !request.data) {
             }
             else if (request.data instanceof URLVariables) {
-                if (Capabilities.runtimeType == RuntimeType.WEB) {
-                    httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                }
+                httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 let urlVars: URLVariables = <URLVariables>request.data;
                 sendData = urlVars.toString();
             }
             else {
-                if (Capabilities.runtimeType == RuntimeType.WEB) {
-                    httpRequest.setRequestHeader("Content-Type", "multipart/form-data");
-                }
+                httpRequest.setRequestHeader("Content-Type", "multipart/form-data");
                 sendData = request.data;
             }
             let length = request.requestHeaders.length;
@@ -286,7 +282,7 @@ namespace egret {
                 removeListeners();
 
                 let bitmapData = imageLoader.data;
-                if(egret.Capabilities.runtimeType == egret.RuntimeType.WEB) {
+                if(bitmapData.source.setAttribute){
                     bitmapData.source.setAttribute("bitmapSrc", virtualUrl);
                 }
 
@@ -297,7 +293,7 @@ namespace egret {
 
                 window.setTimeout(function () {
                     loader.dispatchEventWith(Event.COMPLETE);
-                }, self);
+                }, 0);
             }
 
             function removeListeners(): void {

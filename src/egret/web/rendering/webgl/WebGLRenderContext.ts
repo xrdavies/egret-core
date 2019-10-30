@@ -29,26 +29,26 @@
 
 namespace egret.web {
 
-    /**
-     * 创建一个canvas。
-     */
-    function createCanvas(width?: number, height?: number): HTMLCanvasElement {
-        let canvas: HTMLCanvasElement = document.createElement("canvas");
-        if (!isNaN(width) && !isNaN(height)) {
-            canvas.width = width;
-            canvas.height = height;
-        }
-        return canvas;
+    ///
+    interface SupportedCompressedTextureInfo {
+        extensionName: string,
+        supportedFormats: Array<[string, number]>,
     }
+
+    //TO DO
+    const debugLogCompressedTextureNotSupported = {};
 
     /**
      * @private
      * WebGL上下文对象，提供简单的绘图接口
      * 抽象出此类，以实现共用一个context
      */
-    export class WebGLRenderContext {
+    export class WebGLRenderContext implements egret.sys.RenderContext {
 
         public static antialias: boolean;
+
+        //
+        public _defaultEmptyTexture: WebGLTexture = null;
 
         /**
          * 渲染上下文
@@ -71,7 +71,7 @@ namespace egret.web {
             return this.instance;
         }
 
-        public $maxTextureSize:number;
+        public $maxTextureSize: number;
 
         /**
          * 顶点数组管理器
@@ -141,7 +141,7 @@ namespace egret.web {
         /**
          * 启用RenderBuffer
          */
-        private activateBuffer(buffer: WebGLRenderBuffer): void {
+        private activateBuffer(buffer: WebGLRenderBuffer, width: number, height: number): void {
 
             buffer.rootRenderTarget.activate();
 
@@ -153,7 +153,7 @@ namespace egret.web {
 
             buffer.restoreScissor();
 
-            this.onResize(buffer.width, buffer.height);
+            this.onResize(width, height);
         }
 
         /**
@@ -180,7 +180,11 @@ namespace egret.web {
 
         public constructor(width?: number, height?: number) {
 
-            this.surface = createCanvas(width, height);
+            this.surface = egret.sys.mainCanvas(width, height);
+
+            if (egret.nativeRender) {
+                return;
+            }
 
             this.initWebGL();
 
@@ -206,7 +210,7 @@ namespace egret.web {
             this.surface.width = this.surface.height = 0;
         }
 
-        private onResize(width?: number, height?: number): void {
+        public onResize(width?: number, height?: number): void {
             width = width || this.surface.width;
             height = height || this.surface.height;
             this.projectionX = width / 2;
@@ -223,6 +227,8 @@ namespace egret.web {
          * @param useMaxSize 若传入true，则将改变后的尺寸与已有尺寸对比，保留较大的尺寸。
          */
         public resize(width: number, height: number, useMaxSize?: boolean): void {
+            egret.sys.resizeContext(this, width, height, useMaxSize);
+            /*
             let surface = this.surface;
             if (useMaxSize) {
                 if (surface.width < width) {
@@ -242,19 +248,8 @@ namespace egret.web {
             }
 
             this.onResize();
+            */
         }
-
-        /**
-         * 改变渲染缓冲为指定大小，但保留原始图像数据
-         * @param width 改变后的宽
-         * @param height 改变后的高
-         * @param offsetX 原始图像数据在改变后缓冲区的绘制起始位置x
-         * @param offsetY 原始图像数据在改变后缓冲区的绘制起始位置y
-         */
-        // public resizeTo(width:number, height:number, offsetX:number, offsetY:number):void {
-        //     this.surface.width = width;
-        //     this.surface.height = height;
-        // }
 
         public static glContextId: number = 0;
         public glID: number = null;
@@ -263,6 +258,48 @@ namespace egret.web {
         public projectionY: number = NaN;
 
         public contextLost: boolean = false;
+
+        //refactor
+        private _supportedCompressedTextureInfo: SupportedCompressedTextureInfo[] = [];
+        public pvrtc: any; 
+        public etc1: any;
+        private _buildSupportedCompressedTextureInfo(/*gl: WebGLRenderingContext, compressedTextureExNames: string[],*/ extensions: any[]): SupportedCompressedTextureInfo[] {
+            // if (compressedTextureExNames.length === 0) {
+            //     return [];
+            // }
+            const returnValue: SupportedCompressedTextureInfo[] = [];
+            // for (const exName of compressedTextureExNames) {
+            //     const extension = gl.getExtension(exName);
+            for (const extension of extensions) {
+                if (!extension) {
+                    continue;
+                }
+
+                const info = {
+                    extensionName: extension.name,
+                    supportedFormats: []
+                } as SupportedCompressedTextureInfo;
+
+                //
+                for (const key in extension) {
+                    info.supportedFormats.push([key, extension[key]]);
+                }
+                //
+                if (DEBUG) {
+                    if (info.supportedFormats.length === 0) {
+                        console.error('buildSupportedCompressedTextureInfo failed = ' + extension.name);
+                    }
+                    else {
+                        egret.log('support: ' + extension.name);
+                        for (const key in extension) {
+                            egret.log(key, extension[key], '0x' + extension[key].toString(16));
+                        }
+                    }
+                }
+                returnValue.push(info);
+            }
+            return returnValue;
+        }
 
         private initWebGL(): void {
             this.onResize();
@@ -274,6 +311,37 @@ namespace egret.web {
 
             let gl = this.context;
             this.$maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+
+            //refactor
+            // this._caps.astc = this._gl.getExtension('WEBGL_compressed_texture_astc') || this._gl.getExtension('WEBKIT_WEBGL_compressed_texture_astc');
+            // this._caps.s3tc = this._gl.getExtension('WEBGL_compressed_texture_s3tc') || this._gl.getExtension('WEBKIT_WEBGL_compressed_texture_s3tc');
+            // this._caps.pvrtc = this._gl.getExtension('WEBGL_compressed_texture_pvrtc') || this._gl.getExtension('WEBKIT_WEBGL_compressed_texture_pvrtc');
+            // this._caps.etc1 = this._gl.getExtension('WEBGL_compressed_texture_etc1') || this._gl.getExtension('WEBKIT_WEBGL_compressed_texture_etc1');
+            // this._caps.etc2 = this._gl.getExtension('WEBGL_compressed_texture_etc') || this._gl.getExtension('WEBKIT_WEBGL_compressed_texture_etc') ||
+            //     this._gl.getExtension('WEBGL_compressed_texture_es3_0'); // also a requirement of OpenGL ES 3
+            // const compressedTextureExNames = [
+            //     'WEBGL_compressed_texture_pvrtc', 'WEBKIT_WEBGL_compressed_texture_pvrtc',
+            //     'WEBGL_compressed_texture_etc1', 'WEBKIT_WEBGL_compressed_texture_etc1',
+            //     'WEBGL_compressed_texture_etc', 'WEBKIT_WEBGL_compressed_texture_etc',
+            //     'WEBGL_compressed_texture_astc', 'WEBKIT_WEBGL_compressed_texture_astc',
+            //     'WEBGL_compressed_texture_s3tc', 'WEBKIT_WEBGL_compressed_texture_s3tc',
+            //     'WEBGL_compressed_texture_es3_0'];
+            //
+            this.pvrtc = gl.getExtension('WEBGL_compressed_texture_pvrtc') || gl.getExtension('WEBKIT_WEBGL_compressed_texture_pvrtc');
+            if (this.pvrtc) {
+                this.pvrtc.name = 'WEBGL_compressed_texture_pvrtc';                
+            }
+            //
+            this.etc1 = gl.getExtension('WEBGL_compressed_texture_etc1') || gl.getExtension('WEBKIT_WEBGL_compressed_texture_etc1');
+            if (this.etc1) {
+                this.etc1.name = 'WEBGL_compressed_texture_etc1';                
+            }
+            //
+            egret.Capabilities.supportedCompressedTexture = egret.Capabilities.supportedCompressedTexture || {} as SupportedCompressedTexture;
+            egret.Capabilities.supportedCompressedTexture.pvrtc = !!this.pvrtc;
+            egret.Capabilities.supportedCompressedTexture.etc1 = !!this.etc1;
+            //
+            this._supportedCompressedTextureInfo = this._buildSupportedCompressedTextureInfo(/*this.context, compressedTextureExNames,*/ [this.etc1, this.pvrtc]);
         }
 
         private handleContextLost() {
@@ -286,6 +354,7 @@ namespace egret.web {
         }
 
         private getWebGLContext() {
+            /*
             let options = {
                 antialias: WebGLRenderContext.antialias,
                 stencil: true//设置可以使用模板（用于不规则遮罩）
@@ -306,6 +375,8 @@ namespace egret.web {
             if (!gl) {
                 $error(1021);
             }
+            */
+            const gl = egret.sys.getContextWebGL(this.surface);
             this.setContext(gl);
         }
 
@@ -367,34 +438,79 @@ namespace egret.web {
         /**
          * 创建一个WebGLTexture
          */
-        public createTexture(bitmapData: BitmapData): WebGLTexture {
-            let gl: any = this.context;
+        public createTexture(bitmapData: BitmapData | HTMLCanvasElement): WebGLTexture {
+            return egret.sys.createTexture(this, bitmapData);
+        }
 
-            let texture = gl.createTexture();
+        /*
+        * TO DO
+        */
+        private checkCompressedTextureInternalFormat(supportedCompressedTextureInfo: SupportedCompressedTextureInfo[], internalFormat: number): boolean {
+            //width: number, height: number max ?
+            for (let i = 0, length = supportedCompressedTextureInfo.length; i < length; ++i) {
+                const ss = supportedCompressedTextureInfo[i];
+                // const formats = ss._COMPRESSED_TEXTURE_FORMATS_;
+                // for (let j = 0, length = formats.length; j < length; ++j) {
+                //     if (formats[j] === internalFormat) {
+                //         return true;
+                //     }
+                // }
+                const supportedFormats = ss.supportedFormats;
+                for (let j = 0, length = supportedFormats.length; j < length; ++j) {
+                    if (supportedFormats[j][1] === internalFormat) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
+        /*
+        * TO DO
+        */
+        private $debugLogCompressedTextureNotSupported(supportedCompressedTextureInfo: SupportedCompressedTextureInfo[], internalFormat: number): void {
+            if (!debugLogCompressedTextureNotSupported[internalFormat]) {
+                debugLogCompressedTextureNotSupported[internalFormat] = true;
+                egret.log('internalFormat = ' + internalFormat + ':' + ('0x' + internalFormat.toString(16)) + ', the current hardware does not support the corresponding compression format.');
+                for (let i = 0, length = supportedCompressedTextureInfo.length; i < length; ++i) {
+                    const ss = supportedCompressedTextureInfo[i];
+                    if (ss.supportedFormats.length > 0) {
+                        egret.log('support = ' + ss.extensionName);
+                        for (let j = 0, length = ss.supportedFormats.length; j < length; ++j) {
+                            const tp = ss.supportedFormats[j];
+                            egret.log(tp[0] + ' : ' + tp[1] + ' : ' + ('0x' + tp[1].toString(16)));
+                        }
+                    }
+                }
+            }
+        }
+
+        //
+        private createCompressedTexture(data: Uint8Array, width: number, height: number, levels: number, internalFormat: number): WebGLTexture {
+            const checkSupported = this.checkCompressedTextureInternalFormat(this._supportedCompressedTextureInfo, internalFormat);
+            if (!checkSupported) {
+                this.$debugLogCompressedTextureNotSupported(this._supportedCompressedTextureInfo, internalFormat);
+                return this.defaultEmptyTexture;
+            }
+            ///
+            const gl: any = this.context;
+            const texture = gl.createTexture() as WebGLTexture;
             if (!texture) {
-                //先创建texture失败,然后lost事件才发出来..
                 this.contextLost = true;
                 return;
             }
-
-            texture.glContext = gl;
-
+            texture[glContext] = gl;
+            texture[is_compressed_texture] = true;
             gl.bindTexture(gl.TEXTURE_2D, texture);
             gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
-
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bitmapData);
+            texture[UNPACK_PREMULTIPLY_ALPHA_WEBGL] = true;
+            gl.compressedTexImage2D(gl.TEXTURE_2D, levels, internalFormat, width, height, 0, data);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
+            gl.bindTexture(gl.TEXTURE_2D, null);
             return texture;
-        }
-
-        private createTextureFromCompressedData(data, width, height, levels, internalFormat): WebGLTexture {
-            return null;
         }
 
         /**
@@ -406,23 +522,54 @@ namespace egret.web {
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bitmapData);
         }
 
-        /**
-         * 获取一个WebGLTexture
-         * 如果有缓存的texture返回缓存的texture，如果没有则创建并缓存texture
-         */
+        public get defaultEmptyTexture(): WebGLTexture {
+            if (!this._defaultEmptyTexture) {
+                const size = 16;
+                const canvas = egret.sys.createCanvas(size, size);
+                const context = egret.sys.getContext2d(canvas);//canvas.getContext('2d');
+                context.fillStyle = 'white';
+                context.fillRect(0, 0, size, size);
+                this._defaultEmptyTexture = this.createTexture(canvas);
+                this._defaultEmptyTexture[engine_default_empty_texture] = true;
+            }
+            return this._defaultEmptyTexture;
+        }
+
         public getWebGLTexture(bitmapData: BitmapData): WebGLTexture {
             if (!bitmapData.webGLTexture) {
-                if (bitmapData.format == "image") {
+                if (bitmapData.format == "image" && !bitmapData.hasCompressed2d()) {
                     bitmapData.webGLTexture = this.createTexture(bitmapData.source);
                 }
-                else if (bitmapData.format == "pvr") {//todo 需要支持其他格式
-                    bitmapData.webGLTexture = this.createTextureFromCompressedData(bitmapData.source.pvrtcData, bitmapData.width, bitmapData.height, bitmapData.source.mipmapsCount, bitmapData.source.format);
+                else if (bitmapData.hasCompressed2d()) {
+                    const compressedData = bitmapData.getCompressed2dTextureData();
+                    bitmapData.webGLTexture = this.createCompressedTexture(
+                        compressedData!.byteArray,
+                        compressedData!.width,
+                        compressedData!.height,
+                        compressedData!.level,
+                        compressedData!.glInternalFormat
+                    );
+                    ///
+                    const etcAlphaMask = bitmapData.etcAlphaMask;
+                    if (etcAlphaMask) {
+                        const maskTexture = this.getWebGLTexture(etcAlphaMask);
+                        if (maskTexture) {
+                            bitmapData.webGLTexture[etc_alpha_mask] = maskTexture;
+                        }
+                    }
                 }
                 if (bitmapData.$deleteSource && bitmapData.webGLTexture) {
-                    bitmapData.source = null;
+                    if (bitmapData.source) {
+                        // WeChat Memory leakage bug
+                        bitmapData.source.src = '';
+                        bitmapData.source = null;
+                    }
+                    bitmapData.clearCompressedTextureData();
                 }
-                //todo 默认值
-                bitmapData.webGLTexture["smoothing"] = true;
+                if (bitmapData.webGLTexture) {
+                    //todo 默认值
+                    bitmapData.webGLTexture["smoothing"] = true;
+                }
             }
             return bitmapData.webGLTexture;
         }
@@ -471,17 +618,22 @@ namespace egret.web {
         public drawImage(image: BitmapData,
             sourceX: number, sourceY: number, sourceWidth: number, sourceHeight: number,
             destX: number, destY: number, destWidth: number, destHeight: number,
-            imageSourceWidth: number, imageSourceHeight: number, smoothing?:boolean): void {
+            imageSourceWidth: number, imageSourceHeight: number, rotated: boolean, smoothing?: boolean): void {
             let buffer = this.currentBuffer;
             if (this.contextLost || !image || !buffer) {
                 return;
             }
 
             let texture: WebGLTexture;
+            let offsetX;
+            let offsetY;
             if (image["texture"] || (image.source && image.source["texture"])) {
                 // 如果是render target
                 texture = image["texture"] || image.source["texture"];
                 buffer.saveTransform();
+                offsetX = buffer.$offsetX;
+                offsetY = buffer.$offsetY;
+                buffer.useOffset();
                 buffer.transform(1, 0, 0, -1, 0, destHeight + destY * 2);// 翻转
             } else if (!image.source && !image.webGLTexture) {
                 return;
@@ -496,10 +648,12 @@ namespace egret.web {
             this.drawTexture(texture,
                 sourceX, sourceY, sourceWidth, sourceHeight,
                 destX, destY, destWidth, destHeight,
-                imageSourceWidth, imageSourceHeight, 
-                undefined, undefined, undefined, undefined, smoothing);
+                imageSourceWidth, imageSourceHeight,
+                undefined, undefined, undefined, undefined, rotated, smoothing);
 
             if (image.source && image.source["texture"]) {
+                buffer.$offsetX = offsetX;
+                buffer.$offsetY = offsetY;
                 buffer.restoreTransform();
             }
         }
@@ -511,7 +665,7 @@ namespace egret.web {
             sourceX: number, sourceY: number, sourceWidth: number, sourceHeight: number,
             destX: number, destY: number, destWidth: number, destHeight: number,
             imageSourceWidth: number, imageSourceHeight: number,
-            meshUVs: number[], meshVertices: number[], meshIndices: number[], bounds: Rectangle, smoothing:boolean
+            meshUVs: number[], meshVertices: number[], meshIndices: number[], bounds: Rectangle, rotated: boolean, smoothing: boolean
         ): void {
             let buffer = this.currentBuffer;
             if (this.contextLost || !image || !buffer) {
@@ -519,10 +673,15 @@ namespace egret.web {
             }
 
             let texture: WebGLTexture;
+            let offsetX;
+            let offsetY;
             if (image["texture"] || (image.source && image.source["texture"])) {
                 // 如果是render target
                 texture = image["texture"] || image.source["texture"];
                 buffer.saveTransform();
+                offsetX = buffer.$offsetX;
+                offsetY = buffer.$offsetY;
+                buffer.useOffset();
                 buffer.transform(1, 0, 0, -1, 0, destHeight + destY * 2);// 翻转
             } else if (!image.source && !image.webGLTexture) {
                 return;
@@ -537,9 +696,11 @@ namespace egret.web {
             this.drawTexture(texture,
                 sourceX, sourceY, sourceWidth, sourceHeight,
                 destX, destY, destWidth, destHeight,
-                imageSourceWidth, imageSourceHeight, meshUVs, meshVertices, meshIndices, bounds, smoothing);
+                imageSourceWidth, imageSourceHeight, meshUVs, meshVertices, meshIndices, bounds, rotated, smoothing);
 
             if (image["texture"] || (image.source && image.source["texture"])) {
+                buffer.$offsetX = offsetX;
+                buffer.$offsetY = offsetY;
                 buffer.restoreTransform();
             }
         }
@@ -550,7 +711,7 @@ namespace egret.web {
         public drawTexture(texture: WebGLTexture,
             sourceX: number, sourceY: number, sourceWidth: number, sourceHeight: number,
             destX: number, destY: number, destWidth: number, destHeight: number, textureWidth: number, textureHeight: number,
-            meshUVs?: number[], meshVertices?: number[], meshIndices?: number[], bounds?: Rectangle, smoothing?:boolean): void {
+            meshUVs?: number[], meshVertices?: number[], meshIndices?: number[], bounds?: Rectangle, rotated?: boolean, smoothing?: boolean): void {
             let buffer = this.currentBuffer;
             if (this.contextLost || !texture || !buffer) {
                 return;
@@ -566,7 +727,7 @@ namespace egret.web {
                 }
             }
 
-            if(smoothing != undefined && texture["smoothing"] != smoothing) {
+            if (smoothing != undefined && texture["smoothing"] != smoothing) {
                 this.drawCmdManager.pushChangeSmoothing(texture, smoothing);
             }
 
@@ -574,15 +735,13 @@ namespace egret.web {
                 this.vao.changeToMeshIndices();
             }
 
-            let transform = buffer.globalMatrix;
-            let alpha = buffer.globalAlpha;
-
             let count = meshIndices ? meshIndices.length / 3 : 2;
             // 应用$filter，因为只可能是colorMatrixFilter，最后两个参数可不传
-            this.drawCmdManager.pushDrawTexture(texture, count, this.$filter);
-
-            this.vao.cacheArrays(transform, alpha, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight, textureWidth, textureHeight,
-                meshUVs, meshVertices, meshIndices);
+            this.drawCmdManager.pushDrawTexture(texture, count, this.$filter, textureWidth, textureHeight);
+            buffer.currentTexture = texture;
+            this.vao.cacheArrays(buffer, sourceX, sourceY, sourceWidth, sourceHeight,
+                destX, destY, destWidth, destHeight, textureWidth, textureHeight,
+                meshUVs, meshVertices, meshIndices, rotated);
         }
 
         /**
@@ -599,37 +758,25 @@ namespace egret.web {
             }
 
             this.drawCmdManager.pushDrawRect();
-
-            this.vao.cacheArrays(buffer.globalMatrix, buffer.globalAlpha, 0, 0, width, height, x, y, width, height, width, height);
+            buffer.currentTexture = null;
+            this.vao.cacheArrays(buffer, 0, 0, width, height, x, y, width, height, width, height);
         }
 
         /**
          * 绘制遮罩
          */
-        public pushMask(mask): void {
+        public pushMask(x: number, y: number, width: number, height: number): void {
             let buffer = this.currentBuffer;
             if (this.contextLost || !buffer) {
                 return;
             }
-
-            buffer.$stencilList.push(mask);
-
+            buffer.$stencilList.push({ x, y, width, height });
             if (this.vao.reachMaxSize()) {
                 this.$drawWebGL();
             }
-
-            let length = mask.length;
-            if (length) {
-                this.drawCmdManager.pushPushMask(length);
-                for (let i = 0; i < length; i++) {
-                    let item: sys.Region = mask[i];
-                    this.vao.cacheArrays(buffer.globalMatrix, buffer.globalAlpha, 0, 0, item.width, item.height, item.minX, item.minY, item.width, item.height, item.width, item.height);
-                }
-            }
-            else {
-                this.drawCmdManager.pushPushMask();
-                this.vao.cacheArrays(buffer.globalMatrix, buffer.globalAlpha, 0, 0, mask.width, mask.height, mask.x, mask.y, mask.width, mask.height, mask.width, mask.height);
-            }
+            this.drawCmdManager.pushPushMask();
+            buffer.currentTexture = null;
+            this.vao.cacheArrays(buffer, 0, 0, width, height, x, y, width, height, width, height);
         }
 
         /**
@@ -646,19 +793,9 @@ namespace egret.web {
             if (this.vao.reachMaxSize()) {
                 this.$drawWebGL();
             }
-
-            let length = mask.length;
-            if (length) {
-                this.drawCmdManager.pushPopMask(length);
-                for (let i = 0; i < length; i++) {
-                    let item: sys.Region = mask[i];
-                    this.vao.cacheArrays(buffer.globalMatrix, buffer.globalAlpha, 0, 0, item.width, item.height, item.minX, item.minY, item.width, item.height, item.width, item.height);
-                }
-            }
-            else {
-                this.drawCmdManager.pushPopMask();
-                this.vao.cacheArrays(buffer.globalMatrix, buffer.globalAlpha, 0, 0, mask.width, mask.height, mask.x, mask.y, mask.width, mask.height, mask.width, mask.height);
-            }
+            this.drawCmdManager.pushPopMask();
+            buffer.currentTexture = null;
+            this.vao.cacheArrays(buffer, 0, 0, mask.width, mask.height, mask.x, mask.y, mask.width, mask.height, mask.width, mask.height);
         }
 
         /**
@@ -743,11 +880,19 @@ namespace egret.web {
 
             switch (data.type) {
                 case DRAWABLE_TYPE.TEXTURE:
+                    //这段的切换可以优化
                     if (filter) {
                         if (filter.type === "custom") {
                             program = EgretWebGLProgram.getProgram(gl, filter.$vertexSrc, filter.$fragmentSrc, filter.$shaderKey);
                         } else if (filter.type === "colorTransform") {
-                            program = EgretWebGLProgram.getProgram(gl, EgretShaderLib.default_vert, EgretShaderLib.colorTransform_frag, "colorTransform");
+                            if (data.texture[etc_alpha_mask]) {
+                                gl.activeTexture(gl.TEXTURE1);
+                                gl.bindTexture(gl.TEXTURE_2D, data.texture[etc_alpha_mask]);
+                                program = EgretWebGLProgram.getProgram(gl, EgretShaderLib.default_vert, EgretShaderLib.colorTransform_frag_etc_alphamask_frag, "colorTransform_frag_etc_alphamask_frag");
+                            }
+                            else {
+                                program = EgretWebGLProgram.getProgram(gl, EgretShaderLib.default_vert, EgretShaderLib.colorTransform_frag, "colorTransform");
+                            }
                         } else if (filter.type === "blurX") {
                             program = EgretWebGLProgram.getProgram(gl, EgretShaderLib.default_vert, EgretShaderLib.blur_frag, "blur");
                         } else if (filter.type === "blurY") {
@@ -756,7 +901,15 @@ namespace egret.web {
                             program = EgretWebGLProgram.getProgram(gl, EgretShaderLib.default_vert, EgretShaderLib.glow_frag, "glow");
                         }
                     } else {
-                        program = EgretWebGLProgram.getProgram(gl, EgretShaderLib.default_vert, EgretShaderLib.texture_frag, "texture");
+                        if (data.texture[etc_alpha_mask]) {
+                            program = EgretWebGLProgram.getProgram(gl, EgretShaderLib.default_vert, EgretShaderLib.texture_etc_alphamask_frag, etc_alpha_mask);
+                            ///need refactor
+                            gl.activeTexture(gl.TEXTURE1);
+                            gl.bindTexture(gl.TEXTURE_2D, data.texture[etc_alpha_mask]);
+                        }
+                        else {
+                            program = EgretWebGLProgram.getProgram(gl, EgretShaderLib.default_vert, EgretShaderLib.texture_frag, "texture");
+                        }
                     }
 
                     this.activeProgram(gl, program);
@@ -799,12 +952,12 @@ namespace egret.web {
                     if (this.activatedBuffer) {
                         let target = this.activatedBuffer.rootRenderTarget;
                         if (target.width != 0 || target.height != 0) {
-                            target.clear();
+                            target.clear(true);
                         }
                     }
                     break;
                 case DRAWABLE_TYPE.ACT_BUFFER:
-                    this.activateBuffer(data.buffer);
+                    this.activateBuffer(data.buffer, data.width, data.height);
                     break;
                 case DRAWABLE_TYPE.ENABLE_SCISSOR:
                     let buffer = this.activatedBuffer;
@@ -823,7 +976,7 @@ namespace egret.web {
                     break;
                 case DRAWABLE_TYPE.SMOOTHING:
                     gl.bindTexture(gl.TEXTURE_2D, data.texture);
-                    if(data.smoothing) {
+                    if (data.smoothing) {
                         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                     }
@@ -855,8 +1008,8 @@ namespace egret.web {
                         gl.vertexAttribPointer(attribute["aTextureCoord"].location, 2, gl.FLOAT, false, 5 * 4, 2 * 4);
                         gl.enableVertexAttribArray(attribute["aTextureCoord"].location);
                     } else if (key === "aColor") {
-                        gl.vertexAttribPointer(attribute["aColor"].location, 1, gl.FLOAT, false, 5 * 4, 4 * 4);
-                        gl.enableVertexAttribArray(attribute["aColor"].location);
+                        gl.vertexAttribPointer(attribute["aColor"].location, 4, gl.UNSIGNED_BYTE, true, 5 * 4, 4 * 4);
+                        gl.enableVertexAttribArray(attribute["aColor"].location);  
                     }
                 }
 
@@ -873,8 +1026,12 @@ namespace egret.web {
                 } else if (key === "uTextureSize") {
                     uniforms[key].setValue({ x: textureWidth, y: textureHeight });
                 } else if (key === "uSampler") {
-
-                } else {
+                    uniforms[key].setValue(0);
+                }
+                else if (key === "uSamplerAlphaMask") {
+                    uniforms[key].setValue(1);
+                }
+                else {
                     let value = filter.$uniforms[key];
                     if (value !== undefined) {
                         uniforms[key].setValue(value);
@@ -889,11 +1046,15 @@ namespace egret.web {
          * 画texture
          **/
         private drawTextureElements(data: any, offset: number): number {
+            return egret.sys.drawTextureElements(this, data, offset);
+            /*
             let gl: any = this.context;
+            gl.activeTexture(gl.TEXTURE0); ///refactor
             gl.bindTexture(gl.TEXTURE_2D, data.texture);
             let size = data.count * 3;
             gl.drawElements(gl.TRIANGLES, size, gl.UNSIGNED_SHORT, offset * 2);
             return size;
+            */
         }
 
         /**
@@ -1073,7 +1234,8 @@ namespace egret.web {
             // 绘制input结果到舞台
             output.saveTransform();
             output.transform(1, 0, 0, -1, 0, height);
-            this.vao.cacheArrays(output.globalMatrix, output.globalAlpha, 0, 0, width, height, 0, 0, width, height, width, height);
+            output.currentTexture = input.rootRenderTarget.texture;
+            this.vao.cacheArrays(output, 0, 0, width, height, 0, 0, width, height, width, height);
             output.restoreTransform();
 
             this.drawCmdManager.pushDrawTexture(input.rootRenderTarget.texture, 2, filter, width, height);
@@ -1089,6 +1251,23 @@ namespace egret.web {
         public static blendModesForGL: any = null;
 
         public static initBlendMode(): void {
+            /*参考
+            gl.ZERO = 0
+            gl.ONE = 1
+            gl.SRC_COLOR = 768
+            gl.ONE_MINUS_SRC_COLOR = 769
+            gl.DST_COLOR = 774
+            gl.ONE_MINUS_DST_COLOR = 775
+            gl.SRC_ALPHA = 770
+            gl.ONE_MINUS_SRC_ALPHA = 771
+            gl.DST_ALPHA = 772
+            gl.ONE_MINUS_DST_ALPHA = 773
+            gl.CONSTANT_COLOR = 32769
+            gl.ONE_MINUS_CONSTANT_COLOR = 32770
+            gl.CONSTANT_ALPHA = 32771
+            gl.ONE_MINUS_CONSTANT_ALPHA = 32772
+            gl.SRC_ALPHA_SATURATE = 776
+            */
             WebGLRenderContext.blendModesForGL = {};
             WebGLRenderContext.blendModesForGL["source-over"] = [1, 771];
             WebGLRenderContext.blendModesForGL["lighter"] = [1, 1];

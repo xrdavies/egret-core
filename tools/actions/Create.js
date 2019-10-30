@@ -8,8 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
-    return { next: verb(0), "throw": verb(1), "return": verb(2) };
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -38,10 +38,10 @@ var utils = require("../lib/utils");
 var projectAction = require("../actions/Project");
 var FileUtil = require("../lib/FileUtil");
 var doT = require("../lib/doT");
-var EgretProject = require("../project/EgretProject");
-var TemplatesRoot = "tools/templates/";
+var EgretProject = require("../project");
 var Clean = require("../commands/clean");
-var Create = (function () {
+var TemplatesRoot = "tools/templates/";
+var Create = /** @class */ (function () {
     function Create() {
     }
     Create.prototype.execute = function () {
@@ -50,7 +50,7 @@ var Create = (function () {
             return __generator(this, function (_a) {
                 proj = this.project;
                 options = egret.args;
-                project = EgretProject.data;
+                project = EgretProject.projectData;
                 projectAction.normalize(proj);
                 emptyTemplate = FileUtil.joinPath(egret.root, TemplatesRoot + "empty");
                 template = FileUtil.joinPath(egret.root, TemplatesRoot + proj.type);
@@ -68,9 +68,7 @@ var Create = (function () {
 }());
 function compileTemplate(projectConfig) {
     var options = egret.args;
-    var modules = projectConfig.modules;
-    var platform = projectConfig.platform;
-    updateEgretProperties(modules);
+    updateEgretProperties(projectConfig);
     var files = FileUtil.searchByFunction(options.projectDir, function (f) { return f.indexOf("index.html") > 0; });
     files.forEach(function (file) {
         var content = FileUtil.read(file);
@@ -78,15 +76,22 @@ function compileTemplate(projectConfig) {
         FileUtil.save(file, content);
     });
 }
-function updateEgretProperties(modules) {
+function updateEgretProperties(projectConfig) {
+    var modules = projectConfig.modules;
     var propFile = FileUtil.joinPath(egret.args.projectDir, "egretProperties.json");
     var jsonString = FileUtil.read(propFile);
     var props = JSON.parse(jsonString);
-    props.egret_version = egret.version;
+    props.engineVersion = egret.version;
+    props.compilerVersion = egret.version;
+    props.template = {};
+    props.target = { current: "web" };
+    if (projectConfig.type == "wasm") {
+        props.wasm = {};
+    }
     if (!props.modules) {
         props.modules = modules.map(function (m) { return ({ name: m.name }); });
     }
-    var promise = { name: "promise", path: "./promise" };
+    var promise = { name: "promise" };
     props.modules.push(promise);
     FileUtil.save(propFile, JSON.stringify(props, null, "  "));
 }

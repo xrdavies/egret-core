@@ -7,14 +7,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
-    return { next: verb(0), "throw": verb(1), "return": verb(2) };
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -35,54 +35,69 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var file = require("../lib/FileUtil");
 var service = require("../service/index");
-var Project = require("../project/EgretProject");
+var Project = require("../project");
 var path = require("path");
 var utils = require("../lib/utils");
-var modify = require("./upgrade/ModifyProperties");
-var doT = require("../lib/doT");
-var projectAction = require("../actions/Project");
-var UpgradeCommand = (function () {
+var Clean = require("./clean");
+var UpgradeCommand = /** @class */ (function () {
     function UpgradeCommand() {
     }
     UpgradeCommand.prototype.execute = function () {
         utils.checkEgret();
-        this.run();
+        var version = Project.projectData.getVersion();
+        var versionArr = version.split(".");
+        var majorVersion = parseInt(versionArr[0]);
+        var middleVersion = parseInt(versionArr[1]);
+        if (majorVersion == 5 && middleVersion != 0) {
+            this.run();
+        }
+        else {
+            globals.exit(1719);
+        }
         return DontExitCode;
     };
     UpgradeCommand.prototype.run = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var version, upgradeConfigArr, e_1;
+            var version, upgradeConfigArr, source, target, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        version = Project.data.getVersion();
+                        version = Project.projectData.getVersion();
                         if (!version) {
-                            version = "1.0.0";
+                            version = "5.1.0";
                         }
                         upgradeConfigArr = [
-                            { "v": "4.0.1", command: Upgrade_4_0_1 },
-                            { "v": "4.0.3" },
-                            { "v": "4.1.0", command: Upgrade_4_1_0 },
-                            { "v": "5.0.0" },
-                            { "v": "5.1.0", command: Upgrade_5_1_0 }
+                            { "v": "5.1.1", command: Upgrade_5_1_1 },
+                            { "v": "5.1.2", command: Upgrade_5_1_2 },
+                            { "v": "5.2.13", command: Upgrade_5_2_13 },
+                            { "v": "5.2.17", command: Upgrade_5_2_17 },
+                            { "v": "5.2.19", command: Upgrade_5_2_19 },
+                            { "v": "5.2.22", command: Upgrade_5_2_22 },
+                            { "v": "5.2.23", command: Upgrade_5_2_23 },
+                            { "v": "5.2.25", command: Upgrade_5_2_25 },
+                            { "v": "5.2.28", command: Upgrade_5_2_28 },
+                            { "v": "5.2.30" }
                         ];
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 4, , 5]);
-                        modify.initProperties();
                         return [4 /*yield*/, series(upgrade, upgradeConfigArr.concat())];
                     case 2:
                         _a.sent();
-                        modify.save(upgradeConfigArr.pop().v);
+                        Project.projectData.save(upgradeConfigArr.pop().v);
                         globals.log(1702);
-                        return [4 /*yield*/, service.client.closeServer(Project.data.getProjectRoot())];
+                        service.client.closeServer(Project.projectData.getProjectRoot());
+                        return [4 /*yield*/, new Clean().execute()];
                     case 3:
                         _a.sent();
+                        source = path.join(egret.root, "tools/templates/empty/scripts/api.d.ts");
+                        target = path.join(egret.args.projectDir, "scripts/api.d.ts");
+                        file.copy(source, target);
                         globals.exit(0);
                         return [3 /*break*/, 5];
                     case 4:
                         e_1 = _a.sent();
-                        console.log("升级中断，具体原因如下");
+                        globals.log(1717);
                         console.log(e_1);
                         globals.exit(1705);
                         return [3 /*break*/, 5];
@@ -117,7 +132,7 @@ var series = function (cb, arr) {
         .then(function () { return results; });
 };
 function upgrade(info) {
-    var version = Project.data.getVersion();
+    var version = Project.projectData.getVersion();
     var v = info.v;
     var command;
     if (info.command) {
@@ -143,89 +158,142 @@ function upgrade(info) {
         return Promise.resolve(0);
     }
 }
-var Upgrade_4_0_1 = (function () {
-    function Upgrade_4_0_1() {
+var Upgrade_5_1_1 = /** @class */ (function () {
+    function Upgrade_5_1_1() {
     }
-    Upgrade_4_0_1.prototype.execute = function () {
+    Upgrade_5_1_1.prototype.execute = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var tsconfigPath, source, target, tsconfigContent, tsconfig, needLibs;
             return __generator(this, function (_a) {
-                tsconfigPath = Project.data.getFilePath('tsconfig.json');
-                if (!file.exists(tsconfigPath)) {
-                    source = file.joinPath(egret.root, "tools/templates/empty/tsconfig.json");
-                    target = Project.data.getFilePath("tsconfig.json");
-                    file.copy(source, target);
-                }
-                tsconfigContent = file.read(tsconfigPath);
-                tsconfig = JSON.parse(tsconfigContent);
-                needLibs = [
-                    "es5", "dom", "es2015.promise"
-                ];
-                if (!tsconfig.compilerOptions.lib) {
-                    tsconfig.compilerOptions.lib = [];
-                }
-                needLibs.forEach(function (lib) {
-                    if (tsconfig.compilerOptions.lib.indexOf(lib) == -1) {
-                        tsconfig.compilerOptions.lib.push(lib);
-                    }
-                });
-                tsconfigContent = JSON.stringify(tsconfig, null, "\t");
-                file.save(tsconfigPath, tsconfigContent);
-                file.copy(path.join(egret.root, 'tools/templates/empty/polyfill'), Project.data.getFilePath('polyfill'));
-                globals.log(1703, "https://github.com/egret-labs/egret-core/tree/master/docs/cn/release-note/4.0.1");
                 return [2 /*return*/, 0];
             });
         });
     };
-    return Upgrade_4_0_1;
+    return Upgrade_5_1_1;
 }());
-var Upgrade_4_1_0 = (function () {
-    function Upgrade_4_1_0() {
+var Upgrade_5_1_2 = /** @class */ (function () {
+    function Upgrade_5_1_2() {
     }
-    /**
-     * 将用户的系统内置模块添加 path 字段，并指向老版本的模块，而非新版本模块
-     */
-    Upgrade_4_1_0.prototype.execute = function () {
+    Upgrade_5_1_2.prototype.execute = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                modify.upgradeModulePath();
-                globals.log(1703, "https://github.com/egret-labs/egret-core/tree/master/docs/cn/release-note/4.1.0");
+                console.log("【警告】: 如果您尝试发布到微信小游戏，建议您创建一个新项目，而不是使用 egret upgrade 命令");
                 return [2 /*return*/, 0];
             });
         });
     };
-    return Upgrade_4_1_0;
+    return Upgrade_5_1_2;
 }());
-var Upgrade_5_1_0 = (function () {
-    function Upgrade_5_1_0() {
+var Upgrade_5_2_13 = /** @class */ (function () {
+    function Upgrade_5_2_13() {
     }
-    Upgrade_5_1_0.prototype.execute = function () {
+    Upgrade_5_2_13.prototype.execute = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var options, moduleName, proj, debugFile, contentDebug, webFile, contentWeb;
             return __generator(this, function (_a) {
-                options = egret.args;
-                moduleName = "empty";
-                if (Project.data.isWasmProject()) {
-                    moduleName = "wasm";
-                }
-                file.copy(file.joinPath(egret.root, "tools", "templates", moduleName, "template", "debug"), file.joinPath(options.projectDir, "template", "debug"));
-                file.copy(file.joinPath(egret.root, "tools", "templates", moduleName, "template", "web"), file.joinPath(options.projectDir, "template", "web"));
-                proj = options.getProject(true);
-                projectAction.normalize(proj);
-                debugFile = file.joinPath(options.projectDir, "template", "debug", "index.html");
-                contentDebug = file.read(debugFile);
-                contentDebug = doT.template(contentDebug)(proj);
-                file.save(debugFile, contentDebug);
-                webFile = file.joinPath(options.projectDir, "template", "web", "index.html");
-                contentWeb = file.read(webFile);
-                contentWeb = doT.template(contentWeb)(proj);
-                file.save(webFile, contentWeb);
-                file.copy(file.joinPath(options.projectDir, "index.html"), file.joinPath(options.projectDir, "index-backup.html"));
-                globals.log(1703, "https://www.baidu.com");
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "baidugame"), path.join(egret.args.projectDir, "scripts", "baidugame"));
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.baidugame.ts"), path.join(egret.args.projectDir, "scripts", "config.baidugame.ts"));
                 return [2 /*return*/, 0];
             });
         });
     };
-    return Upgrade_5_1_0;
+    return Upgrade_5_2_13;
+}());
+var Upgrade_5_2_17 = /** @class */ (function () {
+    function Upgrade_5_2_17() {
+    }
+    Upgrade_5_2_17.prototype.execute = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "qgame"), path.join(egret.args.projectDir, "scripts", "qgame"));
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.qgame.ts"), path.join(egret.args.projectDir, "scripts", "config.qgame.ts"));
+                return [2 /*return*/, 0];
+            });
+        });
+    };
+    return Upgrade_5_2_17;
+}());
+var Upgrade_5_2_19 = /** @class */ (function () {
+    function Upgrade_5_2_19() {
+    }
+    Upgrade_5_2_19.prototype.execute = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "oppogame"), path.join(egret.args.projectDir, "scripts", "oppogame"));
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.oppogame.ts"), path.join(egret.args.projectDir, "scripts", "config.oppogame.ts"));
+                return [2 /*return*/, 0];
+            });
+        });
+    };
+    return Upgrade_5_2_19;
+}());
+var Upgrade_5_2_22 = /** @class */ (function () {
+    function Upgrade_5_2_22() {
+    }
+    Upgrade_5_2_22.prototype.execute = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "vivogame"), path.join(egret.args.projectDir, "scripts", "vivogame"));
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.vivogame.ts"), path.join(egret.args.projectDir, "scripts", "config.vivogame.ts"));
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "api.d.ts"), path.join(egret.args.projectDir, "scripts", "api.d.ts"));
+                return [2 /*return*/, 0];
+            });
+        });
+    };
+    return Upgrade_5_2_22;
+}());
+var Upgrade_5_2_23 = /** @class */ (function () {
+    function Upgrade_5_2_23() {
+    }
+    Upgrade_5_2_23.prototype.execute = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "vivogame"), path.join(egret.args.projectDir, "scripts", "vivogame"));
+                return [2 /*return*/, 0];
+            });
+        });
+    };
+    return Upgrade_5_2_23;
+}());
+var Upgrade_5_2_25 = /** @class */ (function () {
+    function Upgrade_5_2_25() {
+    }
+    Upgrade_5_2_25.prototype.execute = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "qqgame"), path.join(egret.args.projectDir, "scripts", "qqgame"));
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.qqgame.ts"), path.join(egret.args.projectDir, "scripts", "config.qqgame.ts"));
+                return [2 /*return*/, 0];
+            });
+        });
+    };
+    return Upgrade_5_2_25;
+}());
+var Upgrade_5_2_28 = /** @class */ (function () {
+    function Upgrade_5_2_28() {
+    }
+    Upgrade_5_2_28.prototype.execute = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "vivogame"), path.join(egret.args.projectDir, "scripts", "vivogame"));
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.vivogame.ts"), path.join(egret.args.projectDir, "scripts", "config.vivogame.ts"));
+                return [2 /*return*/, 0];
+            });
+        });
+    };
+    return Upgrade_5_2_28;
+}());
+var Upgrade_wxplugin = /** @class */ (function () {
+    function Upgrade_wxplugin() {
+    }
+    Upgrade_wxplugin.prototype.execute = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "wxgame"), path.join(egret.args.projectDir, "scripts", "wxgame"));
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "scripts", "config.wxgame.ts"), path.join(egret.args.projectDir, "scripts", "config.wxgame.ts"));
+                file.copyAsync(path.join(egret.root, "tools", "templates", "empty", "api.d.ts"), path.join(egret.args.projectDir, "scripts", "api.d.ts"));
+                return [2 /*return*/, 0];
+            });
+        });
+    };
+    return Upgrade_wxplugin;
 }());
 module.exports = UpgradeCommand;

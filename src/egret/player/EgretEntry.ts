@@ -28,6 +28,31 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 namespace egret {
+
+    export type runEgretOptions = {
+        renderMode?: string;
+        audioType?: number;
+        screenAdapter?: sys.IScreenAdapter;
+        antialias?: boolean;
+        canvasScaleFactor?: number;
+        calculateCanvasScaleFactor?: (context: CanvasRenderingContext2D) => number;
+
+        /**
+         * 以下目前仅供小游戏使用
+         * The following are for mini-games only
+         */
+        entryClassName?: string;
+        scaleMode?: string;
+        frameRate?: number;
+        contentWidth?: number;
+        contentHeight?: number;
+        orientation?: string;
+        maxTouches?: number;
+        showFPS?: boolean;
+        showLog?: boolean;
+        fpsStyles?: string;
+    };
+
     /**
      * egret project entry function
      * @param options An object containing the initialization properties for egret engine.
@@ -38,13 +63,7 @@ namespace egret {
      * @param options 一个可选对象，包含初始化Egret引擎需要的参数。
      * @language zh_CN
      */
-    export declare function runEgret(options?:{
-        renderMode?:string;
-        audioType?:number;
-        screenAdapter?:sys.IScreenAdapter;
-        antialias?:boolean,
-        retina?:boolean
-    }):void;
+    export declare function runEgret(options?: runEgretOptions): void;
     /**
      * Refresh the screen display
      * @language en_US
@@ -53,44 +72,5 @@ namespace egret {
      * 刷新屏幕显示
      * @language zh_CN
      */
-    export declare function updateAllScreens():void;
-
-
-    /**
-     * @private
-     */
-    export type CustomContext = {
-
-        onStart: (egretContext: EgretContext) => void;
-
-        onRender: (egretContext: EgretContext) => void;
-
-        onStop: (egretContext: EgretContext) => void;
-
-        onResize: (egretContext: EgretContext) => void;
-    }
-
-    /**
-     * @private
-     */
-    export type EgretContext = {
-
-        setAutoClear: (value:boolean) => void;
-
-        save: () => void;
-
-        restore: () => void;
-
-    }
-
-    /**
-     * Insert render context, now for egret3d
-     * @language en_US
-     */
-    /**
-     * 插入渲染上下文，目前用于egret3d的混入
-     * @language zh_CN
-     */
-    export declare function setRendererContext(custom: CustomContext):void;
-
+    export declare function updateAllScreens(): void;
 }

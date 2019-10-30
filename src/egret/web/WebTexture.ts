@@ -38,7 +38,7 @@ namespace egret.web {
      */
     function convertImageToCanvas(texture: egret.Texture, rect?: egret.Rectangle): HTMLCanvasElement {
         if (!sharedCanvas) {
-            sharedCanvas = document.createElement("canvas");
+            sharedCanvas = egret.sys.createCanvas()
             sharedContext = sharedCanvas.getContext("2d");
         }
 
@@ -65,7 +65,7 @@ namespace egret.web {
         sharedCanvas.width = iWidth;
         sharedCanvas.height = iHeight;
 
-        if (Capabilities.$renderMode == "webgl") {
+        if (Capabilities.renderMode == "webgl") {
             let renderTexture: RenderTexture;
             //webgl下非RenderTexture纹理先画到RenderTexture
             if (!(<RenderTexture>texture).$renderBuffer) {
@@ -91,11 +91,11 @@ namespace egret.web {
         }
         else {
             let bitmapData = texture;
-            let offsetX: number = Math.round(bitmapData._offsetX);
-            let offsetY: number = Math.round(bitmapData._offsetY);
-            let bitmapWidth: number = bitmapData._bitmapWidth;
-            let bitmapHeight: number = bitmapData._bitmapHeight;
-            sharedContext.drawImage(bitmapData._bitmapData.source, bitmapData._bitmapX + rect.x / $TextureScaleFactor, bitmapData._bitmapY + rect.y / $TextureScaleFactor,
+            let offsetX: number = Math.round(bitmapData.$offsetX);
+            let offsetY: number = Math.round(bitmapData.$offsetY);
+            let bitmapWidth: number = bitmapData.$bitmapWidth;
+            let bitmapHeight: number = bitmapData.$bitmapHeight;
+            sharedContext.drawImage(bitmapData.$bitmapData.source, bitmapData.$bitmapX + rect.x / $TextureScaleFactor, bitmapData.$bitmapY + rect.y / $TextureScaleFactor,
                 bitmapWidth * rect.width / w, bitmapHeight * rect.height / h, offsetX, offsetY, rect.width, rect.height);
             return surface;
         }
@@ -104,10 +104,10 @@ namespace egret.web {
     /**
      * @private
      */
-    function toDataURL(type: string, rect?: egret.Rectangle): string {
+    function toDataURL(type: string, rect?: egret.Rectangle, encoderOptions?): string {
         try {
             let surface = convertImageToCanvas(this, rect);
-            let result = surface.toDataURL(type);
+            let result = surface.toDataURL(type, encoderOptions);
             return result;
         }
         catch (e) {
@@ -119,8 +119,8 @@ namespace egret.web {
     /**
      * 有些杀毒软件认为 saveToFile 可能是一个病毒文件
      */
-    function eliFoTevas(type: string, filePath: string, rect?: egret.Rectangle): void {
-        let base64 = toDataURL.call(this, type, rect);
+    function eliFoTevas(type: string, filePath: string, rect?: egret.Rectangle, encoderOptions?): void {
+        let base64 = toDataURL.call(this, type, rect, encoderOptions);
         if (base64 == null) {
             return;
         }
@@ -141,6 +141,21 @@ namespace egret.web {
     }
 
     function getPixels(x: number, y: number, width: number = 1, height: number = 1): number[] {
+        //webgl环境下不需要转换成canvas获取像素信息
+        if (Capabilities.renderMode == "webgl") {
+            let renderTexture: RenderTexture;
+            //webgl下非RenderTexture纹理先画到RenderTexture
+            if (!(<RenderTexture>this).$renderBuffer) {
+                renderTexture = new egret.RenderTexture();
+                renderTexture.drawToTexture(new egret.Bitmap(this));
+            }
+            else {
+                renderTexture = <RenderTexture>this;
+            }
+            //从RenderTexture中读取像素数据
+            let pixels = renderTexture.$renderBuffer.getPixels(x, y, width, height);
+            return pixels;
+        }
         try {
             let surface = convertImageToCanvas(this);
             let result = sharedContext.getImageData(x, y, width, height).data;

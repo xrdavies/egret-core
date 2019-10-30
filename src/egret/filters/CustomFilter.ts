@@ -97,7 +97,16 @@ namespace egret {
          * @private  
          */
         public type:string;
+        
+        private $padding:number = 0;
 
+        /**
+         * The inner margin of the filter.
+         * If the desired area of the custom filter is larger than the original area (stroke, etc.), you need to set it manually.
+         * @version Egret 4.1.0
+         * @platform Web
+         * @language en_US
+         */
         /**
          * 滤镜的内边距
          * 如果自定义滤镜所需区域比原区域大（描边等），需要手动设置
@@ -105,18 +114,49 @@ namespace egret {
          * @platform Web
          * @language zh_CN
          */
-        public padding:number = 0;
+        public get padding(): number {
+            return this.$padding;
+        }
 
+        public set padding(value: number) {
+            let self = this;
+            if (self.$padding == value) {
+                return;
+            }
+            self.$padding = value;
+            self.onPropertyChange();
+        }
+
+        /**
+         * The initial value of the uniform in the shader (key, value one-to-one correspondence), currently only supports numbers and arrays.
+         * @version Egret 4.1.0
+         * @platform Web
+         * @language en_US
+         */
+        /**
+         * 着色器中uniform的初始值（key，value一一对应），目前仅支持数字和数组。
+         * @version Egret 4.1.0
+         * @platform Web
+         * @language zh_CN
+         */
         public get uniforms():any {
             return this.$uniforms;
         }
 
         /**
+         * Initialize the CustomFilter object.
+         * @param vertexSrc Custom vertex shader program.
+         * @param fragmentSrc Custom fragment shader program.
+         * @param uniforms The initial value of the uniform in the shader (key, value one-to-one correspondence), currently only supports numbers and arrays.
+         * @version Egret 4.1.0
+         * @platform Web
+         * @language en_US
+         */
+        /**
          * 初始化 CustomFilter 对象
-         * @method egret.CustomFilter#constructor
-         * @param vertexSrc {string} 自定义的顶点着色器程序。
-         * @param fragmentSrc {string} 自定义的片段着色器程序。
-         * @param uniforms {any} 着色器中uniform的初始值（key，value一一对应），目前仅支持数字和数组。
+         * @param vertexSrc 自定义的顶点着色器程序。
+         * @param fragmentSrc 自定义的片段着色器程序。
+         * @param uniforms 着色器中uniform的初始值（key，value一一对应），目前仅支持数字和数组。
          * @version Egret 4.1.0
          * @platform Web
          * @language zh_CN
@@ -139,6 +179,14 @@ namespace egret {
             this.$uniforms = uniforms;
 
             this.type = "custom";
+        }
+
+        public onPropertyChange(): void {
+            if (egret.nativeRender) {
+                let self = this;
+                egret_native.NativeDisplayObject.setFilterPadding(self.$id, self.$padding, self.$padding, self.$padding, self.$padding);
+                egret_native.NativeDisplayObject.setDataToFilter(self);
+            }
         }
     }
 }

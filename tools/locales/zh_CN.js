@@ -65,10 +65,12 @@ var egret;
     locale_strings[1116] = "目前不支持修改 tsconfig.json 中的编译选项: '{0}'.";
     locale_strings[1117] = "警告! tsconfig.json 不是有效的 json 文件";
     locale_strings[1118] = "未找到 {0} 版本引擎，将使用默认版本引擎替换，请在一键安装包中安装对应版本引擎";
-    locale_strings[1119] = "第三方库编译报错，您可以访问{color_underline}http://developer.egret.com/cn/github/egret-docs/Engine2D/projectConfig/libraryProject/index.html{color_normal}了解详情";
+    locale_strings[1119] = "第三方库编译报错，您可以访问{color_underline} http://developer.egret.com/cn/github/egret-docs/Engine2D/projectConfig/libraryProject/index.html {color_normal}了解详情";
     locale_strings[1120] = "白鹭引擎 4.1 使用新结构进行第三方库升级，请先升级您的第三方库";
     locale_strings[1121] = "您的模块 package.json 中不包含 typings 属性，这会导致导出的模块不存在 TypeScript Definition 文件 ( .d.ts )，近而无法在 TypeScript 中包含智能语法提示";
     locale_strings[1122] = "第三方库的 tsconfig.json 中必须包含 outFile 这一属性";
+    locale_strings[1123] = "{0} 将被调整为'{1}'";
+    locale_strings[1124] = "第三方库形式的egret项目不支持outDir生成规则";
     //compile
     locale_strings[1301] = "在编译路径 {0} 下找不到 egret_file_list.js 或 game_file_list.js，请检查编译路径是否正确";
     locale_strings[1302] = "请输入编译路径。例:{color_green}egret compile --source [your_typescript_source_dir] --output [your_output_dir]{color_normal}";
@@ -79,6 +81,7 @@ var egret;
     locale_strings[1307] = "模块 {0} 中不存在任何 .ts 或 .d.ts 文件，无法编译，请在模块的 file_list 字段中填写 .ts 或 .d.ts ";
     locale_strings[1308] = "类或接口名冲突：‘{0}’同时存在于以下两个文件内：\n{1}\n{2}";
     locale_strings[1309] = "编译成功";
+    locale_strings[1310] = "扫描到的文件变化列表:";
     //publish
     locale_strings[1401] = "找不到java或java版本过低（最低需求为 java 7 ),请安装java并执行 egret publish -testJava 命令进行测试";
     locale_strings[1402] = "开始发布 {0} 版本：{1}";
@@ -100,12 +103,22 @@ var egret;
     locale_strings[1418] = "WebP格式转换失败 : {0}";
     locale_strings[1419] = "转换WebP格式 : {0} / {1}";
     locale_strings[1420] = "打包失败，请检查路径中是否有中文或特殊的字符";
-    //startserver
+    locale_strings[1421] = "打zip包出现异常！";
+    locale_strings[1422] = "合图插件运行后，{0}中存在对上级{1}的引用！";
+    locale_strings[1423] = "TextureMerger 执行错误，错误码:{0}";
+    locale_strings[1424] = "执行命令:{0}{1}";
+    locale_strings[1425] = "{0}所对应的textureMerger项目没有设置后缀名，已自动添加，请检查代码";
+    locale_strings[1426] = "请安装 Texture Merger";
+    locale_strings[1427] = "请将 Texture Merger 升级至 1.7.0 以上版本";
+    locale_strings[1428] = "不支持的平台";
+    locale_strings[1429] = "{0}引入了一个相同的TextureMerger合图结果，请检查";
+    locale_strings[1430] = "配置的fileName不存在资源";
+    //run
     locale_strings[1501] = "无法启动服务器，请检查权限或端口是否被占用";
     //create_app
-    locale_strings[1601] = "请输入h5游戏目录以及手机平台支持库。例: {color_green}egret create_app [app_name] -f [h5_game_path] -t [template_path] {color_normal} \n如没有安装最新手机平台支持库，请从以下地址下载：\nAndroid: http://www.egret-labs.org/download/egret-android-packager-download.html, \niOS:http://www.egret-labs.org/download/egret-ios-packager-download.html";
-    locale_strings[1602] = "不是h5游戏目录(缺少egretProperties.json或格式不正确) \n请从http://www.egret-labs.org/download/egret-download.html升级egret-core到最新版";
-    locale_strings[1603] = "{color_red}{0}{color_normal}中不存在create_app.json，请检查支持库路径是否正确。\n请从以下地址下载最新手机平台支持库\nAndroid: http://www.egret-labs.org/download/egret-android-packager-download.html\niOS: http://www.egret-labs.org/download/egret-ios-packager-download.html";
+    locale_strings[1601] = "请输入h5游戏目录以及手机平台支持库。例: {color_green}egret create_app [app_name] -f [h5_game_path] -t [template_path] {color_normal} \n如没有安装最新手机平台支持库，请从以下地址下载：\nAndroid: https://www.egret.com/downloads/android.html, \niOS:https://www.egret.com/downloads/ios.html";
+    locale_strings[1602] = "不是h5游戏目录(缺少egretProperties.json或格式不正确) \n请从 https://www.egret.com/products/engine.html 升级引擎到最新版";
+    locale_strings[1603] = "{color_red}{0}{color_normal}中不存在create_app.json，请检查支持库路径是否正确。\n请从以下地址下载最新手机平台支持库\nAndroid: https://www.egret.com/downloads/android.html\niOS: https://www.egret.com/downloads/ios.html";
     locale_strings[1604] = "执行egret build命令失败";
     locale_strings[1605] = "移动平台项目目录不能与html5项目目录为同一目录，请修改移动平台项目目录。";
     locale_strings[1606] = "创建完毕，共计耗时：{0}秒";
@@ -115,6 +128,13 @@ var egret;
     locale_strings[1610] = "缺少项目名称 例:{color_green}egret create_app [app_name] -f [h5_game_path] -t [template_path] {color_normal}";
     locale_strings[1611] = "项目已存在,请重新输入 例:{color_green}egret create_app [app_name] -f [h5_game_path] -t [template_path] {color_normal}";
     locale_strings[1612] = "项目名称必须以字母为开头";
+    locale_strings[1613] = "unzip出现异常！";
+    locale_strings[1614] = "找不到 project.properties 文件。app_path ： {0}";
+    locale_strings[1615] = "找不到 build.gradle 文件。app_path ： {0}";
+    locale_strings[1616] = "找不到 platforms 文件夹。android_home ： {0}";
+    locale_strings[1617] = "找不到 source.properties 文件。platformDir ： {0}";
+    locale_strings[1618] = "找不到 build_tools 文件夹。android_home ： {0}";
+    locale_strings[1619] = "找不到 source.properties 文件。buildToolDir ： {0}";
     //upgrade
     locale_strings[1701] = "项目版本低于 egret 版本，请执行 egret upgrade {your_project} 命令升级您的项目，\n命令中请不要加上大括号{}";
     locale_strings[1702] = "项目升级成功";
@@ -129,6 +149,9 @@ var egret;
     locale_strings[1714] = "正在更新配置文件..";
     locale_strings[1715] = "项目检测成功";
     locale_strings[1716] = "检测到你使用了旧的第三方库{0},建议手动检查这些库文件是否使用了废弃的API或使用与{1}兼容的第三方库";
+    locale_strings[1717] = "升级中断，具体原因如下";
+    locale_strings[1718] = "5.0.8以后版本将删除 template/debug/index.html 模板文件，直接使用 index.html";
+    locale_strings[1719] = "5.1为新功能体验版，只能创建新项目，老项目无法升级";
     //info
     locale_strings[1801] = "当前Egret版本：{0}";
     locale_strings[1802] = "Egret安装路径：{0}";
@@ -163,6 +186,7 @@ var egret;
     locale_strings[2020] = "{0}: error 在w:Declarations内的子节点，不允许使用includeIn和excludeFrom属性\n{1}";
     locale_strings[2102] = "{0}: warning 在属性节点上找不到任何子节点\n{1}";
     locale_strings[2103] = "{0}: warning 节点上的同一个属性'{1}'被多次赋值\n{2}";
+    locale_strings[2104] = "warning: {0}文件所定义的类名{1}存在重复定义";
     // android sdk install
     locale_strings[2201] = "{0}个文件需要下载！";
     locale_strings[2202] = "文件总大小为{0}MB";
@@ -201,20 +225,19 @@ var egret;
         "\n\t\t--egretProperties.json\t//项目配置文件" +
         "\n\t\t--index.html\t\t//启动文件";
     locale_strings[10016] = "如果浏览器没有启动，请手动打开URL: {0}";
-    locale_strings[10017] = "项目创建成功，您可以执行 egret startserver 来运行刚刚创建的应用";
+    locale_strings[10017] = "项目创建成功，您可以执行 egret run 来运行刚刚创建的应用";
     locale_strings[10018] = "试图进行文件加载顺序排序时发现循环依赖，比如类的 static 属性直接实例化了一个继承自当前类的类，"
         + "或者当前文件中有立即执行的代码使用了依赖于当前文件的类。";
     locale_strings[10019] = "没有找到打包 App 所需要的项目文件，这些文件没有包含在 Github 中，请前往 http://www.egret.com 下载 Egret 安装包，如果您已经安装 Egret 安装包，请联系我们的工作人员";
     locale_strings[10020] = "编译服务异常退出";
     locale_strings[10021] = "文件夹操作出现问题，请注意以下事项:\n1、请查看 template/runtime/native_require.js 是否为空，若为空请重新创建一个新的项目并将文件替换掉。\n2、不要在桌面创建native工程，都放到同一个其他盘去，比如 e 盘。\n由于操作系统刷新问题，请勿在操作文件后立马执行脚本。请重新执行命令，如果多次重试还不能解决，请联系我们，QQ群：{color_green}481169576{color_normal}";
+    locale_strings[10022] = "{0}文件发生变化，自动编译关闭";
     locale_strings[12000] = "创建一个全新的 Egret 项目";
     locale_strings[12001] = "选择一个项目模板";
     locale_strings[12002] = "请输入默认的屏幕尺寸";
     locale_strings[12003] = "选择屏幕缩放模式";
     locale_strings[12004] = "选择扩展模块";
     locale_strings[12005] = "请选择希望发布的平台";
-    locale_strings[13000] = "出现错误,请自查!";
-    locale_strings[13001] = "需要设置原生模板路径 使用 --nativeTemplatePath 或 -t";
 })(egret || (egret = {}));
 var helpModule;
 (function (helpModule) {
@@ -258,14 +281,13 @@ var helpModule;
         "create": "创建新项目",
         "build": "构建指定项目,编译指定项目的 TypeScript 文件",
         "publish": "发布项目，使用GoogleClosureCompiler压缩代码",
-        "startserver": "启动HttpServer,并在默认浏览器中打开指定项目",
+        "run": "启动HttpServer,并在默认浏览器中打开指定项目",
         "clean": "重置项目中的引擎代码",
         "create_lib": "创建新第三方库项目",
         "create_app": "从h5游戏生成app",
         "upgrade": "升级项目代码",
         "make": "编译引擎源码",
-        "info": "获得Egret信息",
-        "apitest": "版本升级后检测api是否已经替换完成。限于2.4之前版本升级到2.5（及以上）版本的检测，需要在2.5（及以上）版本项目中输入"
+        "info": "获得Egret信息"
     };
     global["helpModule"] = global["helpModule"] || helpModule;
     //global["helpModule"]["help_dict"] = help_dict;

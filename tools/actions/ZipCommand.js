@@ -5,7 +5,7 @@
 var file = require("../lib/FileUtil");
 var FileUtil = require("../lib/FileUtil");
 var utils = require("../lib/utils");
-var ZipCommand = (function () {
+var ZipCommand = /** @class */ (function () {
     function ZipCommand(versionFile) {
         this.versionFile = versionFile;
     }
@@ -59,7 +59,7 @@ var ZipCommand = (function () {
             else {
                 //todo zip异常
                 //globals.warn(result);
-                console.error("打zip包出现异常！");
+                globals.log(1421);
             }
         });
         return 0;

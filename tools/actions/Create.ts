@@ -7,9 +7,12 @@ import CompileProject = require('../actions/CompileProject');
 import projectAction = require('../actions/Project');
 import FileUtil = require('../lib/FileUtil');
 import doT = require('../lib/doT');
-import EgretProject = require('../project/EgretProject');
-var TemplatesRoot = "tools/templates/";
+import * as EgretProject from '../project';
+
 import Clean = require('../commands/clean');
+
+
+const TemplatesRoot = "tools/templates/";
 
 class Create implements egret.Command {
     project: egret.EgretProjectConfig;
@@ -17,7 +20,7 @@ class Create implements egret.Command {
 
         var proj = this.project;
         var options = egret.args;
-        let project = EgretProject.data;
+        let project = EgretProject.projectData;
 
         projectAction.normalize(proj);
 
@@ -36,11 +39,7 @@ class Create implements egret.Command {
 
 function compileTemplate(projectConfig: egret.EgretProjectConfig) {
     var options = egret.args;
-
-    var modules = projectConfig.modules;
-    var platform = projectConfig.platform;
-
-    updateEgretProperties(modules);
+    updateEgretProperties(projectConfig);
 
     var files = FileUtil.searchByFunction(options.projectDir, f => f.indexOf("index.html") > 0);
     files.forEach(file => {
@@ -48,18 +47,24 @@ function compileTemplate(projectConfig: egret.EgretProjectConfig) {
         content = doT.template(content)(projectConfig)
         FileUtil.save(file, content);
     });
-
 }
 
-function updateEgretProperties(modules: egret.EgretModule[]) {
+function updateEgretProperties(projectConfig: egret.EgretProjectConfig) {
+    let modules = projectConfig.modules;
     var propFile = FileUtil.joinPath(egret.args.projectDir, "egretProperties.json");
     var jsonString = FileUtil.read(propFile);
-    var props: egret.EgretProperties = JSON.parse(jsonString);
-    props.egret_version = egret.version;
+    var props: egret.EgretProperty = JSON.parse(jsonString);
+    props.engineVersion = egret.version;
+    props.compilerVersion = egret.version;
+    props.template = {};
+    props.target = { current: "web" };
+    if (projectConfig.type == "wasm") {
+        props.wasm = {};
+    }
     if (!props.modules) {
         props.modules = modules.map(m => ({ name: m.name }));
     }
-    let promise = {name: "promise", path:"./promise"};
+    let promise = { name: "promise" };
     props.modules.push(promise);
     FileUtil.save(propFile, JSON.stringify(props, null, "  "));
 }

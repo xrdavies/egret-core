@@ -26,11 +26,16 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -40,8 +45,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
-    return { next: verb(0), "throw": verb(1), "return": verb(2) };
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -66,11 +71,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var cp = require("child_process");
 var path = require("path");
 var file = require("./FileUtil");
 var UglifyJS = require("./uglify-js/uglifyjs");
 var net = require("net");
+var timers_1 = require("timers");
 //第三方调用时，可能不支持颜色显示，可通过添加 -nocoloroutput 移除颜色信息
 var ColorOutputReplacements = {
     "{color_green}": "\033[1;32;1m",
@@ -226,12 +233,13 @@ function open(target, appName) {
     executeCommand(command + ' "' + escape(target) + '"');
 }
 exports.open = open;
-function executeCommand(command) {
+function executeCommand(command, options) {
+    if (options === void 0) { options = {}; }
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            return [2 /*return*/, new Promise(function (reslove, reject) {
-                    cp.exec(command, {}, function (error, stdout, stderr) {
-                        reslove({ error: error, stdout: stdout, stderr: stderr });
+            return [2 /*return*/, new Promise(function (resolve, reject) {
+                    cp.exec(command, options, function (error, stdout, stderr) {
+                        resolve({ error: error, stdout: stdout, stderr: stderr });
                     });
                 })];
         });
@@ -245,6 +253,16 @@ exports.endWith = endWith;
 function escape(s) {
     return s.replace(/"/, '\\\"');
 }
+function uglify(sourceFile) {
+    var defines = {
+        DEBUG: false,
+        RELEASE: true
+    };
+    var result = UglifyJS.minify(sourceFile, { compress: { global_defs: defines }, fromString: true, output: { beautify: false } });
+    var code = result.code;
+    return code;
+}
+exports.uglify = uglify;
 function minify(sourceFile, output) {
     var defines = {
         DEBUG: false,
@@ -252,7 +270,13 @@ function minify(sourceFile, output) {
     };
     //UglifyJS参数参考这个页面：https://github.com/mishoo/UglifyJS2
     var result = UglifyJS.minify(sourceFile, { compress: { global_defs: defines }, output: { beautify: false } });
-    file.save(output, result.code);
+    var code = result.code;
+    if (output) {
+        file.save(output, code);
+    }
+    else {
+        return code;
+    }
 }
 exports.minify = minify;
 function clean(path, excludes) {
@@ -283,24 +307,44 @@ function getNetworkAddress() {
     return ips;
 }
 exports.getNetworkAddress = getNetworkAddress;
-function getAvailablePort(callback, port) {
+function measure(target, propertyKey, descriptor) {
+    var method = descriptor.value;
+    descriptor.value = function () {
+        var arg = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            arg[_i] = arguments[_i];
+        }
+        var timeBuildStart = (new Date()).getTime();
+        var promise = method.apply(this, arg);
+        return promise.then(function (result) {
+            var timeBuildEnd = (new Date()).getTime();
+            var timeBuildUsed = (timeBuildEnd - timeBuildStart) / 1000;
+            console.log(tr(1108, timeBuildUsed));
+            return result;
+        });
+    };
+}
+exports.measure = measure;
+function getAvailablePort(port) {
     if (port === void 0) { port = 0; }
-    function getPort() {
-        var server = net.createServer();
-        server.on('listening', function () {
-            port = server.address().port;
-            server.close();
-        });
-        server.on('close', function () {
-            callback(port);
-        });
-        server.on('error', function (err) {
-            port++;
-            getPort();
-        });
-        server.listen(port, '0.0.0.0');
-    }
-    getPort();
+    return new Promise(function (resolve, reject) {
+        function getPort() {
+            var server = net.createServer();
+            server.on('listening', function () {
+                port = server.address().port;
+                server.close();
+            });
+            server.on('close', function () {
+                resolve(port);
+            });
+            server.on('error', function (err) {
+                port++;
+                getPort();
+            });
+            server.listen(port);
+        }
+        getPort();
+    });
 }
 exports.getAvailablePort = getAvailablePort;
 function checkEgret() {
@@ -351,6 +395,29 @@ function createMap(template) {
     return map;
 }
 exports.createMap = createMap;
+function sleep(milesecond) {
+    return new Promise(function (resolve, reject) {
+        timers_1.setTimeout(function () {
+            resolve();
+        }, milesecond);
+    });
+}
+exports.sleep = sleep;
+function shell2(command, args) {
+    var cmd = command + " " + args.join(" ");
+    return new Promise(function (resolve, reject) {
+        var shell = cp.exec(cmd, function (error, stdout, stderr) {
+            if (!error) {
+                resolve();
+            }
+            else {
+                console.log(stderr);
+                reject();
+            }
+        });
+    });
+}
+exports.shell2 = shell2;
 function shell(path, args, opt, verbase) {
     var stdout = "";
     var stderr = "";
@@ -372,8 +439,10 @@ function shell(path, args, opt, verbase) {
             console.log(str);
         }
     };
-    var callback = function (reslove, reject) {
-        var shell = cp.spawn(path, args, opt);
+    return new Promise(function (resolve, reject) {
+        // path = "\"" + path + "\"";
+        // var shell = cp.spawn(path + " " + args.join(" "));
+        var shell = cp.spawn(path, args);
         shell.on("error", function (message) { console.log(message); });
         shell.stderr.on("data", printStderrBufferMessage);
         shell.stderr.on("error", printStderrBufferMessage);
@@ -384,33 +453,30 @@ function shell(path, args, opt, verbase) {
                 if (verbase) {
                     console.log('Failed: ' + code);
                 }
-                reject({ code: code, stdout: stdout, stderr: stderr });
+                reject({ code: code, stdout: stdout, stderr: stderr, path: path, args: args });
             }
             else {
-                reslove({ code: code, stdout: stdout, stderr: stderr });
+                resolve({ code: code, stdout: stdout, stderr: stderr, path: path, args: args });
             }
         });
-    };
-    return new Promise(callback);
+    });
 }
 exports.shell = shell;
 ;
-var error_code_filename = path.join(__dirname, "../error_code.json");
-var errorcode = file.readJSONSync(error_code_filename, { "encoding": "utf-8" });
-var CliException = (function (_super) {
+var CliException = /** @class */ (function (_super) {
     __extends(CliException, _super);
     function CliException(errorId, param) {
         var _this = _super.call(this) || this;
         _this.errorId = errorId;
-        var message = errorcode[_this.errorId];
-        if (message) {
-            message = message.replace('{0}', param);
-        }
-        else {
-            message = "unkown error : " + errorId;
-            console.error(message);
-        }
-        _this.message = message;
+        // var message: string = errorcode[this.errorId];
+        // if (message) {
+        //     message = message.replace('{0}', param);
+        // }
+        // else {
+        //     message = `unkown error : ${errorId}`;
+        //     console.error(message);
+        // }
+        _this.message = errorId;
         return _this;
     }
     return CliException;

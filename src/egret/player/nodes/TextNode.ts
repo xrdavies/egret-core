@@ -78,13 +78,6 @@ namespace egret.sys {
             this.dirtyRender = true;
         }
 
-        /**
-         * 在显示对象的$render()方法被调用前，自动清空自身的drawData数据。
-         */
-        public cleanBeforeRender():void{
-            super.cleanBeforeRender();
-        }
-
         //forWebGL
         /**
          * 绘制x偏移
@@ -106,11 +99,11 @@ namespace egret.sys {
          * 脏渲染标记
          */
         public dirtyRender:boolean = true;
-        // public $canvasRenderer;
-        // public $canvasRenderBuffer;
-        public $texture;
-        public $textureWidth;
-        public $textureHeight;
+        public $texture:WebGLTexture;
+        public $textureWidth:number;
+        public $textureHeight:number;
+        public $canvasScaleX:number;
+        public $canvasScaleY:number;
 
         /**
          * 清除非绘制的缓存数据
@@ -122,5 +115,14 @@ namespace egret.sys {
                 this.dirtyRender = true;
             }
         }
+
+        /**
+         * 在显示对象的$updateRenderNode()方法被调用前，自动清空自身的drawData数据。
+         */
+        public cleanBeforeRender():void{
+            super.cleanBeforeRender();
+            this.dirtyRender = true;
+        }
+
     }
 }

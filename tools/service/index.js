@@ -1,4 +1,5 @@
 /// <reference path="../lib/types.d.ts" />
+Object.defineProperty(exports, "__esModule", { value: true });
 var url = require("url");
 var net = require("net");
 var Project = require("./project");
@@ -7,6 +8,7 @@ var file = require("../lib/FileUtil");
 var childProcess = require("child_process");
 var parser = require("../parser/Parser");
 var os = require("os");
+var EngineData_1 = require("../EngineData");
 var COMPILE_SERVICE_PORT = 51545;
 //egret version, use to shutdown if the version is different to the value passed by the build command
 var version = process.argv[2];
@@ -55,6 +57,11 @@ var server;
         else if (task.command == 'build') {
             // autoExitTimer();
             var buildHandled = false;
+            /**
+             * egret run -a
+             * 在egret run 自动编译时起作用，单纯egret build 不起作用
+             */
+            // console.log("3  server handleCommands", task);
             if (task.option.added && task.option.added.length) {
                 task.option.added.forEach(function (file) { return proj.fileChanged(serviceSocket, task, file, "added"); });
                 buildHandled = true;
@@ -75,7 +82,16 @@ var server;
             heapTotal = heapTotal / 1024 / 1024;
             heapTotal = heapTotal | 0;
             console.log("\u5185\u5B58\u5360\u7528: " + heapTotal + "M " + proj.path);
-            if (heapTotal > 500) {
+            var totalmem = EngineData_1.data.getTotalMem();
+            var maxHeap = void 0;
+            if (totalmem == -1) {
+                //取系统最大内存的四分之一，最低500M
+                maxHeap = Math.max(require("os").totalmem() / 1024 / 1024 / 4, 500);
+            }
+            else {
+                maxHeap = totalmem;
+            }
+            if (heapTotal > maxHeap) {
                 console.log("内存占用过高,关闭进程:" + proj.path);
                 proj.shutdown();
             }
@@ -94,8 +110,8 @@ var server;
         var options = egret.args;
         var nodePath = process.execPath, service = file.joinPath(egret.root, 'tools/bin/egret');
         var startupParams = ['--expose-gc', service, 'service'];
-        if (egret.args.runtime) {
-            startupParams.push("--runtime", egret.args.runtime);
+        if (egret.args.target) {
+            startupParams.push("--runtime", egret.args.target);
         }
         if (egret.args.experimental) {
             startupParams.push("-exp");
@@ -141,6 +157,7 @@ var client;
             setTimeout(function () { return execCommand(command, callback); }, 200);
         });
         ss.on('message', function (cmd) { return callback && callback(cmd, ss); });
+        // console.log("2  client execCommand", command);
         ss.send(command);
         return ss;
     }
@@ -149,13 +166,11 @@ var client;
     }
     client_1.requestBuild = requestBuild;
     function closeServer(path) {
-        return new Promise(function (reslove, reject) {
-            execCommand({
-                path: path,
-                command: "shutdown",
-                option: egret.args
-            }, reslove, false);
-        });
+        execCommand({
+            path: path,
+            command: "shutdown",
+            option: egret.args
+        }, null, false);
     }
     client_1.closeServer = closeServer;
     function getServiceURL(params) {

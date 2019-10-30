@@ -77,7 +77,23 @@ namespace egret.sys {
         /**
          * 顶点索引。
          */
-        public bounds:Rectangle = new Rectangle();;
+        public bounds:Rectangle = new Rectangle();
+        /**
+         * 使用的混合模式
+         */
+        public blendMode: number = null;
+        /**
+         * 相对透明度
+         */
+        public alpha: number = NaN;
+        /**
+         * 颜色变换滤镜
+         */
+        public filter: ColorMatrixFilter = null;
+        /**
+         * 翻转
+         */
+        public rotated: boolean = false;
         /**
          * 绘制一次位图
          */
@@ -88,7 +104,7 @@ namespace egret.sys {
         }
 
         /**
-         * 在显示对象的$render()方法被调用前，自动清空自身的drawData数据。
+         * 在显示对象的$updateRenderNode()方法被调用前，自动清空自身的drawData数据。
          */
         public cleanBeforeRender():void{
             super.cleanBeforeRender();

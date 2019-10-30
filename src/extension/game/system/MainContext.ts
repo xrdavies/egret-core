@@ -78,7 +78,7 @@ namespace egret {
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public get stage():Stage {
+        public get stage(): Stage {
             return egret.sys.$TempStage;
         }
 
@@ -86,43 +86,43 @@ namespace egret {
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public static deviceType:string = null;
+        public static deviceType: string = null;
 
         /**
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public static DEVICE_PC:string = "web";
+        public static DEVICE_PC: string = "web";
         /**
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public static DEVICE_MOBILE:string = "native";
+        public static DEVICE_MOBILE: string = "native";
 
 
-        /**
-         * @private
-         */
-        public static _runtimeType:string;
+        // /**
+        //  * @private
+        //  */
+        // public static _runtimeType:string;
 
-        /**
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        public static get runtimeType():string {
-            egret.$warn(1041, "egret.MainContext.runtimeType", "egret.Capabilities.runtimeType");
-            return MainContext._runtimeType;
-        }
-        /**
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        public static RUNTIME_HTML5:string = "runtimeHtml5";
-        /**
-         * @version Egret 2.4
-         * @platform Web,Native
-         */
-        public static RUNTIME_NATIVE:string = "runtimeNative";
+        // /**
+        //  * @version Egret 2.4
+        //  * @platform Web,Native
+        //  */
+        // public static get runtimeType():string {
+        //     egret.$warn(1041, "egret.MainContext.runtimeType", "egret.Capabilities.runtimeType");
+        //     return MainContext._runtimeType;
+        // }
+        // /**
+        //  * @version Egret 2.4
+        //  * @platform Web,Native
+        //  */
+        // public static RUNTIME_HTML5:string = "runtimeHtml5";
+        // /**
+        //  * @version Egret 2.4
+        //  * @platform Web,Native
+        //  */
+        // public static RUNTIME_NATIVE:string = "runtimeNative";
 
 
 
@@ -132,13 +132,13 @@ namespace egret {
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public run() {
-        }
+        // public run() {
+        // }
 
         /**
          * @private
          */
-        private static _instance:egret.MainContext;
+        private static _instance: egret.MainContext;
 
         /**
          * @method egret.Ticker.getInstance
@@ -146,7 +146,7 @@ namespace egret {
          * @version Egret 2.4
          * @platform Web,Native
          */
-        public static get instance():egret.MainContext {
+        public static get instance(): egret.MainContext {
             if (MainContext._instance == null) {
                 MainContext._instance = new MainContext();
             }
@@ -154,28 +154,16 @@ namespace egret {
         }
     }
 }
+
 /**
  * @private
  */
-let testDeviceType1 = function () {
-    if (!this["navigator"]) {
-        return true
+egret["testDeviceType1"] = function () {
+    if (!window["navigator"] || !navigator) {
+        return true;
     }
     let ua = navigator.userAgent.toLowerCase();
     return (ua.indexOf('mobile') != -1 || ua.indexOf('android') != -1);
 };
-/**
- * @private
- */
-let testRuntimeType1 = function () {
-    if (this["navigator"]) {
-        return true;
-    }
-    return false;
-};
-
-egret.MainContext.deviceType = testDeviceType1() ? egret.MainContext.DEVICE_MOBILE : egret.MainContext.DEVICE_PC;
-egret.MainContext._runtimeType = testRuntimeType1() ? egret.MainContext.RUNTIME_HTML5 : egret.MainContext.RUNTIME_NATIVE;
-
-delete testDeviceType1;
-delete testRuntimeType1;
+egret.MainContext.deviceType = egret["testDeviceType1"]() ? egret.MainContext.DEVICE_MOBILE : egret.MainContext.DEVICE_PC;
+delete egret["testDeviceType1"];

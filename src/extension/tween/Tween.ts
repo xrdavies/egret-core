@@ -292,7 +292,7 @@ namespace egret {
                 tweens.push(tween);
                 if (!Tween._inited) {
                     Tween._lastTime = egret.getTimer();
-                    sys.$ticker.$startTick(Tween.tick, null);
+                    ticker.$startTick(Tween.tick, null);
                     Tween._inited = true;
                 }
             } else {
@@ -326,7 +326,7 @@ namespace egret {
             for (let i = 0, l = tweens.length; i < l; i++) {
                 let tween: Tween = tweens[i];
                 tween.paused = true;
-                tween._target.tweenjs_count = 0;
+                tween._target.tween_count = 0;
             }
             tweens.length = 0;
         }

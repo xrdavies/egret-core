@@ -3,16 +3,6 @@ import file = require('../lib/FileUtil');
 import ts = require("../lib/typescript-plus/lib/typescript");
 import * as path from 'path';
 
-interface CompileOption {
-    args: egret.ToolArgs;
-    files?: string[];
-    out?: string;
-    outDir?: string;
-    def?: boolean;
-    forSortFile?: boolean;
-    debug?: boolean;
-}
-
 export interface EgretCompilerHost {
     program: ts.Program;
     files?: string[];
@@ -94,13 +84,15 @@ export class Compiler {
                 msg = `  Error: ${message}`;
             }
             console.log(msg);
-            this.errors.push(msg);
+            if (this.errors.length < 100) {
+                this.errors.push(msg);
+            }
         });
     }
 
     private fileNames: Array<string>;
 
-    private compileWithChanges(filesChanged: egret.FileChanges, sourceMap?: boolean): EgretCompilerHost {
+    compileWithChanges(filesChanged: egret.FileChanges, sourceMap?: boolean): EgretCompilerHost {
         this.errors = [];
         changedFileNames = [];
         let hasAddOrRemoved = false;
@@ -128,7 +120,7 @@ export class Compiler {
 
     private doCompile(): EgretCompilerHost {
         cachedExistingFiles = utils.createMap<boolean>();
-        this.program = ts.createProgram(this.fileNames, this.options, compilerHost);
+        this.program = ts.createProgram(this.fileNames.concat(), this.options, compilerHost);
         this.sortFiles();
         let emitResult = this.program.emit();
         this.logErrors(emitResult.diagnostics);
@@ -160,22 +152,12 @@ export class Compiler {
         }
 
         let notSupport = ["module", "noLib", "rootDir", "out"];
-        let defaultSupport = { target: "es5", outDir: "bin-debug" };
         let compilerOptions = configObj.compilerOptions;
         for (let optionName of notSupport) {
             if (compilerOptions.hasOwnProperty(optionName)) {
                 var error = utils.tr(1116, optionName);//这个编译选项目前不支持修改
                 console.log(error);//build -e 的时候输出
                 delete compilerOptions[optionName];
-            }
-        }
-        for (let optionName in defaultSupport) {
-            if (compilerOptions[optionName] != defaultSupport[optionName]) {
-                if (compilerOptions[optionName]) {
-                    var error = utils.tr(1116, optionName);
-                    console.log(`${error} 将被调整为'${defaultSupport[optionName]}'`)
-                }
-                compilerOptions[optionName] = defaultSupport[optionName];
             }
         }
 
